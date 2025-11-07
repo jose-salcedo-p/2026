@@ -1,9 +1,7 @@
 ---
 layout: distill
-title: Performative Prediction
-description: Your blog post's abstract.
-  Please add your abstract or summary here and not in the main body of your text.
-  Do not include math/latex or hyperlinks.
+title: Performative Prediction made practical
+description: Performative Prediction studies the distribution shift in the data caused by deploying a model. The main body of literature on performative prediction has been theoretical, they mostly find convergence guarantees of optimization algorithms in the performative predition set-up. Inspired by other fields like deep learning, we believe that visualization can give practical information that complements the theoretical advances of the field. To this end, in this blogpost, we introduce a simple visualization technique, which allows to redefine the interest points and shed light into the optimization process. 
 date: 2026-04-27
 future: true
 htmlwidgets: true
@@ -53,7 +51,7 @@ toc:
     subsections:
       - name: Visualizing the risks
   - name: Interest points of performative prediction
-  - name: How to reach them?
+  - name: How to reach them? Optimization algorithms in performative prediction
   - name: Conclusion
   - name: Equations
   - name: Images and Figures
@@ -91,17 +89,25 @@ Note: please use the table of contents as defined in the front matter rather tha
 
 ## Deployed model = Happy ML Engineer?
 
-You are a machine learning engineer and you work for a bank. You create a model to predict the default risk of applicants. Your model works very well on your test set. The company decides to deploy your model, making you worry about performance in the real-world. However, these are unfounded fears: your model works well the following weeks after deployment. Everyone congratulates you and you are satisfied because you did your work well.
+You are a machine learning engineer working at a bank. You build a model to predict whether a loan applicant is likely to default. The model performs extremely well on your test set. The company deploys it, and in the first weeks everything looks great — the model performs just as expected. You receive congratulations, and you feel proud of a job well done.
 
-But… after some time, you realize that the model is not performing as well anymore. Repeat applicants have changed their financial characteristics to have a higher chance of getting the loan. These reapplicants have learned to “game” your model. New applicants do not follow the training distribution anymore. The very deployment of your model has triggered a distribution shift in the data!
+But… a few months later, performance starts to drop. Repeat applicants have begun adjusting their financial profiles just enough to get approved. They have learned how to game your model. As a result, the new applicants your system sees no longer resemble those in your training data. Simply by deploying your model, you have changed the data distribution. In other words, **your model has triggered a distribution shift**.
 
-Once an ML model is deployed, it undoubtedly has an effect in the real world. This effect has been largely overlooked in Machine Learning, as model deployment is often the final step that the ML engineer is involed in. But if you want your model to work in practice, you need to take these effects into account.
+Once an ML model is deployed, it undoubtedly has an effect in the real world. Yet, this effect has been largely overlooked in Machine Learning, as deployment is often the _final_ step of the ML pipeline. If we want models to perform reliably in practice, we must take those post-deployment effects into account.
 
-Scenarios like the one described above have been formalized in the field of <em>performative prediction</em><d-cite key="perdomo2020performative"></d-cite>. Performative Prediction studies when deploying a model causes a distribution shift in the data. Let $$\theta$$ be the model parameters <d-footnote>Thought the text, we will use $\theta$ to refer both the model parameters and the model itself.</d-footnote>. PP literature studies this effect as a dependency of the data distribution on $$\theta$$ through a <em>distribution map</em>, $$\mathcal{D}(\theta)$$, a function from the set of model parameters to the space of data distributions. For a given model, $$\mathcal{D}(\theta)$$ gives the data distribution induced by the model parameters $$\theta$$. 
+This scenario has been formalized in the field of <em>performative prediction</em><d-cite key="perdomo2020performative"></d-cite>. Performative prediction studies situations in which deploying a model changes the data on which the model will later be evaluated. Let $$\theta$$ be the model parameters <d-footnote>Thought the text, we will use $\theta$ to refer both the model parameters and the model itself.</d-footnote>. PP literature studies this effect as a dependency of the data distribution on $$\theta$$ through a <em>distribution map</em>, $$\mathcal{D}(\theta)$$, a function from the set of model parameters to the space of data distributions. For a given model, $$\mathcal{D}(\theta)$$ gives the data distribution induced by the model parameters $$\theta$$. 
 
 The following diagram illustrates the conceptual differences between traditional Machine Learning and Performative Prediction. On the left-hand side, we have the situation in the typical ML setup: there is a fixed data distribution $$\mathcal{D}$$ on which we train our model $$\theta$$. On the right-hand side, we have the performative prediction setup: the distribution map $$\mathcal{D}(\theta)$$ defines a data distribution on which we train our model $$\theta$$, but in turn, the model parameters affect the data distribution.
 
 {% include figure.liquid path="assets/img/2026-04-27-performative-prediction/ML vs PP.svg" class="img-fluid" %}
+
+Despite being motivated by real-world deployment, much of the performative prediction literature is highly theoretical. This can be surprising, since the setting is intrinsically practical — it is concerned with what happens after a model is put into production. Another consequence of this is that although performative prediction is now well recognized as a framework for studying the effects of deployment, its technical details remain relatively inaccessible to the broader ML community. 
+
+The aim of this blog post is to introduce simple visualization techniques that make performative prediction research more accesible. Our goals are twofold:
+1. to provide a clearer and more approachable explanation of the core technical ideas.
+2. to help develop practical insights that can be used in practical research. 
+
+## Performative Prediction as a two-step iterative process
 
 In order to formalize this feedback loop between the model and the data distribution, we describe it as an iterative process, which is shown in the following diagram. Before the process begins, we have an initial data distribution $$\mathcal{D}_0$$, on which the first model $$\theta^{(0)}$$ is trained. From the first model, we get the initial distribution $$\mathcal{D}(\theta^{(0)})$$, the data distribution induced by the model parameters $$\theta^{(0)}$$. At each subsequent time step, we obtain a model $$\theta^{(t+1)}$$ trained on the data distribution $$\mathcal{D}(\theta^{(t)})$$ (see section XX for more information on the optimization algorithms). And then, the model is deployed, which causes a new distribution shift to $$\mathcal{D}(\theta^{(t+1)})$$. This distribution shift is automatic and happens because of the mere deployment of the model:
 
@@ -109,7 +115,7 @@ In order to formalize this feedback loop between the model and the data distribu
 
 The fact that the environment reacts to our model makes it difficult to evaluate the performance of the model. In the traditional ML setup, we can measure the performance of a model on a fixed data distribution, but we cannot do this in the performative prediction setup.
 
-## How to measure performance of the model then?
+### How to measure performance of the model then?
 
 In Performative Prediction, evaluating a model’s performance requires acknowledging that the data distribution depends on the model itself. Thus, when the model is updated from $\theta^{(t)}$ to $\theta^{(t+1)}$, we need to measure two different risks: the risk of the updated model $\theta^{(t+1)}$ under the previous distribution $\mathcal{D}(\theta^{(t)})$ (i.e., the distribution before deployment), and the risk of the same model $\theta^{(t+1)}$ under the new distribution $\mathcal{D}(\theta^{(t+1)})$ (i.e., the distribution after it reacts to. The <em>decoupled performative risk</em> will allow us to do both. For the sake of clarity, we will introduce the notation $$\theta_M$$ to refer to the parameters of the model we want to evaluate and $$\theta_D$$ to refer to the parameters of the the model that defines the data distribution.
 
@@ -125,18 +131,29 @@ $$ \mathcal{PR}(\theta) := \mathcal{DPR}(\theta, \theta) = \mathbb{E}_{(x,y) \si
 
 The performative risk captures the risk after the automatic distribution shift due to model deployment, so after some time the risk will no longer be $$\mathcal{DPR}(\theta^{(t)}, \theta^{(t+1)})$$ but $$\mathcal{PR}(\theta^{(t+1)})$$. Note that compared to the risk in the traditional ML setup, in the performative risk the data distribution is not fixed but depends on $$\theta$$.
 
+**Replace this figure with the interactive figure**
+
 {% include figure.liquid path="assets/img/2026-04-27-performative-prediction/Line Plot.svg" class="img-fluid" %}
 
 ### Visualizing the decoupled risk 
 
-Therefore, distribution shift in PP occurs only after deployment. As a result, the performative risk is not a valid evaluation metric immediately after optimization. This is because it reflects the expected loss on a distribution that the model itself induces. To have a full understanding of the optimization landscape, we need to take then a look beyond the performative risk. The decoupled risk serves as a good vizualization technique.
+In this blogpost, we introduce a simple visualization technique based on decoupling the predictive model, $\theta_M$, from the model that the distribution reacts to, $\theta_D$, which is used as input for the distribution map: $\mathcal{D}(\theta_D)$. Recall on of the main problems treated when measuring the performance, the distribution shift in PP occurs only after deployment. As a result, the performative risk is not a valid evaluation metric immediately after optimization. This is because it reflects the expected loss on a distribution that the model itself induces. To have a full understanding of the optimization landscape, we need to take then a look beyond the performative risk. Thoughout this blogpost, we use this visualization to gain insights into questions like: what are the practical differences between an stable and optimal point? How do certain algorithm converge? Or what happens if assumptions are not met?
+
+Nevertheless, before introducing the visualization, let us introduce a guiding example: now imagine that you are a ML engineer in a retailer company in charge of training a model that sets the price of the products. The price of the products will undoubtedly affect the demand of the customers to buy the product. Thus, it is useful to formalize this problem as <em>performative prediction</em>.
+
+Let's consider the <em>simplified</em> version of this problem introduced by Izzo et al. <d-cite key="izzo2021learn"></d-cite>: let $\theta \in \mathbb{R}$ be the price of $d$ products and $z \in \mathbb{R}$ be the demand of the costumers on buying that individual product. The price of the product affects the demand of that product by $\mathcal{D} = \mathcal{N}(\mu_o - \varepsilon\theta; \Sigma)$, i.e. the demand linearly decreases as the price increases. The retail company is interested maximizing their total revenue ($\theta^T z$), the performative risk is:
+
+$$ PR_{pricing}(\theta) = \mathbb{E}_{z \sim \mathcal{D}(\theta)}[-\theta^T z] $$
+
+Note here that $l(z;\theta) = -\theta^T z$, therefore we do not have explicitly a model. This simplification can be done without loss of generality and greatly improves understanding. 
 
 
 Note that the performative risk is the section of the plane where $$\theta_M=\theta_D$$. 
 
-Now it's easier the two step process!
+**Add the second interactive figure**
 
-Javi: add a figure that compares the performative risk with the decoupled risk. and obtains the previuos plot
+
+**Now it's easier to see the two step process!**
 
 ## Interest points of performative prediction
       
@@ -148,45 +165,104 @@ However, this solution is not optimal for the closed-loop interaction between th
 
 $$ \theta_{OP} = \operatorname*{argmin}_{\theta} \mathcal{PR}(\theta) = \operatorname*{argmin}_{\theta} \mathbb{E}_{(x,y)\sim \mathcal{D}(\theta)}[\ell(\theta, x, y)] $$
 
+### The new visualization allows a redefinition of the interest points
+
 {% include figure.liquid path="assets/img/2026-04-27-performative-prediction/optimal_stable.svg" class="img-fluid" %}
 
-Figure xx shows the stable and optimal points in the decoupled risk landscape visualization. We can redefine stable and optimal points based on the visualization.  Keep in mind that both points lie in the $\theta_M=\theta_D=\theta$ section of the decoupled risk landscape.
+Figure xx shows the stable and optimal points in the decoupled risk landscape visualization. We can redefine stable and optimal points based on the visualization. Keep in mind that both points lie in the $\theta_M=\theta_D=\theta$ section of the decoupled risk landscape.
 
-Add propositions. 
+**Proposition 1.** _If_ $\theta_{ST}$ _is a stable point of the performative risk_ $PR(\theta)$, _then_
 
-We argue that this redefinitions (or a relaxation of them) can be found useful when practically analysing realistic scenarios in PP. 
+$$\nabla_M\,\mathit{DR}(\theta_\mathit{ST}, \theta_\mathit{ST}) = 0~.$$
 
-## How to reach them?
+**Proposition 2.** _If_ $PR(\theta)$ _is strictly convex, then_ $\theta_{OP}$ _is an optimal point of the performative risk_ $PR(\theta)$ _if and only if_
 
-The performative prediction literature started out by focusing on how to find <em>the stable solution</em>, as it is more mathematically tractable. The first algorithms were based on retraining the model. The process of these algorithms can be summarized as:
+$$\nabla_M\,\mathit{DR}(\theta_\mathit{OP}, \theta_\mathit{OP})
+    + \nabla_D\,\mathit{DR}(\theta_\mathit{OP}, \theta_\mathit{OP}) = 0~.$$
+
+We argue that this redefinitions (or a relaxation of them) can be found useful when practically analysing realistic scenarios in PP. In fact, a relaxation of **Proposition 1** has been considered to prove the convergence of stochastic optimization algorithm for non-convex loss functions $l(\theta, x, y)$<d-cite key="li2024stochastic"></d-cite>. 
+
+## How to reach them? Optimization in performative prediction
+### Algorithms that converge to the stable point
+
+The performative prediction literature started out by focusing on how to find <em>the stable solution</em>, as it is more mathematically tractable. The first algorithms were based on _just_ retraining the model after sampling from the new distribution. The process of these algorithms can be summarized as:
 
 1. Get the data samples of the distribution induced by $$\theta^{(t)}$$: $$ (x,y)\sim \mathcal{D}(\theta^{(t)})$$
 2. Train the model on those data samples: $$\theta^{(t)} \rightarrow \theta^{(t+1)}$$
 3. Deploy the model, causing a new distribution shift: $$\mathcal{D}(\theta^{(t)}) \rightarrow \mathcal{D}(\theta^{(t+1)})$$
 
-If the model is fully optimized at each step, we call this algorithm <em>Repeated Risk Minimization</em> (RRM): if only one optimizer step is performed, we call it <em>Repeated Gradient Descent</em> (RGD) and if it is several gradient steps, we call it k-greedy RGD.
+If the model is fully optimized at each step, the algorithm us called <em>Repeated Risk Minimization</em> (RRM). Whereas if only one optimizer step is performed, we call it <em>Repeated Gradient Descent</em> (RGD).
 
-The convergence guarantees of these algorithms to the stable point rely on the convexity of the loss function $$\ell(\theta, x, y)$$ with respect of the model parameters $$\theta$$ and on the sensitivity of the distribution map, $$\mathcal{D}(\theta)$$, with respect to the model parameters, $$\theta$$, i.e. a small change in the parameters will give a similar distribution map. It is quite intuitive to see why these are needed assumptions: if the loss is convex and the distribution shift is small, the new loss will be also convex. Nevertheless, these are very uncommon in practice, a convex loss is rare and the distribution map is only sensitive if the performative effects are small.  
+The convergence guarantees of these algorithms to the stable point rely on the convexity of the loss function $$\ell(\theta, x, y)$$ with respect of the model parameters $$\theta$$ and on the sensitivity of the distribution map, $$\mathcal{D}(\theta)$$, with respect to the model parameters, $$\theta$$, i.e. a small change in the parameters will give a similar distribution map ($\mathcal{W}(\mathcal{D}(\theta_1), \mathcal{D}(\theta_2)) \le \| \theta_1 - \theta_2\|^2$, where $\mathcal{W}(\cdot, \cdot)$ is the Wasserstein distance of two distributions).
 
-Note that these algorithms do not use the information of the distribution map when training the model. They just use the data sampled from the shifted distribution. This distribution is considered to be static. Although it is very easy to apply them in practice (wait until the distribution shifts, observe new data samples and retrain), it takes many steps to converge and does not find the optimal solution, as it does not use the information of the distribution map while training the model. In these initial algorithms, the only guarantee to optimality is that the stable point might lie close to the optimal point under certain conditions, which cannot be checked in practice.
+With our visualization, it is quite intuitive to see why these are needed assumptions: if the loss is convex and the distribution shift is small, the new loss will be also convex. Nevertheless, these are very uncommon in practice, a convex loss is rare and the distribution map is only sensitive if the performative effects are small.  
+
+Note that these algorithms do not use the information of the distribution map when training the model. They just use the data sampled from the shifted distribution. This distribution is considered to be static. Although it is very easy to apply them in practice (wait until the distribution shifts, observe new data samples and retrain), they do not find the optimal solution, as they do not use the information of the distribution map while training the model. In these initial algorithms, the only guarantee to optimality is that the stable point might lie close to the optimal point under certain conditions, which cannot be checked in practice.
+
+### Algorithms that converge to the optimal point
 
 Later, the literature started focusing on how to find the optimal solution directly. The most immidiate idea is to apply gradient descent to the performative risk — Performative Gradient Descent (PerfGD). The key step here is to calculate the performative gradient:
 
 $$ \nabla_{\theta} PR(\theta) = \nabla_{\theta} \mathbb{E}_{(x,y) \sim \mathcal{D}(\theta)} [\ell(\theta, x, y)]~. $$ 
       
-This gradient is difficult to calculate due to the dependency of the data distribution on the model parameters. (When finding the stable point, one need only to calculate $$\mathbb{E}_{(x,y) \sim \mathcal{D}(\theta)} [ \nabla_{\theta} \ell(\theta, x, y)]$$; that is why it is more mathematically tractable.) Two possibilities have been proposed: REINFORCE<d-cite key="izzo2021learn"></d-cite> and the reparametrization trick<d-cite key="cyffers2024optimal"></d-cite>.
+This gradient is difficult to calculate due to the dependency of the data distribution on the model parameters<d-footnote>When finding the stable point, one need only to calculate $$\mathbb{E}_{(x,y) \sim \mathcal{D}(\theta)} [ \nabla_{\theta} \ell(\theta, x, y)]$$ because the distribution is considered static; that is why it is more mathematically tractable.</d-footnote>.
 
-{% include figure.liquid path="assets/img/2026-04-27-performative-prediction/viz_mixture.svg" class="img-fluid" %}
+Two possibilities have been proposed<d-footnote>As both $x$, $y$ can be changed due to the dristibution map, we consider the notation $z=(x,y)$ from now on.</d-footnote>: 
+
+1. REINFORCE<d-cite key="izzo2021learn"></d-cite>: uses the fact that the gradient of the likelihood of a random variable is (approximately)  the same as the likihood times the gradient of the log likelihood $\nabla_{\theta} p_{\theta}(z) \approx p_{\theta}(z)\nabla_{\theta}\log p_{\theta}(z)$. 
+
+$$
+\begin{align}
+ \nabla_\theta PR(\theta) &= \nabla_\theta \int \ell(z;\theta) p_{\mathcal{D}(\theta)}(z) dz \nonumber \\
+&= \int \frac{\partial \ell(z;\theta)}{\partial \theta}   p_{\mathcal{D}(\theta)}(z)dz + \int  \ell(z;\theta)  \frac{\partial p_{\mathcal{D}(\theta)}(z)}{\partial \theta}dz\nonumber\\
+& = \int \frac{\partial \ell(z;\theta)}{\partial \theta}   p_{\mathcal{D}(\theta)}(z)dz + \int  \ell(z;\theta)   \frac{\partial \log p_{\mathcal{D}(\theta)}(z)}{\partial \theta} p_{\mathcal{D}(\theta)}(z)dz \nonumber \\
+&=\mathbb{E}_{z \sim \mathcal{D}(\theta)} \left[\frac{\partial \ell(z; \theta)}{\partial \theta} \right] + \mathbb{E}_{z \sim \mathcal{D}(\theta)} \left[ \ell(z; \theta)\frac{\partial \log p_{\mathcal{D}(\theta)}(z)}{\partial \theta} \right] \nonumber\\
+&=\mathbb{E}_{z \sim \mathcal{D}(\theta)} \left[\frac{\partial \ell(z; \theta)}{\partial \theta} + \ell(z; \theta)\frac{\partial \log p_{\mathcal{D}(\theta)}(z)}{\partial \theta} \right] 
+\end{align}
+$$
+2. Reparametrization trick<d-cite key="cyffers2024optimal"></d-cite>: uses a deterministic function that is dependent in a base distribution and encodes the transformation caused by the parameter. Therefore, the expectation depends on the base-distribution only. In the case of PP, this is achievable by defining a base distribution \(\mathcal{D}(\theta)\) that captures the samples before performativity and push-forward model that defines the transformation of each sample due to performativity $z = \varphi(z_o, \theta)$. We can then use the multivariate chain rule to calculate the performative gradient
+
+$$ 
+  \begin{align}
+      \nabla_\theta PR(\theta) &= \nabla_\theta \mathbb{E}_{z \sim \mathcal{D}(\theta)} \big[ \ell(z; \theta)\big] \nonumber \\
+    & = \nabla_\theta \mathbb{E}_{z_o \sim \mathcal{D}_o} \big[ \ell(\varphi(z_o, \theta); \theta)\big] \nonumber \\
+    &=  \mathbb{E}_{z_o \sim \mathcal{D}_o} \Big[ \nabla_\theta \ell(\varphi(z_o, \theta); \theta)\Big] \nonumber \\
+    & = \mathbb{E}_{z_0 \sim \mathcal{D}_0} \left[ \left.\frac{\partial \ell(z; \theta)}{\partial \theta}\right|_{z=\varphi(z_0; \theta)}  + \left.\frac{\partial \ell(z; \theta)}{\partial z}\right|_{z=\varphi(z_0; \theta)} \frac{\partial \varphi(z_0;\theta)}{\partial \theta} \right]
+  \end{align} 
+$$
+
+### Visualization of the algorithms in the decoupled risk landscape
+
+The figure shows the convergence of the different algorithms for the pricing example in the decoupled risk landscape. Due to the two-step iterative process, the training of the model, happens in the vertical sections of the plane (where $\theta_D$ is fixed) and the deployment of the distribution shift brings the process back to the performative risk diagonal. Note that the performative risk can **never** be optimized directly due to the formalization of the problem - the distribution shif only happens _after_ model deployment. We have kept the colors of previous visualizations to facilitate this interpretation.
+
+{% include figure.liquid path="assets/img/2026-04-27-performative-prediction/viz_pricing.svg" class="img-fluid" %}
+
+## Some _more practical_ examples
+
+One of the biggest assumptions for convergence of the performative prediction algorithms is convexity of the loss function $l(\theta,x,y)$ with respect to the model weights<d-footnote>As far as we are concerned, there is only one work considering convergence to non-convex losses in performative prediction. They prove convergence to a relaxation of our redefinition of the stable point.<d-footnote>. Nevertheless, this setup is not realistic at all. Specially in modern state-of-the-art deep learning model, where the loss landscape is multidimensional and non-convex. Typically in this setups, the focus is shifted from convergence to the global mimum to finding solutions that perform well. We believe that this is the right direction from performative prediction if we want to add practically to the field. In that sense, our redefinition of the stable and optimal points can be used as a metric to know if a good solutions were found.
+
+Let's extend the pricing example to $d=100$ products. Now, $\theta, z \in \mathbb{D}^d$. 
+
+
+
+Let's also consider the bank loan example. 
+
+## Discussion
+
+Say why this work is very relevant
+
+The experiments of the previous section were able to be performed because we had some information about the distribution map $\mathcal{D}(\theta)$. Remember that performative prediction is a two-step iterative process, model training and distribution shift and that to converge to the *more interesting* optimal point you need information about the distribution map. Most of performative prediction works have focused on the first step of the process, giving algorithms to solve training in the performative prediction setup. They either consider that (1) the distribution map is known (2) the distribution map can be estimated from samples. The main limitation of the performative prediction field to be practical is that in realistic examples, we would have small information about the distribution shift and estimate it from samples is difficult. Once a model is deployed, it is locked in, you cannot change it and deploying several models in different populations just to obtain sufficient samples to estimate the distribution map is highly unethical.  
+
+Think again about the bank example. Now your model is used to clasify the risk of default on applicants. Based on this classification the bank decides wheter to give (or not) the loan and the interest rates (higher to those with high default risk). It is obvious that the interest rate will affect the capacity of the loaner to give back the credit. This setup is called outcome performativity <d-cite key="kim2023making"></d-cite>, as the prediction $\hat{y}$ affects the final outcome $y$ the but not the original samples $x$. It is obvious that there exist more chances of collecting and using dataset with this setup. In fact, we believe that the field of performative prediction has more chances to do practical research when considering outcome performativity, as the limitations discussed in the previous paragraphs are avoided. 
+
+
+
 
 ## Conclusion
 
 Now imagine you are a machine learning engineer working in the company of your dreams. You have been hired some time ago and you are excited because you worked on the next big thing. The soon-to-be-released model that works amazingly well in your test sets — AGI is just around the corner! But… have you considered the effects that this model will have on the data distribution? If the internet is populated with text and images created by your model… you might not be able to train the next model.
 
 And it seems that retraining is not enough…
-
-## Some thoughts about the practicallity of the field
-
-
 
 ## Equations
 
