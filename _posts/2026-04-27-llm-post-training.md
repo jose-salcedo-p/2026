@@ -1,6 +1,6 @@
 ---
 layout: distill
-title: From REINFORCE to Dr. GRPO
+title: "From REINFORCE to Dr. GRPO: A Unified Perspective on LLM Post-Training"
 description: Recently, many reinforcement learning (RL) algorithms have been applied to improve the post-training of large language models (LLMs). In this article, we aim to provide a unified perspective on the objectives of these RL algorithms, exploring how they relate to each other through the Policy Gradient Theorem — the fundamental theorem of policy gradient methods.
 date: 2026-04-27
 future: true
@@ -26,7 +26,7 @@ authors:
 #       name: IAS, Princeton
 
 # must be the exact same name as your blogpost
-bibliography: 2026-04-27-ll-post-training.bib
+bibliography: 2026-04-27-llm-post-training.bib
 
 # Add a table of contents to your post.
 #   - make sure that TOC names match the actual section names
@@ -231,7 +231,7 @@ Note that in this case, the baseline does not bias the gradient estimation (see 
 Unlike ReMax which samples a greedy trajectory to compute the baseline, REINFORCE Leave-One-Out (RLOO) <d-cite key="kool2019buy"></d-cite> <d-cite key="ahmadian2024back"></d-cite> eliminates the need for $$V_{\pi_{\theta}}(s_t)$$ at each time-step $$t$$ by replacing it with the expected return over multiple trajectories sampled on the fly.
 **However, not all RL tasks allow multiple trajectory sampling from the same state $$s_t$$. If an environment does not permit action resampling, RLOO cannot be applied. Luckily, in LLM post-training, the agent has significant control over transitions (i.e., $$s_{t+1} = s_t  \mid  a_t$$), enabling multiple trajectory sampling and making RLOO a viable approach.**
 
-Specifically, at each time-step $$t$$, we sample $$K$$ trajectories $$\{ \tau_{1,t}, \dots, \tau_{K,t} \}$$ **starting from $$s_t$$**; and the corresponding returns are $$G_{1,t}, \dots, G_{K,t}$$, respectively.
+Specifically, at each time-step $$t$$, we sample $$K$$ trajectories $$\{ \tau_{1,t}, \dots, \tau_{K,t} \}$$ **starting from $$s_t$$**; and the corresponding returns are $$\{ G_{1,t}, \dots, G_{K,t} \}$$, respectively.
 One may think we can simply replace $$V_{\pi_{\theta}}(s_t)$$ with a baseline $$\frac{1}{K} \sum_{i=1}^{K} G_{i,t}$$:
 
 $$
@@ -435,7 +435,7 @@ In fact, GRPO objective is biased, as pointed out in the Dr. GRPO paper <d-cite 
 
 Specifically, there are three biases in GRPO objective:
 
-{% include figure.liquid path="assets/img/2026-04-27-ll-post-training/grpo.png" class="img-fluid" %}
+{% include figure.liquid path="assets/img/2026-04-27-llm-post-training/grpo.png" class="img-fluid" %}
 
 1. *Baseline bias*: This is caused by using a biased baseline without correcting the scaling factor (see Equation (14)). When using $$\mathbb{E}[r_k]$$ as the baseline, we should use a scaling factor of $$\frac{1}{K-1}$$, instead of $$\frac{1}{K}$$.
 
