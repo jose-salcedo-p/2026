@@ -99,8 +99,8 @@ characteristic weekly oscillations (Figure 1).
   <strong>Figure 1:</strong> SIR model with weekend reporting delay.
   <strong>A</strong>: Schematic SIR model and misspecification: a fraction α of weekend infections is reported on Monday.
   <strong>B</strong>: Example epidemic trajectory showing true S, I, R curves and observed infections with a weekend delay.
-  <strong>C</strong>: SBI posterior samples for $(\beta, \gamma)$ for clean data (α = 0%, blue) and misspecified data (α=30%, orange), with true parameters marked.
-  <strong>D</strong>: Posterior predictive checks for both cases, illustrating how misspecification shifts and distorts the inferred dynamics. Results generated using the `sbi` package and specificatins from Cannon et al..
+  <strong>C</strong>: SBI posterior samples for $(\beta, \gamma)$ for clean data (α = 0%, blue) and misspecified data (α=20%, orange), with true parameters marked.
+  <strong>D</strong>: Posterior predictive checks for both cases, illustrating how misspecification shifts and distorts the inferred dynamics. Results generated using the [sbi](https://sbi.readthedocs.io/en/latest/)<d-cite key="boelts_sbi_2025"></d-cite> package and specificatins from Cannon et al..
 </div>
 
 To infer infection parameters from observed data, a common SBI approach would be using
