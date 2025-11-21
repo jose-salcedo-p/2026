@@ -40,25 +40,28 @@ bibliography: 2026-04-27-wait-do-we-need-to-wait.bib
 toc:
   - name: What is Budget Forcing And How Does It Work?
     subsections:
-      - name: A Very Brief Introduction to Test-Time Scaling
-      - name: Budget Forcing - Forcing The Model To Think Within The Budget
-      - name: Scaling Up
-      - name: Scaling Down
+    - name: A Very Brief Introduction to Test-Time Scaling
+    - name: "Budget Forcing: Forcing The Model To Think Within The Budget"
+    - name: Scaling Up
+    - name: Scaling Down
   - name: What People Say About Budget Forcing?
-  - name: Let's Test It With More Models
     subsections:
-      - name: Not All Reasoning Model Are Created The Same Way
-      - name: Results - Zero-shot (CoT) vs CoT + Budget Forcing
-      - name: Linear Scaling…Is It?
-      - name: Why This Might Happen?
-  - name: Wait, Budget Forcing Works With Non-Reasoning Model!?…or Not?
+    - name: Studies Suggesting Benefits from Budget Forcing
+    - name: Evidence Challenging Budget Forcing
+  - name: Testing It With More Models
     subsections:
-      - name: Results - Qwen2.5 7B Instruct
-      - name: How About Other Model Families?
-  - name: Wait, You Don't Need to Wait?
+    - name: Not All Reasoning Models Are Created The Same Way
+    - name: Comparing Zero-shot CoT and Budget Forcing Results
+    - name: Is Linear Scaling Real?
+    - name: Why This Might Happen?
+  - name: Budget Forcing Works With Non-Reasoning Models? Or Not?
     subsections:
-      - name: Keyword Selection
-      - name: "\"Let\" Try Other Keywords — \"Perhaps\" We'll Get Interesting Results"
+    - name: Results with Qwen2.5 7B Instruct
+    - name: How About Other Model Families?
+  - name: Wait, You Do Not Need to Wait?
+    subsections:
+    - name: Keyword Selection
+    - name: "Let Us Try Other Keywords: Perhaps We Will Get Interesting Results"
   - name: Summary
   - name: Limitations
 
@@ -222,7 +225,7 @@ Broadly speaking, test-time scaling methods fall into three categories: **seque
 - **Parallel test-time scaling** is based on a different idea. Sampling from a language model is like sampling from a probability distribution. The model might "know" the correct answer, but it might not appear in the first sample. So instead of continuing one generation, we **sample multiple times**, and then pick either the most confident or the highest-quality output (for example, using a majority vote or a grader model).
 - **Hybrid approaches** mix both ideas. For instance, we might extend the reasoning sequence (sequential), but at each extension step sample multiple continuations and pick the best one to append.
 
-### Budget Forcing - Forcing The Model To Think Within The Budget
+### Budget Forcing: Forcing The Model To Think Within The Budget
 
 {% include figure.liquid path="assets/img/2026-04-27-wait-do-we-need-to-wait/budget_forcing_linear.png" class="img-fluid rounded-lg" %}
 <div class="caption">
@@ -314,9 +317,9 @@ One hypothesis ties these patterns together: models may simply be more familiar 
     </div>
 </div>
 
-## Let's Test It With More Models
+## Testing It With More Models
 
-### Not All Reasoning Model Are Created The Same Way
+### Not All Reasoning Models Are Created The Same Way
 
 Not all reasoning models are created equal — or trained the same way. Broadly speaking, there are **two main approaches** to developing reasoning models: **Supervised Fine-Tuning (SFT)** and **Reinforcement Fine-Tuning (RFT)**.
 
@@ -417,7 +420,7 @@ We also fixed the **thinking budget** to `8192` tokens — a value that's co
 
 Here's what we found:
 
-### Results - Zero-shot (CoT) vs CoT + Budget Forcing
+### Comparing Zero-shot CoT and Budget Forcing Results
 
 {% details Result table %}
 
@@ -519,9 +522,9 @@ Here's what we found:
 
 Budget forcing (CoT+BF) generally enhances performance, especially in **SFT-based models** like *s1.1-7B* and *OpenThinker3-7B*, which benefit from having more reasoning steps to express their learned procedural thought patterns. These models appear to use the extra budget productively, expanding on intermediate reasoning and improving performance across complex benchmarks. This possibly due to the facts that there are long CoT response exists with in their training sets <a href="https://huggingface.co/datasets/simplescaling/s1K-1.1" target="_blank">s1K-1.1</a> and <a href="https://huggingface.co/datasets/open-thoughts/OpenThoughts3-1.2M" target="_blank">OpenThoughts3-1.2M</a>, respectively.
 
-In contrast, *DeepSeek-R1-7B* show minimal or negative gains. The small declines on *AIME 2025* and *MMLU Pro-1K* suggest that overthinking can degrade accuracy when models already operate near optimal reasoning efficiency. Given that we do not have access to the training set of this model, we are unable to state for certainty, but it's likely that only shorter-end of CoT chains are used to train the model. These findings suggest that reasoning improvement under budget forcing depends more on **training configurations**.
+In contrast, *DeepSeek-R1-7B* show minimal or negative gains. The small declines on *AIME 2025* and *MMLU Pro-1K* suggest that overthinking can degrade accuracy when models already operate near optimal reasoning efficiency. Given that we do not have access to the training set of this model, we are unable to state for certainty, but it's likely that only shorter-end of CoT chains are used to train the model. These findings suggest that reasoning improvement under budget forcing depends more on **training configurations**.
 
-### Linear Scaling…Is It?
+### Is Linear Scaling Real?
 
 {% details Result table %}
 
@@ -998,9 +1001,9 @@ Conversely, we also observe cases where the model continually changes its answer
     </div>
 </div>
 
-## Wait, Budget Forcing Works With Non-Reasoning Model!?…or Not?
+## Budget Forcing Works With Non-Reasoning Models? Or Not?
 
-Now that we've seen **budget forcing** improve performance in reasoning models, though the promised *linear performance trend* doesn't always hold, this raises another intriguing question:
+Now that we've seen **budget forcing** improve performance in reasoning models, though the promised *linear performance trend* doesn't always hold, this raises another intriguing question:
 
 <div class="highlight-card">
     <div class="icon">❓</div>
@@ -1034,11 +1037,11 @@ You are a helpful and harmless expert math assistant. The assistant first thinks
 {% enddetails %}
     
 
-If this setup works, it means we can apply **test-time scaling** techniques like budget forcing, even to **non-reasoning models**.
+If this setup works, it means we can apply **test-time scaling** techniques like budget forcing, even to **non-reasoning models**.
 
 So, what happens when we try it?
 
-### Results - Qwen2.5 7B Instruct
+### Results with Qwen2.5 7B Instruct
 
 {% details Result Table %}
 
@@ -1304,9 +1307,9 @@ Overall, this suggests that budget forcing is not a broadly generalizable techni
     </div>
 </div>
 
-## Wait, You Don't Need to Wait?
+## Wait, You Do Not Need to Wait?
 
-Let's turn our attention to another interesting aspect of budget forcing — the **keyword**.
+Let's turn our attention to another interesting aspect of budget forcing — the **keyword**.
 
 So far we've treated "Wait" as the canonical budget-forcing keyword. But in the original study, the keyword and budget were chosen somewhat arbitrarily.
 
@@ -1418,7 +1421,7 @@ This analysis suggested that "Let" and "Perhaps" are **natural reasoning words**
 {% enddetails %}
     
 
-### "Let" Try Other Keywords — "Perhaps" We'll Get Interesting Results
+### Let Us Try Other Keywords: Perhaps We Will Get Interesting Results
 
 {% include figure.liquid path="assets/img/2026-04-27-wait-do-we-need-to-wait/keywords.png" class="img-fluid rounded-lg" %}
 
