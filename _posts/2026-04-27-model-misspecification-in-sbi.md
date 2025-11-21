@@ -33,7 +33,6 @@ bibliography: 2026-04-27-model-misspecification-in-sbi.bib
 #   - make sure that TOC names match the actual section names
 #     for hyperlinks within the post to work correctly.
 #   - please use this format rather than manually creating a markdown table of contents.
-
 toc:
   - name: Introduction
   - name: A Concrete Example - SIR Model with Weekend Reporting Delay
@@ -91,7 +90,11 @@ all days. In contrast, real-world data often exhibit systematic patterns—here,
 fraction $\alpha$ of weekend infections goes unreported until Monday, creating
 characteristic weekly oscillations (Figure 1).
 
-{% include figure.html path="assets/img/2026-04-27-model-misspecification-in-sbi/sir_figure_row.png" class="img-fluid" %}
+<div class="row mt-3">
+    <div class="col-sm mt-3 mt-md-0">
+        {% include figure.liquid path="assets/img/2026-04-27-model-misspecification-in-sbi/sir_figure_row.png" class="img-fluid rounded z-depth-1" %}
+    </div>
+</div>
 <div class="caption">
   <strong>Figure 1:</strong> SIR model with weekend reporting delay.
   <strong>A</strong>: Schematic SIR model and misspecification: a fraction α of weekend infections is reported on Monday.
@@ -217,7 +220,12 @@ and limitations, which we summarize below.
 
 ### Learning Explicit Misspecification Models
 
-{% include figure.html path="assets/img/2026-04-27-model-misspecification-in-sbi/ward_et_al.png" class="img-fluid" %}
+<div class="row mt-3">
+    <div class="col-sm mt-3 mt-md-0">
+        {% include figure.liquid path="assets/img/2026-04-27-model-misspecification-in-sbi/ward_et_al.png" class="img-fluid rounded z-depth-1" %}
+    </div>
+</div>
+<!-- {% include figure.html path="assets/img/2026-04-27-model-misspecification-in-sbi/ward_et_al.png" class="img-fluid" %} -->
 <div class="caption">
     Figure 2 (adapted from <d-cite key="ward_robust_2022"></d-cite>): Visualization of the robust neural posterior estimation (RNPE) framework.
 </div>
@@ -249,7 +257,15 @@ of ground truth, compared to roughly 40% bias with standard NPE.
 
 ### Detecting Misspecification with Learned Summary Statistics
 
-{% include figure.html path="assets/img/2026-04-27-model-misspecification-in-sbi/schmitt_et_al.png" class="img-fluid" %}
+
+<!-- {% include figure.html
+path="assets/img/2026-04-27-model-misspecification-in-sbi/schmitt_et_al.png"
+class="img-fluid" %} -->
+<div class="row mt-3">
+    <div class="col-sm mt-3 mt-md-0">
+        {% include figure.liquid path="assets/img/2026-04-27-model-misspecification-in-sbi/schmitt_et_al.png" class="img-fluid rounded z-depth-1" %}
+    </div>
+</div>
 <div class="caption">
     Figure 3 (adapted from <d-cite key="schmitt_detecting_2024"></d-cite>): Simulated data is used to train a neural network to map into a latent space designed to detect misspecification. At inference time, the observed data is embedded mapped into the latent space to detect misspecification.
 </div>
@@ -327,7 +343,12 @@ how and where misspecification is mitigated.
 
 ### Addressing Misspecification with Optimal Transport
 
-{% include figure.html path="assets/img/2026-04-27-model-misspecification-in-sbi/wehenkel_gamella_et_al.png" class="img-fluid" %}
+<!-- {% include figure.html path="assets/img/2026-04-27-model-misspecification-in-sbi/wehenkel_gamella_et_al.png" class="img-fluid" %} -->
+<div class="row mt-3">
+    <div class="col-sm mt-3 mt-md-0">
+        {% include figure.liquid path="assets/img/2026-04-27-model-misspecification-in-sbi/wehenkel_gamella_et_al.png" class="img-fluid rounded z-depth-1" %}
+    </div>
+</div>
 <div class="caption">
     <strong>Figure 4:</strong> Schematic of RoPE <d-cite key="wehenkel_addressing_2024"></d-cite>. Standard NPE with embedding network is trained on potentially misspecified simulations; a calibration set is then used to fine-tune the embedding to the observed data and learn an optimal transport mapping, which is used to construct a misspecification-robust posterior as a weighted mixture of NPE posteriors.
 </div>
