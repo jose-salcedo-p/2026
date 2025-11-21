@@ -163,7 +163,7 @@ _styles: |
     }
 ---
 
-{% include figure.liquid path="assets/img/2026-04-27-wait-do-we-need-to-wait/hero.png" class="img-fluid" %}
+{% include figure.liquid path="assets/img/2026-04-27-wait-do-we-need-to-wait/hero.png" class="img-fluid rounded-lg" %}
 
 In this blog post we revisit the technique of ***budget forcing*** — a sequential test-time scaling technique that controls reasoning budget in reasoning models by appending a "Wait" keyword (or equivalently forcing a stop when the budget is exceeded), thereby determining whether the model continues thinking or directly outputs an answer.
 
@@ -200,7 +200,7 @@ We present experimental results, including cases where budget forcing does and d
 
 ### A Very Brief Introduction to Test-Time Scaling
 
-{% include figure.liquid path="assets/img/2026-04-27-wait-do-we-need-to-wait/tts_types.png" class="img-fluid" %}
+{% include figure.liquid path="assets/img/2026-04-27-wait-do-we-need-to-wait/tts_types.png" class="img-fluid rounded-lg" %}
 <div class="caption">
     A comparison of sequential, parallel, and hybrid test-time scaling approaches, adapted from <a href="https://arxiv.org/abs/2503.24235"  target="_blank">Zhang et al. (2025)</a>. <strong>Sequential</strong> methods extend a single chain of thought, giving one trajectory more room to refine its reasoning. <strong>Parallel</strong> methods sample multiple independent trajectories and select an answer via voting or scoring. <strong>Hybrid</strong> methods both extend chains and branch them, combining deeper single-trajectory reasoning with cross-trajectory selection.
 </div>
@@ -213,7 +213,7 @@ Let's unpack that a bit. [***Test-time scaling***](https://arxiv.org/abs/2503.2
 
 Broadly speaking, test-time scaling methods fall into three categories: **sequential**, **parallel**, and **hybrid**.
 
-{% include figure.liquid path="assets/img/2026-04-27-wait-do-we-need-to-wait/budget_forcing_tts_types.png" class="img-fluid" %}
+{% include figure.liquid path="assets/img/2026-04-27-wait-do-we-need-to-wait/budget_forcing_tts_types.png" class="img-fluid rounded-lg" %}
 <div class="caption">
     A figure contrasting sequential and parallel test-time scaling from <a href="https://arxiv.org/abs/2501.19393" target="_blank">s1: Simple Test-Time Scaling</a> <d-cite key="muennighoff-etal-2025-s1"></d-cite>
 </div>
@@ -224,7 +224,7 @@ Broadly speaking, test-time scaling methods fall into three categories: **seque
 
 ### Budget Forcing - Forcing The Model To Think Within The Budget
 
-{% include figure.liquid path="assets/img/2026-04-27-wait-do-we-need-to-wait/budget_forcing_linear.png" class="img-fluid" %}
+{% include figure.liquid path="assets/img/2026-04-27-wait-do-we-need-to-wait/budget_forcing_linear.png" class="img-fluid rounded-lg" %}
 <div class="caption">
     Performance of s1 under different budgets from <a href="https://arxiv.org/abs/2501.19393" target="_blank">s1: Simple Test-Time Scaling</a> <d-cite key="muennighoff-etal-2025-s1"></d-cite>
 </div>
@@ -233,7 +233,7 @@ Budget forcing was first introduced in [s1: Simple Test-Time Scaling](https://ar
 
 > "… a simple decoding-time intervention by forcing a maximum and/or minimum number of thinking tokens. Specifically, we enforce a maximum token count by simply appending the end-of-thinking token delimiter and optionally "Final Answer:" to early exit To enforce a minimum, we suppress the generation of the end-of-thinking token delimiter and optionally append the string "Wait" to the model's current reasoning trace to encourage the model to reflect on its current generation. the thinking stage and make the model provide its current best answer."
 
-{% include figure.liquid path="assets/img/2026-04-27-wait-do-we-need-to-wait/scaling_up_down.png" class="img-fluid" %}
+{% include figure.liquid path="assets/img/2026-04-27-wait-do-we-need-to-wait/scaling_up_down.png" class="img-fluid rounded-lg" %}
 
 Let's unpack that a bit. The objective of budget forcing is to control the number of thinking tokens. It operates through two mechanisms: enforcing (1) a **maximum** and (2) a **minimum** number of thinking tokens. We refer to the first mechanism as **scaling down** (enforced maximum) and the second as **scaling up** (enforced minimum). The high-level process follows:
 
@@ -245,7 +245,7 @@ So, let's see how scaling up and scaling down work!
 
 ### Scaling Up
 
-{% include figure.liquid path="assets/img/2026-04-27-wait-do-we-need-to-wait/scaling_up.gif" class="img-fluid" %}
+{% include figure.liquid path="assets/img/2026-04-27-wait-do-we-need-to-wait/scaling_up.gif" class="img-fluid rounded-lg" %}
 
 When scaling up, budget forcing encourages the model to *keep thinking* as long as it still has reasoning budget left.
 
@@ -261,7 +261,7 @@ Effectively, we are telling the model, *Hold on, keep thinking before you answe
 
 ### Scaling Down
 
-{% include figure.liquid path="assets/img/2026-04-27-wait-do-we-need-to-wait/scaling_down.gif" class="img-fluid" %}
+{% include figure.liquid path="assets/img/2026-04-27-wait-do-we-need-to-wait/scaling_down.gif" class="img-fluid rounded-lg" %}
 
 Scaling down is the opposite: instead of letting the model think longer, we **cut off** its reasoning once it exceeds the budget.
 
@@ -513,9 +513,9 @@ Here's what we found:
 
 {% enddetails %}
 
-{% include figure.liquid path="assets/img/2026-04-27-wait-do-we-need-to-wait/performance_reasoning_models.png" class="img-fluid" %}
+{% include figure.liquid path="assets/img/2026-04-27-wait-do-we-need-to-wait/performance_reasoning_models.png" class="img-fluid rounded-lg" %}
 
-{% include figure.liquid path="assets/img/2026-04-27-wait-do-we-need-to-wait/performance_on_reasoning_models.png" class="img-fluid" %}
+{% include figure.liquid path="assets/img/2026-04-27-wait-do-we-need-to-wait/performance_on_reasoning_models.png" class="img-fluid rounded-lg" %}
 
 Budget forcing (CoT+BF) generally enhances performance, especially in **SFT-based models** like *s1.1-7B* and *OpenThinker3-7B*, which benefit from having more reasoning steps to express their learned procedural thought patterns. These models appear to use the extra budget productively, expanding on intermediate reasoning and improving performance across complex benchmarks. This possibly due to the facts that there are long CoT response exists with in their training sets <a href="https://huggingface.co/datasets/simplescaling/s1K-1.1" target="_blank">s1K-1.1</a> and <a href="https://huggingface.co/datasets/open-thoughts/OpenThoughts3-1.2M" target="_blank">OpenThoughts3-1.2M</a>, respectively.
 
@@ -761,7 +761,7 @@ In contrast, *DeepSeek-R1-7B* show minimal or negative gains. The small declin
 
 {% enddetails %}
 
-{% include figure.liquid path="assets/img/2026-04-27-wait-do-we-need-to-wait/performance_benchmarks_on_reasoning_models.png" class="img-fluid" %}
+{% include figure.liquid path="assets/img/2026-04-27-wait-do-we-need-to-wait/performance_benchmarks_on_reasoning_models.png" class="img-fluid rounded-lg" %}
 
 Now that we know **budget forcing** is effective for most included reasoning models, the next question is whether the **linear trend** in performance improvements holds universally.
 
@@ -779,7 +779,7 @@ Overall, these results suggest that the **claimed linear relationship** betwee
 
 ### Why This Might Happen?
 
-{% include figure.liquid path="assets/img/2026-04-27-wait-do-we-need-to-wait/budget_forcing_failure_modes.png" class="img-fluid" %}
+{% include figure.liquid path="assets/img/2026-04-27-wait-do-we-need-to-wait/budget_forcing_failure_modes.png" class="img-fluid rounded-lg" %}
 
 We can peek into the generations to understand how additional tokens are used.
 
@@ -1145,14 +1145,14 @@ So, what happens when we try it?
 
 <div class="row mt-3">
     <div class="col-sm mt-3 mt-md-0">
-        {% include figure.liquid path="assets/img/2026-04-27-wait-do-we-need-to-wait/performance_benchmark_llms.png" class="img-fluid" %}
+        {% include figure.liquid path="assets/img/2026-04-27-wait-do-we-need-to-wait/performance_benchmark_llms.png" class="img-fluid rounded-lg" %}
     </div>
     <div class="col-sm mt-3 mt-md-0">
-        {% include figure.liquid path="assets/img/2026-04-27-wait-do-we-need-to-wait/performance_on_llms.png" class="img-fluid" %}
+        {% include figure.liquid path="assets/img/2026-04-27-wait-do-we-need-to-wait/performance_on_llms.png" class="img-fluid rounded-lg" %}
     </div>
 </div>
 
-{% include figure.liquid path="assets/img/2026-04-27-wait-do-we-need-to-wait/trend_llm.png" class="img-fluid" %}
+{% include figure.liquid path="assets/img/2026-04-27-wait-do-we-need-to-wait/trend_llm.png" class="img-fluid rounded-lg" %}
 
 Surprisingly, budget forcing at an 8,192-token budget works not only with reasoning models but also with this **instruct model from the Qwen family**. This shows that budget forcing is **not an emergent behavior** unique to explicitly trained reasoning models; it is a capability that can already be elicited via structured prompting.
 
@@ -1277,9 +1277,9 @@ All runs use the same budget-forcing machinery (with `<think>...</think>` and 
 
 {% enddetails %}
 
-{% include figure.liquid path="assets/img/2026-04-27-wait-do-we-need-to-wait/performance_more_llms.png" class="img-fluid" %}
+{% include figure.liquid path="assets/img/2026-04-27-wait-do-we-need-to-wait/performance_more_llms.png" class="img-fluid rounded-lg" %}
 
-{% include figure.liquid path="assets/img/2026-04-27-wait-do-we-need-to-wait/performance_benchmarks_more_llms.png" class="img-fluid" %}
+{% include figure.liquid path="assets/img/2026-04-27-wait-do-we-need-to-wait/performance_benchmarks_more_llms.png" class="img-fluid rounded-lg" %}
 
 Unfortunately, the benefits of budget forcing do not generally transfer across model families.
 
@@ -1420,7 +1420,7 @@ This analysis suggested that "Let" and "Perhaps" are **natural reasoning words**
 
 ### "Let" Try Other Keywords — "Perhaps" We'll Get Interesting Results
 
-{% include figure.liquid path="assets/img/2026-04-27-wait-do-we-need-to-wait/keywords.png" class="img-fluid" %}
+{% include figure.liquid path="assets/img/2026-04-27-wait-do-we-need-to-wait/keywords.png" class="img-fluid rounded-lg" %}
 
 We then followed the same experimental setup as before, testing multiple reasoning models with:
 
@@ -1609,7 +1609,7 @@ We then followed the same experimental setup as before, testing multiple reasoni
 
 {% enddetails %}
 
-{% include figure.liquid path="assets/img/2026-04-27-wait-do-we-need-to-wait/performance_keywords.png" class="img-fluid" %}
+{% include figure.liquid path="assets/img/2026-04-27-wait-do-we-need-to-wait/performance_keywords.png" class="img-fluid rounded-lg" %}
 
 Across all six models, we observe a consistent pattern:
 
@@ -1638,7 +1638,7 @@ Our word-frequency analysis offers a plausible explanation: models tend to use w
 
 ## Summary
 
-{% include figure.liquid path="assets/img/2026-04-27-wait-do-we-need-to-wait/summary.png" class="img-fluid" %}
+{% include figure.liquid path="assets/img/2026-04-27-wait-do-we-need-to-wait/summary.png" class="img-fluid rounded-lg" %}
 
 This work revisits **budget forcing**, a sequential test-time scaling method that extends or trims a model's reasoning by controlling the token budget and repeatedly prompting it to continue thinking. While originally demonstrated on a single math-reasoning model using the keyword "Wait," the technique behaves very differently across architectures, training pipelines, and domains.
 
