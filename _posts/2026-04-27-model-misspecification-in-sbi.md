@@ -1,8 +1,7 @@
 ---
 layout: distill
-title: Model Misspecification in Simulation-Based Inference - Recent Advances and Open Challenges
-description:
-  Model misspecification is a critical challenge in simulation-based inference (SBI),
+title: "Model Misspecification in Simulation-Based Inference - Recent Advances and Open Challenges"
+description: "Model misspecification is a critical challenge in simulation-based inference (SBI),
   particularly in neural SBI methods that use simulated data to train flexible neural
   density estimators. These methods typically assume that simulators faithfully represent
   the true data-generating process, an assumption that is often violated in practice.
@@ -12,7 +11,7 @@ description:
   covering formal definitions, methods for detection and mitigation, and their underlying
   assumptions. It also discusses practical implications for SBI workflows and outlines
   open challenges for developing robust SBI methods that remain reliable in realistic,
-  imperfectly specified applications.
+  imperfectly specified applications."
 date: 2026-04-27
 future: true
 htmlwidgets: true
