@@ -323,6 +323,8 @@ While this is a promising idea and approach, several *unknown factors* limit our
 
 ## What People Say About Budget Forcing?
 
+{% include figure.liquid path="assets/img/2026-04-27-wait-do-we-need-to-wait/lit_survey.png" class="img-fluid rounded-lg" %}
+
 Before we dig into the deeper questions, it's worth stepping back to see what the current research landscape says about budget forcing. The findings vary widely, and the overall picture is far from settled. Here's a concise tour of the perspectives that have emerged so far.
 
 ### Studies Suggesting Benefits from Budget Forcing
