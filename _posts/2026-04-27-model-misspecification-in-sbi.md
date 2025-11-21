@@ -194,16 +194,6 @@ SBI-specific literature in general, there has been growing interest in this topi
 recently <d-cite
 key="wehenkel_addressing_2024,bockting_simulationbased_2024,bishop_learning_2025"></d-cite>.
 
-<!-- Note that even with well-specified simulator and prior, the inference algorithm itself
-may introduce errors, such as systematically biased posteriors or uncalibrated
-uncertainty estimates due to neural network training issues. These implementation
-quality concerns are typically addressed through calibration tests such as
-simulation-based calibration <d-cite key="talts_validating_2020"></d-cite>, expected
-coverage diagnostics <d-cite key="deistler_truncated_2022,miller_truncated_2021a"></d-cite>,
-and classifier-based calibration
-<d-cite key="zhao_diagnostics_2021,linhart_lc2st_2024"></d-cite>, which validate posterior
-accuracy assuming the simulator is correct. -->
-
 The methods reviewed below, and much of the recent literature on model misspecification
 in neural SBI, primarily address the first case: detecting and mitigating
 simulator-related misspecification. The remainder of this post provides an overview of
@@ -225,7 +215,6 @@ and limitations, which we summarize below.
         {% include figure.liquid path="assets/img/2026-04-27-model-misspecification-in-sbi/ward_et_al.png" class="img-fluid rounded z-depth-1" %}
     </div>
 </div>
-<!-- {% include figure.html path="assets/img/2026-04-27-model-misspecification-in-sbi/ward_et_al.png" class="img-fluid" %} -->
 <div class="caption">
     Figure 2 (adapted from <d-cite key="ward_robust_2022"></d-cite>): Visualization of the robust neural posterior estimation (RNPE) framework.
 </div>
@@ -257,10 +246,6 @@ of ground truth, compared to roughly 40% bias with standard NPE.
 
 ### Detecting Misspecification with Learned Summary Statistics
 
-
-<!-- {% include figure.html
-path="assets/img/2026-04-27-model-misspecification-in-sbi/schmitt_et_al.png"
-class="img-fluid" %} -->
 <div class="row mt-3">
     <div class="col-sm mt-3 mt-md-0">
         {% include figure.liquid path="assets/img/2026-04-27-model-misspecification-in-sbi/schmitt_et_al.png" class="img-fluid rounded z-depth-1" %}
@@ -343,7 +328,6 @@ how and where misspecification is mitigated.
 
 ### Addressing Misspecification with Optimal Transport
 
-<!-- {% include figure.html path="assets/img/2026-04-27-model-misspecification-in-sbi/wehenkel_gamella_et_al.png" class="img-fluid" %} -->
 <div class="row mt-3">
     <div class="col-sm mt-3 mt-md-0">
         {% include figure.liquid path="assets/img/2026-04-27-model-misspecification-in-sbi/wehenkel_gamella_et_al.png" class="img-fluid rounded z-depth-1" %}
