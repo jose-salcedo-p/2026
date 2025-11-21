@@ -87,6 +87,24 @@ _styles: |
         }
     }
 
+    /* Dark Theme Overrides for Manual Toggle */
+    [data-theme="dark"] {
+        --co-accent: #818cf8;
+        --co-bg: #1e293b;     /* Dark slate blueish */
+        --co-border: #334155;
+        --co-text: #cbd5e1;
+        --co-title: #f1f5f9;
+    }
+
+    /* Light Theme Overrides for Manual Toggle */
+    [data-theme="light"] {
+        --co-accent: #6366f1; /* Indigo accent */
+        --co-bg: #f8fafc;     /* Very light cool gray */
+        --co-border: #e2e8f0;
+        --co-text: #334155;
+        --co-title: #0f172a;
+    }
+
     .highlight-card {
         display: flex;
         flex-direction: row;
