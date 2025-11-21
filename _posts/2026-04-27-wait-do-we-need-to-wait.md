@@ -470,7 +470,7 @@ Here's what we found:
                 <td>CoT+BF</td>
                 <td>23.33</td>
                 <td>74.20</td>
-                <td>62.10</td>
+                <td><strong>62.10</strong></td>
                 <td>33.40</td>
                 <td>48.26</td>
             </tr>
@@ -486,11 +486,11 @@ Here's what we found:
             <tr>
                 <td>OpenThinker3-7B</td>
                 <td>CoT+BF</td>
-                <td>53.33</td>
-                <td>87.00</td>
+                <td><strong>53.33</strong></td>
+                <td><strong>87.00</strong></td>
                 <td>61.10</td>
-                <td>36.60</td>
-                <td>59.51</td>
+                <td><strong>36.60</strong></td>
+                <td><strong>59.51</strong></td>
             </tr>
             <tr>
                 <td>DeepSeek-R1-7B</td>
@@ -646,7 +646,7 @@ In contrast, *DeepSeek-R1-7B* show minimal or negative gains. The small declines
             <td>8192</td>
             <td>23.33</td>
             <td>74.20</td>
-            <td>62.10</td>
+            <td><strong>62.10</strong></td>
             <td>33.40</td>
             <td>48.26</td>
             </tr>
@@ -689,7 +689,7 @@ In contrast, *DeepSeek-R1-7B* show minimal or negative gains. The small declines
             <tr>
             <td>OpenThinker3-7B</td>
             <td>4096</td>
-            <td>60.00</td>
+            <td><strong>60.00</strong></td>
             <td>83.20</td>
             <td>61.90</td>
             <td>31.30</td>
@@ -699,10 +699,10 @@ In contrast, *DeepSeek-R1-7B* show minimal or negative gains. The small declines
             <td>OpenThinker3-7B</td>
             <td>8192</td>
             <td>53.33</td>
-            <td>87.00</td>
+            <td><strong>87.00</strong></td>
             <td>61.10</td>
-            <td>36.60</td>
-            <td>59.51</td>
+            <td><strong>36.60</strong></td>
+            <td><strong>59.51</strong></td>
             </tr>
             <tr>
             <td>DS-R1-Distill-Qwen-7B</td>
@@ -1065,7 +1065,7 @@ So, what happens when we try it?
         <td>Zero-shot</td>
         <td>-</td>
         <td>20.00</td>
-        <td>69.00</td>
+        <td><strong>69.00</strong></td>
         <td>30.30</td>
         <td>18.10</td>
         <td>34.35</td>
@@ -1094,50 +1094,50 @@ So, what happens when we try it?
         <td>Qwen2.5-7B-Instruct</td>
         <td>CoT+BF</td>
         <td>512</td>
-        <td>6.67</td>
-        <td>55.8</td>
-        <td>46.7</td>
-        <td>26.1</td>
+        <td>6.670</td>
+        <td>55.80</td>
+        <td>46.70</td>
+        <td>26.10</td>
         <td>33.82</td>
         </tr>
         <tr>
         <td>Qwen2.5-7B-Instruct</td>
         <td>CoT+BF</td>
         <td>1024</td>
-        <td>26.67</td>
-        <td>64.4</td>
-        <td>50.2</td>
-        <td>26.3</td>
-        <td>41.89</td>
+        <td><strong>26.67</strong></td>
+        <td>64.40</td>
+        <td><strong>50.20</strong></td>
+        <td>26.30</td>
+        <td><strong>41.89</strong></td>
         </tr>
         <tr>
         <td>Qwen2.5-7B-Instruct</td>
         <td>CoT+BF</td>
         <td>2048</td>
-        <td>20</td>
-        <td>65.6</td>
-        <td>48.6</td>
-        <td>28.5</td>
+        <td>20.00</td>
+        <td>65.60</td>
+        <td>48.60</td>
+        <td><strong>28.50</strong></td>
         <td>40.68</td>
         </tr>
         <tr>
         <td>Qwen2.5-7B-Instruct</td>
         <td>CoT+BF</td>
         <td>4096</td>
-        <td>20</td>
-        <td>64.4</td>
-        <td>48.4</td>
-        <td>28.3</td>
+        <td>20.00</td>
+        <td>64.40</td>
+        <td>48.40</td>
+        <td>28.30</td>
         <td>40.28</td>
         </tr>
         <tr>
         <td>Qwen2.5-7B-Instruct</td>
         <td>CoT+BF</td>
         <td>8192</td>
-        <td>20</td>
-        <td>61</td>
-        <td>48.7</td>
-        <td>27.4</td>
+        <td>20.00</td>
+        <td>61.00</td>
+        <td>48.70</td>
+        <td>27.40</td>
         <td>39.28</td>
         </tr>
         </tbody>
@@ -1250,28 +1250,28 @@ All runs use the same budget-forcing machinery (with `<think>...</think>` and 
         <tr>
         <td>Gemma 3 4B IT</td>
         <td>Zero-shot</td>
-        <td>33.33</td>
-        <td>70.2</td>
-        <td>37.7</td>
-        <td>17.7</td>
-        <td>39.73</td>
+        <td><strong>33.33</strong></td>
+        <td>70.20</td>
+        <td><strong>37.70</strong></td>
+        <td><strong>17.70</strong></td>
+        <td><strong>39.73</strong></td>
         </tr>
         <tr>
         <td>Gemma 3 4B IT</td>
         <td>CoT</td>
-        <td>33.33</td>
-        <td>70.4</td>
-        <td>28.3</td>
-        <td>13.6</td>
+        <td><strong>33.33</strong></td>
+        <td><strong>70.40</strong></td>
+        <td>28.30</td>
+        <td>13.60</td>
         <td>36.41</td>
         </tr>
         <tr>
         <td>Gemma 3 4B IT</td>
         <td>CoT+BF</td>
-        <td>33.33</td>
-        <td>70.2</td>
-        <td>36.7</td>
-        <td>17.1</td>
+        <td><strong>33.33</strong></td>
+        <td>70.20</td>
+        <td>36.70</td>
+        <td>17.10</td>
         <td>39.33</td>
         </tr>
         </tbody>
@@ -1493,7 +1493,7 @@ We then followed the same experimental setup as before, testing multiple reasoni
 <tr>
 <td>RFT</td>
 <td>Let</td>
-<td>33.33</td>
+<td><strong>33.33</strong></td>
 <td>65.60</td>
 <td>42.50</td>
 <td>25.90</td>
@@ -1504,18 +1504,18 @@ We then followed the same experimental setup as before, testing multiple reasoni
 <td>Wait</td>
 <td>23.33</td>
 <td>74.20</td>
-<td>62.10</td>
-<td>33.40</td>
+<td><strong>62.10</strong></td>
+<td><strong>33.40</strong></td>
 <td>48.26</td>
 </tr>
 <tr>
 <td>s1.1 7B</td>
 <td>Perhaps</td>
-<td>33.33</td>
+<td><strong>33.33</strong></td>
 <td>73.80</td>
 <td>61.40</td>
 <td>32.30</td>
-<td>50.21</td>
+<td><strong>50.21</strong></td>
 </tr>
 <tr>
 <td>s1.1 7B</td>
@@ -1548,7 +1548,7 @@ We then followed the same experimental setup as before, testing multiple reasoni
 <td>DeepSeek R1 Distill Qwen 7B</td>
 <td>Let</td>
 <td>26.67</td>
-<td>84.60</td>
+<td><strong>84.60</strong></td>
 <td>12.00</td>
 <td>6.60</td>
 <td>32.47</td>
