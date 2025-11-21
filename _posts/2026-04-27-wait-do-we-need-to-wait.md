@@ -266,7 +266,15 @@ So, let's see how scaling up and scaling down work!
 
 ### Scaling Up
 
-{% include figure.liquid path="assets/img/2026-04-27-wait-do-we-need-to-wait/scaling_up.gif" class="img-fluid rounded-lg" %}
+<div class="l-page">
+  <iframe
+    src="{{ 'assets/html/2026-04-27-wait-do-we-need-to-wait/scaling_up.html' | relative_url }}"
+    frameborder="0"
+    scrolling="no"
+    height="600px"
+    width="100%"
+  ></iframe>
+</div>
 
 When scaling up, budget forcing encourages the model to *keep thinking* as long as it still has reasoning budget left.
 
@@ -282,7 +290,15 @@ Effectively, we are telling the model, *Hold on, keep thinking before you answe
 
 ### Scaling Down
 
-{% include figure.liquid path="assets/img/2026-04-27-wait-do-we-need-to-wait/scaling_down.gif" class="img-fluid rounded-lg" %}
+<div class="l-page">
+  <iframe
+    src="{{ 'assets/html/2026-04-27-wait-do-we-need-to-wait/scaling_down.html' | relative_url }}"
+    frameborder="0"
+    scrolling="no"
+    height="600px"
+    width="100%"
+  ></iframe>
+</div>
 
 Scaling down is the opposite: instead of letting the model think longer, we **cut off** its reasoning once it exceeds the budget.
 
