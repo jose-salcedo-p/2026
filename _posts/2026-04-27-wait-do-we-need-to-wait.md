@@ -163,6 +163,8 @@ _styles: |
     }
 ---
 
+{% include figure.liquid path="assets/img/2026-04-27-wait-do-we-need-to-wait/hero.png" class="img-fluid" %}
+
 In this blog post we revisit the technique of ***budget forcing*** — a sequential test-time scaling technique that controls reasoning budget in reasoning models by appending a "Wait" keyword (or equivalently forcing a stop when the budget is exceeded), thereby determining whether the model continues thinking or directly outputs an answer.
 
 We explore three main questions:
