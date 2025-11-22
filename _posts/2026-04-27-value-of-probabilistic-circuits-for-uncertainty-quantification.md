@@ -45,8 +45,8 @@ bibliography: 2026-04-27-value-of-probabilistic-circuits-for-uncertainty-quantif
 #   - please use this format rather than manually creating a markdown table of contents.
 toc:
   - name: Epistemic Uncertainty in Today's Machine Learning
-  - name: Foundations - The Grammar of Tractability
-  - name: Tractable Inference - The Engine of Reliability
+  - name: The Grammar of Tractability
+  - name: Connecting Probabilistic Circuits to Uncertainty Quantification
   - name: Scaling Circuit Architectures to High Dimensions
   - name: Applications of Probabilistic Circuits for UQ
     subsections:
@@ -133,7 +133,7 @@ their application to complex inverse problems in physics and engineering. It
 argues that PCs are no longer just a theoretical curiosity but a necessary
 component of the next generation of trustworthy AI.
 
-## Foundations - The Grammar of Tractability
+## The Grammar of Tractability
 
 To understand the unique value of Probabilistic Circuits for UQ, one must first
 appreciate the ''grammar'' of their construction. A PC is not simply a neural
@@ -250,7 +250,7 @@ densities) remains a structured PC. This algebra of circuits allows for
 computing Kullback-Leibler (KL) divergences, merging expert models, and
 performing Bayesian updates in polynomial time.
 
-## Tractable Inference - The Engine of Reliability
+## Connecting Probabilistic Circuits to Uncertainty Quantification
 
 The theoretical properties of PCs translate directly into capabilities that
 solve fundamental challenges in Uncertainty Quantification. While deep learning
