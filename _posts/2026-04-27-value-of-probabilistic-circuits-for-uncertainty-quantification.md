@@ -50,7 +50,7 @@ toc:
   - name: Scaling Circuit Architectures to High Dimensions
   - name: Applications of Probabilistic Circuits for UQ
     subsections:
-      - name: Probabilistic Neural Circuits
+      - name: Probabilistic Flow Circuits
       - name: Multi-Token Prediction with Probabilistic Circuits
       - name: Physics-Driven Deep Latent Variable Models
       - name: SPN-Guided Latent Space Manipulation
@@ -103,7 +103,8 @@ Uncertainty is generally categorized into two distinct forms: aleatoric
 uncertainty, which is irreducible and stems from the inherent stochasticity of
 the data generation process (e.g., sensor noise), and epistemic uncertainty,
 which is reducible and arises from a lack of knowledge about the model
-parameters or the true structure of the data. In the context of scientific
+parameters or the true structure of the data<d-cite
+key="kimpton_challenges_2025"></d-cite>. In the context of scientific
 engineering and safety-critical AI, distinguishing between these two is
 paramount. A self-driving car must distinguish between the ''noise'' of a rainy
 sensor (aleatoric) and an object it has never been trained to recognize
@@ -112,7 +113,8 @@ sensor (aleatoric) and an object it has never been trained to recognize
 While methods such as Bayesian Neural Networks (BNNs) and Monte Carlo (MC)
 Dropout have attempted to retrofit uncertainty estimates onto deep networks,
 they often rely on approximate inference techniques that introduce their own
-variance and computational overhead. They provide approximations of the
+variance and computational overhead<d-cite
+key="ventola_probabilistic_2023"></d-cite>. They provide approximations of the
 posterior, not exact evaluations.   
 
 This report posits that Probabilistic Circuits (PCs) offer a transformative
@@ -121,9 +123,10 @@ designed not merely to predict, but to represent the joint probability
 distribution of the data as a computational graph. Crucially, they do so while
 guaranteeing tractability. Through strict structural properties—smoothness,
 decomposability, and determinism—PCs enable the exact computation of marginals,
-conditionals, and moments in polynomial time. This capability fundamentally
-alters the UQ landscape, moving from approximate guesses of uncertainty to
-rigorous, mathematically guaranteed derivations.   
+conditionals, and moments in polynomial time<d-cite
+key="choi_probabilistic_,peharz_probabilistic_2023"></d-cite>. This capability
+fundamentally alters the UQ landscape, moving from approximate guesses of
+uncertainty to rigorous, mathematically guaranteed derivations.   
 
 The following analysis provides an exhaustive review of the PC framework as it
 stands in the 2024-2026 era. It explores the theoretical mechanics that enable
@@ -139,7 +142,8 @@ To understand the unique value of Probabilistic Circuits for UQ, one must first
 appreciate the ''grammar'' of their construction. A PC is not simply a neural
 network with probabilistic outputs; it is a Directed Acyclic Graph (DAG) that
 encodes a probability distribution function (PDF) or probability mass function
-(PMF) through a hierarchy of specific computational units.
+(PMF) through a hierarchy of specific computational units<d-cite
+key="choi_probabilistic_,peharz_probabilistic_2023"></d-cite>.
 
 ### The Computational Graph
 
@@ -150,16 +154,18 @@ Units (Leaves): These are the building blocks of the circuit, representing
 simple, tractable univariate distributions over a single variable or a small
 subset of variables. Common choices include Gaussian distributions for
 continuous data, Bernoulli or Categorical distributions for discrete data, or
-even piecewise polynomials.Sum Units ($\oplus$): These nodes compute a weighted
-sum of their children's outputs. In the probabilistic interpretation, a sum node
-represents a mixture model. It introduces a latent variable $Z$ that selects
-which branch of the mixture is active, thereby allowing the circuit to model
-multimodality and complex dependencies.Product Units ($\otimes$): These nodes
-compute the product of their children's outputs. Probabilistically, product
-nodes represent factorizations, encoding independence assumptions between
-subsets of variables.The value computed at the root of the PC for a given input
-configuration $\mathbf{x}$ corresponds to the (possibly unnormalized)
-probability density $P(\mathbf{x})$.
+even piecewise polynomials. **Sum Units** ($\oplus$): These nodes compute a
+weighted sum of their children's outputs. In the probabilistic interpretation, a
+sum node represents a mixture model<d-cite
+key="choi_probabilistic_,peharz_probabilistic_2023"></d-cite>. It introduces a
+latent variable $Z$ that selects which branch of the mixture is active, thereby
+allowing the circuit to model multimodality and complex dependencies. **Product
+Units** ($\otimes$): These nodes compute the product of their children's
+outputs. Probabilistically, product nodes represent factorizations, encoding
+independence assumptions between subsets of variables<d-cite
+key="choi_probabilistic_,peharz_probabilistic_2023"></d-cite>. The value
+computed at the root of the PC for a given input configuration $\mathbf{x}$
+corresponds to the (possibly unnormalized) probability density $P(\mathbf{x})$.
 
 ### Structural Constraints for Tractability
 
@@ -170,7 +176,8 @@ worst case. PCs circumvent this by enforcing properties that ensure integrals
 and maximizations commute with the sum and product operations.
 
 The tractability of different probabilistic queries relies on the structural
-properties of the PC, as summarized in the table below: 
+properties of the PC, as summarized in the table below<d-cite
+key="choi_probabilistic_,peharz_probabilistic_2023,sidheekh_building_2024,zhang_restructuring_2025"></d-cite>: 
 
 | Structural Property | Enabled Probabilistic Query | Mathematical Operation | UQ Application |
 | :--- | :--- | :---: | :--- |
@@ -183,7 +190,8 @@ properties of the PC, as summarized in the table below:
 #### Smoothness
 
 A sum node is defined as smooth (or complete) if all of its children define
-distributions over the exact same set of variables, known as the scope.
+distributions over the exact same set of variables, known as the scope<d-cite
+key="choi_probabilistic_,peharz_probabilistic_2023,sidheekh_building_2024"></d-cite>.
 
 The significance of smoothness for UQ cannot be overstated. It ensures that the
 sum node represents a valid mixture distribution where the weights sum to unity
@@ -196,12 +204,14 @@ distributes linearly over the sum. This property is what allows PCs to handle
 missing data naturally: the probability mass of the missing variables integrates
 to 1 in every branch of a smooth sum node, effectively vanishing from the
 computation without disrupting the validity of the distribution over the
-observed variables.
+observed variables<d-cite
+key="choi_probabilistic_,peharz_probabilistic_2023"></d-cite>.
 
 #### Decomposability
 
 A product node is decomposable if its children define distributions over
-disjoint sets of variables.
+disjoint sets of variables<d-cite
+key="choi_probabilistic_,peharz_probabilistic_2023,sidheekh_building_2024"></d-cite>.
 
 Decomposability is the structural encoding of conditional independence. It
 allows high-dimensional integrals to break down into products of
@@ -213,12 +223,13 @@ decomposability, the integral would require evaluating the full high-dimensional
 joint space, which is computationally intractable. This property ensures that
 marginal inference in a PC is linear in the size of the circuit, providing a
 distinct advantage over Normalizing Flows or VAEs where marginals are often
-intractable.
+intractable<d-cite key="martires_probabilistic_2024"></d-cite>.
 
 #### Determinism
 
 A sum node is deterministic if, for any complete input configuration, at most
-one of its children evaluates to a non-zero value.
+one of its children evaluates to a non-zero value<d-cite
+key="choi_probabilistic_,peharz_probabilistic_2023"></d-cite>.
 
 While smoothness and decomposability are sufficient for marginal inference,
 determinism unlocks tractable Maximum A Posteriori (MAP) inference. The MAP
@@ -238,7 +249,7 @@ for a medical diagnosis.
 Recent research has emphasized a more rigorous constraint known as structured
 decomposability. A PC is structured-decomposable if the decomposition of
 variables at every product node follows a hierarchical tree structure over the
-variables, known as a vtree.   
+variables, known as a vtree<d-cite key="zhang_restructuring_2025"></d-cite>.   
 
 A vtree is a static binary tree where leaves correspond to random variables. A
 structured PC respects this vtree if every product node in the circuit
@@ -247,8 +258,8 @@ vtree does. This property is profound because it enables operations beyond
 simple inference, such as the efficient multiplication of two circuits. If two
 PCs respect the same vtree, their product (which represents the product of their
 densities) remains a structured PC. This algebra of circuits allows for
-computing Kullback-Leibler (KL) divergences, merging expert models, and
-performing Bayesian updates in polynomial time.
+computing KL divergences, merging expert models, and performing Bayesian updates
+in polynomial time<d-cite key="choi_probabilistic_,zhang_restructuring_2025"></d-cite>.
 
 ## Connecting Probabilistic Circuits to Uncertainty Quantification
 
@@ -276,11 +287,12 @@ scientific engineering, sensor failure is common. When a standard neural network
 encounters missing inputs, it usually requires imputation—guessing the missing
 values—before processing. This imputation introduces a point estimate that
 ignores the uncertainty of the missing value. A PC, conversely, handles missing
-data by integrating out the missing variables analytically.6 The resulting
-marginal distribution over the observed variables reflects the true uncertainty:
-the probability density becomes ''flatter'' or more diffuse, accurately
-capturing the loss of information. This is not an approximation; it is the
-mathematically correct derivation of belief given partial evidence.
+data by integrating out the missing variables analytically<d-cite
+key="choi_probabilistic_,peharz_probabilistic_2023,sidheekh_building_2024"></d-cite>.
+The resulting marginal distribution over the observed variables reflects the
+true uncertainty: the probability density becomes ''flatter'' or more diffuse,
+accurately capturing the loss of information. This is not an approximation; it
+is the mathematically correct derivation of belief given partial evidence.
 
 ### Tractable Dropout Inference 
 
@@ -290,11 +302,12 @@ neural networks by randomly dropping units during inference and measuring the
 variance of the predictions. While effective, it is computationally expensive
 (requiring multiple forward passes) and yields only an empirical approximation.
 
-Researchers have introduced Tractable Dropout Inference (TDI) for PCs. Because
-PCs track the propagation of moments exactly, it is possible to derive the
-analytical moments of the output distribution under the dropout noise model in a
-single forward pass. Instead of sampling dropout masks, TDI propagates the first
-and second moments (mean and variance) through the sum and product nodes.   
+Researchers have introduced Tractable Dropout Inference (TDI) for PCs<d-cite
+key="ventola_probabilistic_2023"></d-cite>. Because PCs track the propagation of
+moments exactly, it is possible to derive the analytical moments of the output
+distribution under the dropout noise model in a single forward pass. Instead of
+sampling dropout masks, TDI propagates the first and second moments (mean and
+variance) through the sum and product nodes.   
 
 Mechanism: For a sum node, the mean is the weighted sum of children's means. The
 variance computation involves the variances of children plus a term accounting
@@ -305,7 +318,8 @@ means, and the variance follows standard variance-of-product rules.
 Implication: This allows PCs to provide ''dropout-based'' uncertainty estimates
 that are theoretically sound and computationally efficient, eliminating the
 sampling noise inherent in standard MC Dropout. This technique has been shown to
-significantly improve the robustness of PCs to distribution shifts and OOD data.
+significantly improve the robustness of PCs to distribution shifts and OOD
+data<d-cite key="ventola_probabilistic_2023"></d-cite>.
 
 ### Sequential Uncertainty in Time Series 
 
@@ -316,8 +330,9 @@ uncertainty.
 
 Integrating PCs with recurrent architectures, such as in Recurrent Conditional
 Whittle Networks (RECOWN), provides a mechanism to quantify this temporal
-uncertainty. These models use a PC (specifically a Conditional Whittle SPN) to
-model the distribution of the spectral coefficients of the time series.   
+uncertainty<d-cite key="thoma_recowns_2021"></d-cite>. These models use a PC
+(specifically a Conditional Whittle SPN) to model the distribution of the
+spectral coefficients of the time series.   
 
 Log-Likelihood Ratio Score (LLRS): This integration allows for the computation
 of the LLRS, a dynamic uncertainty metric. When the model encounters a sequence
@@ -326,7 +341,7 @@ shift in power grid data—the conditional likelihood computed by the PC drops
 sharply. This score allows operators to distinguish between a ''hard to
 predict'' stochastic sequence (high aleatoric uncertainty) and a ''structurally
 novel'' sequence (high epistemic uncertainty), enabling trustworthy anomaly
-detection in time-series data.   
+detection in time-series data<d-cite key="thoma_recowns_2021"></d-cite>.   
 
 ## Scaling Circuit Architectures to High Dimensions
 
@@ -336,7 +351,8 @@ dependencies inherent in image or natural language data, an area where Deep
 Neural Networks (DNNs) excelled. The dominant narrative suggested a rigid
 trade-off: one could have tractability (PCs) or expressiveness (DNNs), but not
 both. Research in 2024 and 2025 has largely dismantled this dichotomy through
-architectural innovations that allow PCs to scale massively.
+architectural innovations that allow PCs to scale massively<d-cite
+key="peharz_einsum_2020,peharz_probabilistic_2023,liu_scaling_,zhang_scaling_2025"></d-cite>.
 
 ### Scaling via Vectorization
 
@@ -345,10 +361,11 @@ structures that were essentially pointer-chasing operations. This is efficient
 on CPUs for small models but catastrophic for modern GPUs, which rely on dense
 matrix multiplications and coherent memory access.
 
-Einsum Networks (EiNets) represent a paradigm shift in PC implementation. The
-core insight of EiNets is to reformulate the execution of sum and product layers
-using the Einstein summation (einsum) convention, a standard operation in tensor
-algebra libraries like PyTorch and TensorFlow.   
+Einsum Networks (EiNets) represent a paradigm shift in PC implementation<d-cite
+key="peharz_einsum_2020,peharz_probabilistic_2023"></d-cite>. The core insight of
+EiNets is to reformulate the execution of sum and product layers using the
+Einstein summation (einsum) convention, a standard operation in tensor algebra
+libraries like PyTorch and TensorFlow.   
 
 Mechanism: Instead of processing nodes individually, EiNets organize nodes into
 layers. A ''product layer'' can be viewed as a mixing operation that can be
@@ -359,7 +376,7 @@ Impact: By combining these monolithic tensor operations, EiNets allow PCs to
 utilize the massive parallelism of GPUs. This vectorization enables the training
 of PCs with millions of parameters and hundreds of layers, achieving density
 estimation performance on benchmarks like ImageNet that rivals intractable deep
-generative models.
+generative models<d-cite key="liu_scaling_"></d-cite>.
 
 ### Scaling via Sparse Monarch Metrics 
 
@@ -368,9 +385,9 @@ challenge. Fully dense sum layers imply that every latent component connects to
 every child, leading to quadratic parameter growth.
 
 Recent work has introduced Monarch Matrices to parameterize the sum blocks in
-PCs. Monarch matrices are a class of structured sparse matrices that are highly
-expressive (capable of representing permutations and Fast Fourier Transforms)
-yet computationally efficient.   
+PCs<d-cite key="zhang_scaling_2025"></d-cite>. Monarch matrices are a class of
+structured sparse matrices that are highly expressive (capable of representing
+permutations and Fast Fourier Transforms) yet computationally efficient.   
 
 Monarch Parameterization: By replacing dense weight matrices in sum layers with
 products of sparse Monarch factors, researchers have reduced the memory and
@@ -380,7 +397,7 @@ Result: This approach has enabled ''unprecedented scaling'', allowing PCs to
 achieve state-of-the-art generative modeling performance on challenging
 benchmarks like Text8 and ImageNet 32x32, demonstrating superior scaling laws
 (better performance for fewer FLOPs) compared to traditional dense
-parameterizations.
+parameterizations<d-cite key="zhang_scaling_2025"></d-cite>.
 
 ### Restructuring of Fitted Circuits 
 
@@ -388,7 +405,8 @@ A historical limitation of PCs was ''structure lock-in''. Once a PC was trained
 with a specific vtree (variable decomposition), it was difficult to perform
 operations with other circuits having different structures.
 
-New algorithms for restructuring PCs have emerged. These algorithms allow a
+New algorithms for restructuring PCs have emerged<d-cite
+key="zhang_restructuring_2025"></d-cite>. These algorithms allow a
 structured-decomposable PC to be transformed into a new PC that respects a
 target vtree while representing the same distribution.   
 
@@ -402,26 +420,31 @@ complex PC trained for high expressiveness can be ''compiled'' or restructured
 into a shallower, optimized circuit for faster inference on edge devices. It
 also enables the multiplication of circuits with different structures, which is
 essential for ensemble methods where different models might learn different
-structural dependencies.
+structural dependencies<d-cite key="zhang_restructuring_2025"></d-cite>.
 
 ## Applications of Probabilistic Circuits for UQ
 
 The frontier of PC research is no longer about replacing neural networks but
 integrating with them. The concept of Probabilistic Neural Circuits (PNCs) has
 emerged, blending the learnable features of deep learning with the tractable
-reasoning of circuits.
+reasoning of circuits<d-cite key="martires_probabilistic_2024"></d-cite>.
 
-### Probabilistic Neural Circuits 
+### Probabilistic Flow Circuits 
 
-Another hybrid approach combines PCs with Normalizing Flows (NFs). NFs are
-excellent at modeling continuous local correlations but struggle with global
-structure and marginalization. PCs excel at global structure (via mixture
-models) and marginalization but can be inefficient at capturing local continuous
+Another hybrid approach combines PCs with Normalizing Flows (NFs)<d-cite
+key="sidheekh_probabilistic_2023a"></d-cite>. NFs are excellent at modeling
+continuous local correlations but struggle with global structure and
+marginalization. PCs excel at global structure (via mixture models) and
+marginalization but can be inefficient at capturing local continuous
 correlations (requiring many mixture components).
 
 Probabilistic Flow Circuits (PFCs) integrate NFs at the leaf nodes of a PC
 - Structure: The leaves of the PC are no longer simple Gaussians but flexible, invertible flow transformations (e.g., linear rational splines).
-- Tractability Constraint: To preserve the decomposability of the PC, the flows must be applied carefully. Recent theoretical work established conditions (like $\tau$-decomposability) ensuring that the flow transformations do not entangle variables in a way that breaks the circuit's marginalization guarantees
+- Tractability Constraint: To preserve the decomposability of the PC, the flows
+  must be applied carefully. Recent theoretical work established conditions
+  (like $\tau$-decomposability) ensuring that the flow transformations do not
+  entangle variables in a way that breaks the circuit's marginalization
+  guarantees<d-cite key="sidheekh_building_2024"></d-cite>.
 - Synergy: This architecture allows the PC to handle the multimodal, discrete structure of the data (e.g., different object categories in an image) while the flow leaves handle the continuous manifold of pixel variations within each category.
 
 ### Multi-Token Prediction with Probabilistic Circuits 
@@ -441,10 +464,11 @@ speed (latency).
 
 Multi-Token Prediction with Probabilistic Circuits (MTPC) proposes a framework
 using a PC to model the joint distribution of the next $K$ tokens: $P(x_{t+1},
-\dots, x_{t+K} | x_{1:t})$. Why PCs? PCs can model the complex dependencies
-between the future tokens (e.g., if $x_{t+1}$ is ''San'', $x_{t+2}$ is likely
-''Francisco'') tractably. Unlike a full Transformer which would be too slow as a
-drafter, a PC can evaluate the likelihood of candidate sequences extremely fast.
+\dots, x_{t+K} | x_{1:t})$<d-cite key="grivas_fast_2025"></d-cite>. Why PCs? PCs
+can model the complex dependencies between the future tokens (e.g., if $x_{t+1}$
+is ''San'', $x_{t+2}$ is likely ''Francisco'') tractably. Unlike a full
+Transformer which would be too slow as a drafter, a PC can evaluate the
+likelihood of candidate sequences extremely fast.
 
 The MTPC framework explores a spectrum of PC architectures for this task:
 - Fully Factorized (FF): Assumes independence (baseline). Fast but low
@@ -458,7 +482,7 @@ balances the depth and width, allowing for capturing long-range dependencies
 among the $K$ tokens efficiently.
 
 Experiments retrofitting EvaByte, a byte-level LLM, with MTPC demonstrated
-significant gains.
+significant gains<d-cite key="grivas_fast_2025"></d-cite>.
 - Throughput: MTPC increased generation throughput by $5.47\times$ compared to
 standard autoregressive generation.
 - Comparison: It achieved a $1.22\times$ speedup over MTP with independence
@@ -480,7 +504,8 @@ Standard regression models fail at ill-posed inverse problems because they try
 to predict a single $\hat{\theta}$ for a given $\mathbf{y}$, leading to an
 average of the valid solutions (which is often invalid).
 - The PC Approach: PDDLVMs and related PC-based approaches model the full joint
-distribution $P(\theta, \mathbf{y})$.
+distribution $P(\theta, \mathbf{y})$<d-cite
+key="vadeboncoeur_fully_2023"></d-cite>.
 - Inference: To solve the inverse problem, the model queries the
 conditional distribution $P(\theta | \mathbf{y})$. Because the PC models the
 joint density, this conditional is multimodal, capturing all valid
@@ -492,7 +517,8 @@ treat collocation grids as random variables, allowing for resolution-independent
 modeling of Partial Differential Equations (PDEs).
 
 A concrete application is the design of bi-stealth metamaterials (materials
-invisible to both radar and infrared).
+invisible to both radar and infrared)<d-cite
+key="liu_fast_2024,ma_probabilistic_2019"></d-cite>.
 - Problem: Engineers want a material with a specific electromagnetic spectrum
 (Target $\mathbf{y}$). They need to find the physical geometry (Design
 $\mathbf{x}$) that produces it.
@@ -504,7 +530,8 @@ samples from $P(\mathbf{x} | \mathbf{y}^*)$.
 - Outcome: This approach successfully identified multiple valid bi-stealth
 designs (e.g., utilizing ITO films) that satisfied the dual-band stealth
 requirements, providing engineers with a ''library'' of valid candidates rather
-than a single, possibly unmanufacturable, point estimate.
+than a single, possibly unmanufacturable, point estimate<d-cite
+key="liu_fast_2024"></d-cite>.
 
 Integrating physical laws into PCs is a growing frontier. Unlike
 Physics-Informed Neural Networks (PINNs) which enforce physics via soft penalty
@@ -513,7 +540,12 @@ PCs can enforce constraints structurally.
 
 - Constraint Enforcement: Logic-constrained PCs can enforce that certain impossible configurations have zero probability.
 - Energy Conservation: In Hamiltonian dynamics, PCs can be designed to respect conservation of energy by structuring the latent variables to represent conserved quantities.
-- P-Bits and Ising Machines: At the hardware level, ''Probabilistic Bits'' (P-bits) are being used to build hardware-native probabilistic circuits.29 These circuits naturally solve optimization problems (like the Ising model ground state) by fluctuating thermally. PCs provide the theoretical framework to program these stochastic hardware elements to solve inverse problems in statistical physics.
+- P-Bits and Ising Machines: At the hardware level, ''Probabilistic Bits''
+(P-bits) are being used to build hardware-native probabilistic circuits<d-cite
+key="rockovich_improved_2025"></d-cite>. These circuits naturally solve
+optimization problems (like the Ising model ground state) by fluctuating
+thermally. PCs provide the theoretical framework to program these stochastic
+hardware elements to solve inverse problems in statistical physics.
 
 ### SPN-Guided Latent Space Manipulation
 
@@ -522,7 +554,7 @@ know why a model diagnosed a tumor. A powerful explanation technique is the
 counterfactual: ''What would this scan look like if the patient were healthy?''
 
 SPN-Guided Latent Space Manipulation utilizes PCs to generate these explanations
-rigorously.
+rigorously<d-cite key="siekiera_counterfactual_2025"></d-cite>.
 - Method: A Variational Autoencoder (VAE) is trained to compress medical images
 into a latent space $\mathbf{z}$. Instead of assuming a simple Gaussian prior,
 an SPN is trained to learn the true, complex distribution of latent vectors
@@ -555,7 +587,8 @@ deep generative paradigms: Variational Autoencoders (VAEs), Normalizing Flows
 
 NFs provide exact likelihoods via the change-of-variables formula. However,
 calculating the determinant of the Jacobian is computationally expensive
-($O(D^3)$) unless the flow is restricted (e.g., to triangular matrices). The
+($O(D^3)$) unless the flow is restricted (e.g., to triangular matrices)<d-cite
+key="wehenkel_unconstrained_2021,papamakarios_normalizing_2021"></d-cite>. The
 - Marginalization Gap: Crucially, NFs cannot easily compute marginals.
 Integrating a flow over a subset of variables is analytically intractable. This
 makes NFs poor at handling missing data or partial evidence. PCs, with their
@@ -574,6 +607,6 @@ space. During the iterative denoising process of the diffusion model, the PC
 provides an exact gradient of the constraint probability $\nabla_{\mathbf{x}}
 \log P_{PC}(\text{Constraint} | \mathbf{x})$, steering the diffusion process
 toward valid regions.37 This combines the high-fidelity texture generation of
-diffusion with the logical rigor of PCs.
+diffusion with the logical rigor of PCs<d-cite key="liu_image_2024"></d-cite>.
 
 <!-- todo: future challanges / trajeectories -->
