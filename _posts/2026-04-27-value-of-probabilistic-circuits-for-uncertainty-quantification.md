@@ -77,6 +77,7 @@ _styles: >
 ---
 
 <!-- todo: Write the blog post as specified. -->
+<!-- todo: add relevant figures and illustrations -->
 <!-- todo: calibration of PCs? -->
 
 ## Epistemic Uncertainty in Today's Machine Learning
@@ -606,7 +607,7 @@ setup, a PC is trained to represent the constraints or the valid configuration
 space. During the iterative denoising process of the diffusion model, the PC
 provides an exact gradient of the constraint probability $\nabla_{\mathbf{x}}
 \log P_{PC}(\text{Constraint} | \mathbf{x})$, steering the diffusion process
-toward valid regions.37 This combines the high-fidelity texture generation of
-diffusion with the logical rigor of PCs<d-cite key="liu_image_2024"></d-cite>.
+toward valid regions<d-cite key="liu_image_2024"></d-cite>. This combines the
+high-fidelity texture generation of diffusion with the logical rigor of PCs.
 
 <!-- todo: future challanges / trajeectories -->
