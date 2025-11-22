@@ -226,8 +226,6 @@ We present experimental results, including cases where budget forcing does and d
     A comparison of sequential, parallel, and hybrid test-time scaling approaches, adapted from <a href="https://arxiv.org/abs/2503.24235"  target="_blank">Zhang et al. (2025)</a>. <strong>Sequential</strong> methods extend a single chain of thought, giving one trajectory more room to refine its reasoning. <strong>Parallel</strong> methods sample multiple independent trajectories and select an answer via voting or scoring. <strong>Hybrid</strong> methods both extend chains and branch them, combining deeper single-trajectory reasoning with cross-trajectory selection.
 </div>
 
-A comparison of sequential, parallel, and hybrid test-time scaling approaches, adapted from <a href="https://arxiv.org/abs/2503.24235"  target="_blank">Zhang et al. (2025)</a> <d-cite key="zhang2025surveytesttimescalinglarge"></d-cite>. **Sequential** methods extend a single chain of thought, giving one trajectory more room to refine its reasoning. **Parallel** methods sample multiple independent trajectories and select an answer via voting or scoring. **Hybrid** methods both extend chains and branch them, combining deeper single-trajectory reasoning with cross-trajectory selection.
-
 Before we go deeper into the budget forcing, let's take a very brief look at what test-time scaling is. Since **budget forcing** is a (1) *sequential* (2) *test-time scaling* technique. 
 
 Let's unpack that a bit. [***Test-time scaling***](https://arxiv.org/abs/2503.24235) <d-cite key="zhang2025surveytesttimescalinglarge"></d-cite> means spending more compute **during training or inference** — for example, generating more tokens — to get better performance.
@@ -354,6 +352,8 @@ One hypothesis ties these patterns together: models may simply be more familiar 
 </div>
 
 ## Testing It With More Models
+
+{% include figure.liquid path="assets/img/2026-04-27-wait-do-we-need-to-wait/models.png" class="img-fluid rounded-lg" %}
 
 ### Not All Reasoning Models Are Created The Same Way
 
