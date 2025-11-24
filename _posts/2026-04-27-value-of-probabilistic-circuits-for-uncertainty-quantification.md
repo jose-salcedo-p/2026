@@ -611,3 +611,11 @@ toward valid regions<d-cite key="liu_image_2024"></d-cite>. This combines the
 high-fidelity texture generation of diffusion with the logical rigor of PCs.
 
 <!-- todo: future challanges / trajeectories -->
+
+## Probabilistic Calibrated Circuits
+
+Modern science increasingly relies on complex simulators to describe natural phenomena. Whether in particle physics, epidemiology, or econometrics, these simulators function as generative models $p(x|\theta)$, producing observable data $x$ from latent parameters $\theta$. The inverse problem, determining the parameter distribution $p(\theta|x)$ given an observation, is the core of scientific knowledge discovery.
+
+Traditional Bayesian inference methods like Markov Chain Monte Carlo (MCMC) often fail due to the complexity of modern simulators, as they lack an explicit, evaluable likelihood function ("Intractable Likelihood"). Simulation-Based Inference (SBI) circumvents this issue by training neural networks to learn the posterior distribution or the likelihood directly from simulated data pairs $(\theta, x)$.
+Models such as Normalizing Flows have assumed a dominant role here, as they enable exact density estimation through invertible transformations. However, as mentioned above, their intractability makes flexible computation of different posteriors difficult.
+Here Probabilistic Circuits can be a compelling alternative. First PCs are trained to appoximate the joint probability of the data $p(x,\theta$ and afterwards different posteriors can be computate exact and tractable. 
