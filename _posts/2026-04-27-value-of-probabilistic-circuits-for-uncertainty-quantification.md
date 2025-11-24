@@ -629,3 +629,85 @@ $$\mathcal{L}_{NLL} = - \mathbb{E}_{data} [\log p_{PC}(x, \theta)]$$
 The NLL is a strictly proper scoring rule, theoretically reaching its minimum at the true data distribution. However, in practice, with limited data and model capacity, minimizing NLL often leads the model to attempt covering every data point ("Mode Covering" or "Mass Covering"). This frequently results in distributions that are too broad (over-dispersion) to avoid penalizing data points with extremely low probability, or that concentrate on specific modes while ignoring others.
 
 The fundamental issue is that a global fit of the joint distribution $p(x, \theta)$ offers no guarantee that the conditional distributions $p(\theta | x)$, the actual objects of interest in inference, are locally calibrated. A model can be good on average but systematically biased or overconfident in specific regions of the input space.
+
+### Quantifying Miscalibration: The Probability Integral Transform
+
+To measure this problem, the Probability Integral Transform (PIT) can be utilized. For a continuous random variable $X$ and its cumulative distribution function (CDF) $F_X$, the random variable $Z = F_X(X)$ is uniformly distributed: $Z \sim \mathcal{U}(0, 1)$.
+
+The calibration of the conditional distribution $p(x|\theta)$ can be checked by calculating the PIT values for a validation dataset $\{(x_i, \theta_i)\}$: 
+$$z_i = F_{PC}(x_i | \theta_i) = \int_{-\infty}^{x_i} p_{PC}(x' | \theta_i) dx'$$
+Thanks to the properties of PCs (marginalization and integration), the calculation of $F_{PC}$ is exact and efficient.
+The shape of the PIT-histogram shows the extend of miscalibration:
+- Uniform Distribution: The model is perfectly calibrated.
+- U-Shape: The model is under-dispersed (distribution too narrow, uncertainty underestimated).
+- Inverted U-Shape: The model is over-dispersed (distribution too broad, uncertainty overestimated).
+- Systematic Shift: The mean of the prediction is systematically incorrect.
+As a quantitative metric for deviation from uniformity, a metric like the Kolmogorov-Smirnov (KS) Statistic can be used to quantify the calibration error
+$$E_{KS} = \sup_{z \in } | \hat{F}_{cal}(z) - z |$$
+Where $\hat{F}_{cal}$ is the empirical CDF of the PIT values. This metric serves as the objective function for optimization in PCCs.
+
+### Post-hoc Input Recalibration
+
+The information gained by quantifying the calibration error can be used to apply a post-hoc recalibration methode to reduce the systematic error in the conditional distributions.
+Classical post-hoc calibration methods like Platt Scaling scale the output logits of a classifier. For density estimators, this is not trivially possible, as scaling the density $p(x)$ would violate the integration condition ($\int p(x)dx = 1$).
+Input recalibration circumvents this problem. A transformation function $g(x)$ applied to the input variables such that the transformed variable $Y = g(X)$ follows the desired (calibrated) distribution. The recalibrated density $p_{cal}$ results from the change of variables formula for probability densities
+$$p_{cal}(x, \theta) = p_{PC}(g(x), \theta) \cdot |g'(x)|$$
+The term $|g'(x)|$ is the determinant of the Jacobian matrix (here simply the derivative in the univariate case).
+
+At first glance, this definition seems to destroy tractability. A PC is a carefully constructed graph. If we compute $p_{PC}(g(x))$, we simply feed $g(x)$ into the leaves. But the multiplier $|g'(x)|$ sits outside the graph.In a product node $\otimes$ separating variables $X_1$ and $X_2$ (decomposability), a global multiplication by a term dependent on $X_1$ would violate the independence structure.
+
+To correct this decomposability violation a so called Probabilistic Calibrated Circuit (PCC) is introduced. The following PCC Theorem prooves that this external term can indeed be completely absorbed into the leaf nodes, creating a new valid PC.
+
+Theorem (Probabilistic Calibrated Circuits):
+Let $C$ be a valid Probabilistic Circuit computing $p_C(x)$. Let $g \in G_{C,k}$ be an admissible recalibration function for variable $X_k$. The recalibrated density
+$$p_{cal}(x) = p_C(g(x_k), x_{\backslash k}) \cdot g'(x_k)$$
+can be exactly computed by a new, valid Probabilistic Circuit $C_{cal}$, which possesses the identical graph structure to $C$, but with modified leaf distributions.
+
+Proof (Sketch):
+1. At Sum Nodes: A factor $c$ can be pulled into the sum: $(\sum w_i p_i) \cdot c = \sum w_i (p_i \cdot c)$. The Jacobian term $g'(x_k)$ thus "travels" down the edges to the children.
+2. At Product Nodes: Due to the decomposability property, variable $X_k$ appears in at most one child branch. The factor $g'(x_k)$ is therefore passed exclusively to this branch; all other branches remain untouched.
+3. At Leaves: Finally, the term reaches the leaf modeling $X_k$ (originally $\rho_L(x_k)$). The new leaf now computes $\eta_L(x_k) = \rho_L(g(x_k)) \cdot g'(x_k)$. Since $g$ is a monotonic transformation, $\eta_L$ is itself a valid probability density.
+The result is elegant: A PCC is structurally indistinguishable from a PC. The entire complexity of recalibration is hidden within the parameters of the leaf nodes. Thus, all inference times remain $O(|C|)$.
+
+#### Extension: Dependent Recalibration
+
+A simple function $g(x)$ can correct global shifts. But in SBI, the error often depends on the context $\theta$. We require a function $g_\theta(x)$.
+This violates decomposability, however, as the Jacobian term $g'_\theta(x)$ now depends on both $x$ and $\theta$, coupling branches that should be independent.
+
+Solution via Discretization: The parameter space $\Theta$ can be partitioned into $K$ disjoint regions $\Delta^k$. In each region, a fixed recalibration function $g_{\theta^k}$ is used. The resulting model is a weighted sum of sub-circuits:
+$$ p_{PCC}(x, \theta) = \sum_{k=1}^K \mathbb{I}(\theta \in \Delta^k) \cdot p_{PC}(g_{\theta^k}(x), \theta) \cdot g'_{\theta^k}(x) $$
+Each term in the sum is locally tractable. The overall mechanism can be represented as a large PC starting with a root sum node switching over the regions $\Delta^k$. This increases model size linearly with $K$ but preserves exact inference.
+
+## Construction of Admissible Recalibration Functions
+
+The theoretical guarantee of the PCC Theorem relies on the choice of function $g(x)$. It must be "admissible," i.e., strictly monotonically increasing and continuously differentiable, to function as a valid density transformer.
+
+In classification, Isotonic Regression is the gold standard for calibration. It fits a piecewise constant, monotonically increasing function to data to minimize quadratic error.4
+For PCCs, this approach is unsuitable. A piecewise constant function has undefined derivatives (or Dirac impulses) at jump points and is flat (derivative zero) in between. Applying $p(g(x)) \cdot g'(x)$ would result in a density that is zero almost everywhere. PCCs strictly require smooth, differentiable functions.
+
+#### Method 1: Monotonic Spline Interpolation
+
+A robust approach is Quantile Mapping using Splines. Points $(u_k, v_k)$ are identified that map the empirical quantiles of the faulty PIT distribution to the theoretical quantiles of the uniform distribution.
+To guarantee monotonicity, I-Splines (Integrated Splines) can be used. These are based on integrating non-negative B-Spline basis functions (M-Splines). Since the integral of a non-negative function is monotonically increasing, any linear combination with positive coefficients guarantees admissibility.
+- Advantage: Analytically clean, fast to compute.
+- Disadvantage: Expressivity is limited by the number of knots.
+
+#### Methode 2: Unconstrained Monotonic Neural Networks
+
+For highly complex calibration errors, Deep Learning offers a more powerful solution. Unconstrained Monotonic Neural Networks (UMNNs) define a monotonic function $g(x)$ as the integral of a strictly positive neural network $f(t)$
+$$g(x) = \int_0^x f(t; \psi) dt + \beta$$
+The network $f(t)$ can be arbitrarily complex (e.g., an MLP with ELU+1 activation), provided it remains positive. By the Fundamental Theorem of Calculus, $g'(x) = f(x)$. Since $f(x) > 0$, $g$ is strictly monotonic.
+
+### Discussion and Limitations
+
+Despite successes, the PCC framework is not without limitations that must be considered in application.
+
+#### The Discretization Bottleneck
+
+The dependent recalibration requires partitioning the parameter space $\Theta$. This leads to a trade-off:
+- Fine discretization (large $K$) increases recalibration accuracy but causes circuit size to grow linearly with $K$. While inference time remains linear to the new size, memory requirements increase.
+- Coarse discretization may miss fine dependencies of the calibration error.
+- Solution Approach: Future work could derive the partitioning automatically from the structure of the PC to avoid redundancy.
+
+#### The Curse of Dimensionality
+
