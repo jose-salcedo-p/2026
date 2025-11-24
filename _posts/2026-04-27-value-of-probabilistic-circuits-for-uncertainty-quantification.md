@@ -618,4 +618,14 @@ Modern science increasingly relies on complex simulators to describe natural phe
 
 Traditional Bayesian inference methods like Markov Chain Monte Carlo (MCMC) often fail due to the complexity of modern simulators, as they lack an explicit, evaluable likelihood function ("Intractable Likelihood"). Simulation-Based Inference (SBI) circumvents this issue by training neural networks to learn the posterior distribution or the likelihood directly from simulated data pairs $(\theta, x)$.
 Models such as Normalizing Flows have assumed a dominant role here, as they enable exact density estimation through invertible transformations. However, as mentioned above, their intractability makes flexible computation of different posteriors difficult.
-Here Probabilistic Circuits can be a compelling alternative. First PCs are trained to appoximate the joint probability of the data $p(x,\theta$ and afterwards different posteriors can be computate exact and tractable. 
+Here Probabilistic Circuits can be a compelling alternative. First PCs are trained to appoximate the joint probability of the data $p(x,\theta)$ and afterwards different posteriors can be computate exact and tractable. 
+
+### The Calibration Dilemma: The Inadequacy of Maximum Likelihood Estimation
+
+Despite the theoretical elegance of PCs, a grave problem exists in practice: the Calibration Gap. Since PCs are trained to approximate the joint distribution, there is no guarantee, that the conditionals are calibrated correctly.
+
+Probabilistic Circuits are typically trained by maximizing the likelihood (or minimizing the negative log-likelihood, NLL):
+$$\mathcal{L}_{NLL} = - \mathbb{E}_{data} [\log p_{PC}(x, \theta)]$$
+The NLL is a strictly proper scoring rule, theoretically reaching its minimum at the true data distribution. However, in practice, with limited data and model capacity, minimizing NLL often leads the model to attempt covering every data point ("Mode Covering" or "Mass Covering"). This frequently results in distributions that are too broad (over-dispersion) to avoid penalizing data points with extremely low probability, or that concentrate on specific modes while ignoring others.
+
+The fundamental issue is that a global fit of the joint distribution $p(x, \theta)$ offers no guarantee that the conditional distributions $p(\theta | x)$, the actual objects of interest in inference, are locally calibrated. A model can be good on average but systematically biased or overconfident in specific regions of the input space.
