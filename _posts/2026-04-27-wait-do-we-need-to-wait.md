@@ -1,7 +1,7 @@
 ---
 layout: distill
 title: Wait, Do We Need to Wait? Revisiting Budget Forcing for Sequential Test-Time Scaling
-description: This blog revisits budget forcing, a sequential test-time scaling technique for reasoning models by controlling when it continues thinking versus when it must answer. We evaluates how well the method transfers across model types, including non-reasoning models, and whether alternative keywords work. We provides practical guidelines for using the technique.
+description: This blog revisits budget forcing, a sequential test-time scaling technique for reasoning models by controlling when it continues thinking versus when it must answer. We evaluate how well the method transfers across model types, including non-reasoning models, and whether alternative keywords work. We provide practical guidelines for using the technique.
 date: 2026-04-27
 future: true
 htmlwidgets: true
@@ -56,13 +56,14 @@ toc:
     - name: Why This Might Happen?
   - name: Budget Forcing Works With Non-Reasoning Models? Or Not?
     subsections:
-    - name: Results with Qwen2.5 7B Instruct
+    - name: Results with Qwen2.5-7B-Instruct
     - name: How About Other Model Families?
   - name: Wait, You Do Not Need to Wait?
     subsections:
     - name: Keyword Selection
     - name: "Let Us Try Other Keywords: Perhaps We Will Get Interesting Results"
   - name: Summary
+  - name: Practical Recommendations
   - name: Limitations
 
 _styles: |
@@ -186,7 +187,7 @@ _styles: |
 
 {% include figure.liquid path="assets/img/2026-04-27-wait-do-we-need-to-wait/hero.png" class="img-fluid rounded-lg" %}
 
-In this blog post we revisit the technique of ***budget forcing*** — a sequential test-time scaling technique that controls reasoning budget in reasoning models by appending a "Wait" keyword (or equivalently forcing a stop when the budget is exceeded), thereby determining whether the model continues thinking or directly outputs an answer.
+In this blog post, we revisit the technique of ***budget forcing*** — a sequential test-time scaling technique that controls reasoning budget in reasoning models by appending a "Wait" keyword (or equivalently forcing a stop when the budget is exceeded), thereby determining whether the model continues thinking or directly outputs an answer.
 
 We explore three main questions:
 
@@ -223,12 +224,12 @@ We present experimental results, including cases where budget forcing does and d
 
 {% include figure.liquid path="assets/img/2026-04-27-wait-do-we-need-to-wait/tts_types.png" class="img-fluid rounded-lg" %}
 <div class="caption">
-    A comparison of sequential, parallel, and hybrid test-time scaling approaches, adapted from <a href="https://arxiv.org/abs/2503.24235"  target="_blank">Zhang et al. (2025)</a>. <strong>Sequential</strong> methods extend a single chain of thought, giving one trajectory more room to refine its reasoning. <strong>Parallel</strong> methods sample multiple independent trajectories and select an answer via voting or scoring. <strong>Hybrid</strong> methods both extend chains and branch them, combining deeper single-trajectory reasoning with cross-trajectory selection.
+    A comparison of sequential, parallel, and hybrid test-time scaling approaches, adapted from <a href="https://arxiv.org/abs/2503.24235"  target="_blank">Zhang et al. (2025)</a>. <strong>Sequential</strong> methods extend a single chain of thought, giving one trajectory more room to refine its reasoning. <strong>Parallel</strong> methods sample multiple independent trajectories and select an answer via voting or scoring. <strong>Hybrid</strong> methods both extend chains and branch them, combining deeper single-trajectory reasoning with cross-trajectory selection.
 </div>
 
-Before we go deeper into the budget forcing, let's take a very brief look at what test-time scaling is. Since **budget forcing** is a (1) *sequential* (2) *test-time scaling* technique. 
+Before we go deeper into budget forcing, let's take a very brief look at what test-time scaling is. Since **budget forcing** is a (1) *sequential* (2) *test-time scaling* technique. 
 
-Let's unpack that a bit. [***Test-time scaling***](https://arxiv.org/abs/2503.24235) <d-cite key="zhang2025surveytesttimescalinglarge"></d-cite> means spending more compute **during training or inference** — for example, generating more tokens — to get better performance.
+Let's unpack that a bit. [***Test-time scaling***](https://arxiv.org/abs/2503.24235) <d-cite key="zhang2025surveytesttimescalinglarge"></d-cite> means spending more compute **during inference** — for example, generating more tokens — to get better performance.
 
 Broadly speaking, test-time scaling methods fall into three categories: **sequential**, **parallel**, and **hybrid**.
 
@@ -304,10 +305,10 @@ The algorithm:
 
 1. The model generates a response consisting of two parts — the **thinking process** and the **final answer**.
 2. The algorithm checks whether the length of the thinking content is still within the budget.
-3. Truncates the `<think>...</think>` content so that it fits within the reasoning token budget.
-4. **Forces an ending indicator** (e.g., `</think>`) after the truncated reasoning.
-5. Prompts the model to produce its final answer (for example, "*The final answer is …*"").
-6. Continue the generation of the final answer.
+3. Truncates the `<think>...</think>` content so that it fits within the reasoning token budget.
+4. **Forces an ending indicator** (e.g., `</think>`) after the truncated reasoning.
+5. Prompts the model to produce its final answer (for example, "*The final answer is …*").
+6. Continues generating the final answer.
 
 In other words, *"Time's up — give your answer."*
 
@@ -327,7 +328,7 @@ Before we dig into the deeper questions, it's worth stepping back to see what th
 
 ### Studies Suggesting Benefits from Budget Forcing
 
-A number of works report that prompting models to "wait" or continue thinking can offer advantages. A study <d-cite key="ringel2025learningcontinuethinkingtokenenhanced"></d-cite> trains models explicitly to use a continued-thinking token, encouraging them to pause and elaborate on their reasoning. Another study study <d-cite key="jurayj-etal-2025-final"></d-cite> shows that increasing test-time compute—often by allowing longer chains of thought—can boost accuracy and confidence, at least in some settings.
+A number of works report that prompting models to "wait" or continue thinking can offer advantages. A study <d-cite key="ringel2025learningcontinuethinkingtokenenhanced"></d-cite> trains models explicitly to use a continued-thinking token, encouraging them to pause and elaborate on their reasoning. Another study <d-cite key="jurayj-etal-2025-final"></d-cite> shows that increasing test-time compute—often by allowing longer chains of thought—can boost accuracy and confidence, at least in some settings.
 
 A related perspective emphasizes the role of backtracking <d-cite key="gandhi2025cognitive"></d-cite>. In both humans and models, the signal to "wait" can function as an invitation to revisit earlier steps, reconsider calculations, or catch overlooked details. Under this view, brief delays may improve the final answer by prompting revision.
 
@@ -338,6 +339,10 @@ Several recent findings call into question the idea that longer chains of though
 Further, research on test-time scaling shows that when models are forced to answer with less time than they naturally require, accuracy degrades <d-cite key="wu2025itssimpleanalysissimple"></d-cite>—and that shorter chain-of-thought models are especially sensitive to this truncation. Other work <d-cite key="zhao2025testtimescalingreasoningmodels"></d-cite> observes fluctuating or decreased accuracy when budget forcing is applied in knowledge-intensive domains, and finds little to no benefit in fields like medicine <d-cite key="huang2025m"></d-cite>.
 
 One hypothesis ties these patterns together: models may simply be more familiar with certain reasoning lengths because those lengths are more commonly represented in training data. Extremely long chains of thought appear less frequently, making the model less practiced in producing them. As a result, artificially lengthening the reasoning process does not always yield deeper or more reliable thinking. This idea will be explored further later in the post.
+
+### What We Will Do In This Blog?
+
+Given the contradictory results in prior work, we revisit budget forcing and evaluate it in a more systematic setup to understand *how well the technique generalizes* and *how its individual components affect outcomes*. This is not an exhaustive study; instead, we focus on several particularly interesting aspects: **model compatibility**, **budget scaling behavior**, and **keyword choice**. Let's dive in.
 
 <div class="highlight-card">
     <div class="icon">📝</div>
@@ -366,14 +371,14 @@ Not all reasoning models are created equal — or trained the same way. Broadly 
 
 #### Experimental Setup
 
-To explore this, we selected several models that all share the **same initial model** — `Qwen2.5 7B Instruct` — to make comparisons as fair and controlled as possible.
+To explore this, we selected several models that all share the **same initial model** — `Qwen2.5-7B-Instruct` — to make comparisons as fair and controlled as possible.
 
 Specifically, we used:
 
 - [`simplescaling/s1.1-7B`](https://huggingface.co/simplescaling/s1.1-7B) (SFT-based, an updated version from the s1 paper)
 - [`open-thoughts/OpenThinker3-7B`](https://huggingface.co/open-thoughts/OpenThinker-7B) (SFT-based, for comparison with s1.1)
 - [`deepseek-ai/DeepSeek-R1-Distill-Qwen-7B`](https://huggingface.co/deepseek-ai/DeepSeek-R1-Distill-Qwen-7B) (SFT-based, for comparison with s1.1 and OpenThinker3)
-- `RFT` — our own reasoning model fine-tuned from `Qwen2.5 7B Instruct` using pure reinforcement fine-tuning, **without** additional SFT reasoning data.
+- `RFT` — our own reasoning model fine-tuned from `Qwen2.5-7B-Instruct` using pure reinforcement fine-tuning, **without** additional SFT reasoning data.
 
 {% details More technical details on how we trained the `RFT` model %}
 
@@ -386,57 +391,128 @@ Specifically, we used:
 
 ```bash
 python3 -m verl.trainer.main_ppo \
-algorithm.adv_estimator=grpo \
-data.train_files=$TRAIN_SET \
-data.val_files=$TRAIN_SET \
-data.train_batch_size=256 \
-data.max_prompt_length=2048 \
-data.max_response_length=4096 \
-data.return_raw_chat=true \
-actor_rollout_ref.model.path=$MODEL \
-actor_rollout_ref.model.use_fused_kernels=True \
-actor_rollout_ref.model.fused_kernel_options.impl_backend=torch \
-actor_rollout_ref.model.use_remove_padding=True \
-actor_rollout_ref.model.enable_gradient_checkpointing=True \
-actor_rollout_ref.actor.optim.lr=1e-6 \
-actor_rollout_ref.actor.ppo_mini_batch_size=96 \
-actor_rollout_ref.actor.fsdp_config.param_offload=False \
-actor_rollout_ref.actor.fsdp_config.optimizer_offload=False \
-actor_rollout_ref.ref.fsdp_config.param_offload=False \
-actor_rollout_ref.rollout.log_prob_micro_batch_size_per_gpu=16 \
-actor_rollout_ref.rollout.tensor_model_parallel_size=1 \
-actor_rollout_ref.rollout.gpu_memory_utilization=0.8 \
-actor_rollout_ref.rollout.n=8 \
-actor_rollout_ref.rollout.dtype=bfloat16 \
-actor_rollout_ref.actor.strategy=fsdp2 \
-actor_rollout_ref.ref.strategy=fsdp2 \
-critic.strategy=fsdp2 \
-actor_rollout_ref.actor.use_dynamic_bsz=True \
-actor_rollout_ref.actor.ppo_max_token_len_per_gpu=36864 \
-actor_rollout_ref.ref.log_prob_max_token_len_per_gpu=98304 \
-actor_rollout_ref.rollout.log_prob_max_token_len_per_gpu=98304 \
-actor_rollout_ref.rollout.response_length=8192 \
-actor_rollout_ref.rollout.agent.num_workers=1 \
-actor_rollout_ref.rollout.agent.agent_loop_config_path=$AGENT_LOOP_CONFIG \
-actor_rollout_ref.rollout.name=vllm \
-actor_rollout_ref.rollout.mode=async \
-actor_rollout_ref.rollout.trace.backend=weave \
-actor_rollout_ref.rollout.trace.token2text=True \
-algorithm.use_kl_in_reward=False \
-reward_model.reward_manager=$REWARD_MANAGER \
-custom_reward_function.path=$REWARD_FN \
-custom_reward_function.name=$REWARD_FN_NAME \
-trainer.critic_warmup=0 \
-trainer.logger=['console','wandb'] \
-trainer.project_name=$PROJECT_NAME \
-trainer.experiment_name=$EXPERIMENT_NAME \
-trainer.val_before_train=False \
-trainer.default_hdfs_dir=null \
-trainer.n_gpus_per_node=4 \
-trainer.nnodes=1 \
-trainer.save_freq=100 \
-trainer.test_freq=1000000 \
-trainer.total_epochs=2 2>&1
+ algorithm.adv_estimator=grpo \
+ data.train_files=RUC-AIBOX/STILL-3-Preview-RL-Data \
+ data.val_files=RUC-AIBOX/STILL-3-Preview-RL-Data \
+ data.train_batch_size=256 \
+ data.max_prompt_length=2048 \
+ data.max_response_length=4096 \
+ actor_rollout_ref.model.path=Qwen/Qwen2.5-7B-Instruct \
+ actor_rollout_ref.actor.optim.lr=1e-6 \
+ actor_rollout_ref.model.use_remove_padding=True \
+ actor_rollout_ref.model.enable_gradient_checkpointing=True \
+ +actor_rollout_ref.model.use_torch_compile=True \
+ actor_rollout_ref.actor.ppo_mini_batch_size=64 \
+ actor_rollout_ref.actor.fsdp_config.param_offload=False \
+ actor_rollout_ref.actor.fsdp_config.optimizer_offload=False \
+ actor_rollout_ref.ref.fsdp_config.param_offload=False \
+ actor_rollout_ref.rollout.log_prob_micro_batch_size_per_gpu=8 \
+ actor_rollout_ref.rollout.tensor_model_parallel_size=1 \
+ actor_rollout_ref.rollout.name=vllm \
+ actor_rollout_ref.rollout.gpu_memory_utilization=0.8 \
+ actor_rollout_ref.rollout.n=8 \
+ actor_rollout_ref.actor.strategy=fsdp2 \
+ actor_rollout_ref.ref.strategy=fsdp2 \
+ critic.strategy=fsdp2 \
+ actor_rollout_ref.actor.use_dynamic_bsz=True \
+ actor_rollout_ref.actor.ppo_max_token_len_per_gpu=24576 \
+ actor_rollout_ref.ref.log_prob_max_token_len_per_gpu=24576 \
+ actor_rollout_ref.rollout.log_prob_max_token_len_per_gpu=24576 \
+ algorithm.use_kl_in_reward=False \
+ reward_model.reward_manager=naive \
+ custom_reward_function.path=compute_score \
+ custom_reward_function.name=math_acc_rw_fn.py \
+ trainer.critic_warmup=0 \
+ trainer.logger=['console','wandb'] \
+ trainer.project_name=your_project_name \
+ trainer.experiment_name=your_exp_name \
+ trainer.val_before_train=False \
+ trainer.default_hdfs_dir=null \
+ trainer.n_gpus_per_node=4 \
+ trainer.nnodes=1 \
+ trainer.save_freq=100 \
+ trainer.test_freq=1000000 \
+ trainer.total_epochs=2 2>&1
+```
+
+{% enddetails %}
+
+{% details Reward function (click to expand) %}
+
+```python
+import re
+from typing import Dict, List, Optional
+import numpy as np
+from math_verify import parse, verify
+
+
+def extract_boxed_content(text: Optional[str]) -> Optional[List[str]]:
+    if text is None:
+        return None
+
+    pattern = r"\\boxed\{((?:[^{}]|\{[^{}]*\})*)\}"
+    return re.findall(pattern, text)
+
+
+def math_boxed_reward_func(
+    assistant_message: str, ground_truth: str | float | int
+) -> float:
+    """Reward function for math problems with boxed answers."""
+    extracted_answers = extract_boxed_content(assistant_message)
+    if not extracted_answers or len(extracted_answers) == 0:
+        return 0.0
+
+    parsed_extracted_answer = parse(extracted_answers[-1])
+    parsed_ground_truth = parse(ground_truth)
+
+    if verify(parsed_ground_truth, parsed_extracted_answer):
+        return 1.0
+
+    return 0.0
+
+
+def format_reward_func(assistant_message: Optional[str]) -> float:
+    """Scores the assistant message based on formatting (<think> tags)."""
+    if assistant_message is None or len(assistant_message) == 0:
+        return 0.0
+
+    think_pattern = r"<think>.*?</think>"
+    matches = re.findall(think_pattern, assistant_message, re.DOTALL)
+
+    if (
+        len(matches) == 1
+        and assistant_message.strip().startswith("<think>")
+        and assistant_message.count("<think>") == 1
+        and assistant_message.count("</think>") == 1
+    ):
+        return 1.0
+    return 0.0
+
+
+def compute_score(
+    data_source: str,
+    solution_str: str,
+    ground_truth: str,
+    extra_info: Optional[Dict] = None,
+) -> float:
+    """
+    A unified reward function for `verl` that handles 'math' types.
+
+    Args:
+        data_source (str): The name of the dataset (provided by verl).
+        solution_str (str): The response generated by the model.
+        ground_truth (str): The ground truth answer.
+        extra_info (dict, optional): A dictionary for additional data. Defaults to None.
+
+    Returns:
+        float: The calculated reward score.
+    """
+
+    format_score = format_reward_func(solution_str)
+    accuracy_score = math_boxed_reward_func(solution_str, ground_truth)
+
+    combined_score = np.mean([accuracy_score, format_score])
+    return combined_score
 ```
 
 {% enddetails %}
@@ -452,7 +528,7 @@ We evaluated all four models on a diverse set of reasoning benchmarks:
 
 Together, these benchmarks give us a **holistic view** of how budget forcing affects models across both mathematical (as proposed originally in the s1 paper) and non-mathematical domains.
 
-We also fixed the **thinking budget** to `8192` tokens — a value that's comfortably above the average reasoning length for most models.
+We used the following sampling parameters for all evaluations: `temperature = 0.6`, `max_tokens = 8192`, `top_p = 0.95`, `top_k = 20`, and `presence_penalty = 0.5`. We also fixed the **thinking budget** to `8192` tokens — a value that's comfortably above the average reasoning length for most models.
 
 Here's what we found:
 
@@ -529,7 +605,7 @@ Here's what we found:
                 <td><strong>59.51</strong></td>
             </tr>
             <tr>
-                <td>DeepSeek-R1-7B</td>
+                <td>DeepSeek-R1-Distill-Qwen-7B</td>
                 <td>Zero-shot</td>
                 <td>33.33</td>
                 <td>81.00</td>
@@ -538,7 +614,7 @@ Here's what we found:
                 <td>32.88</td>
             </tr>
             <tr>
-                <td>DeepSeek-R1-7B</td>
+                <td>DeepSeek-R1-Distill-Qwen-7B</td>
                 <td>CoT+BF</td>
                 <td>26.67</td>
                 <td>83.40</td>
@@ -556,9 +632,9 @@ Here's what we found:
 
 {% include figure.liquid path="assets/img/2026-04-27-wait-do-we-need-to-wait/performance_on_reasoning_models.png" class="img-fluid rounded-lg" %}
 
-Budget forcing (CoT+BF) generally enhances performance, especially in **SFT-based models** like *s1.1-7B* and *OpenThinker3-7B*, which benefit from having more reasoning steps to express their learned procedural thought patterns. These models appear to use the extra budget productively, expanding on intermediate reasoning and improving performance across complex benchmarks. This possibly due to the facts that there are long CoT response exists with in their training sets <a href="https://huggingface.co/datasets/simplescaling/s1K-1.1" target="_blank">s1K-1.1</a> and <a href="https://huggingface.co/datasets/open-thoughts/OpenThoughts3-1.2M" target="_blank">OpenThoughts3-1.2M</a>, respectively.
+Budget forcing (CoT+BF) generally enhances performance, especially in **SFT-based models** like *s1.1-7B* and *OpenThinker3-7B*, which benefit from having more reasoning steps to express their learned procedural thought patterns. These models appear to use the extra budget productively, expanding on intermediate reasoning and improving performance across complex benchmarks. This is possibly due to the fact that long CoT responses exist in their training sets <a href="https://huggingface.co/datasets/simplescaling/s1K-1.1" target="_blank">s1K-1.1</a> and <a href="https://huggingface.co/datasets/open-thoughts/OpenThoughts3-1.2M" target="_blank">OpenThoughts3-1.2M</a>, respectively.
 
-In contrast, *DeepSeek-R1-7B* show minimal or negative gains. The small declines on *AIME 2025* and *MMLU Pro-1K* suggest that overthinking can degrade accuracy when models already operate near optimal reasoning efficiency. Given that we do not have access to the training set of this model, we are unable to state for certainty, but it's likely that only shorter-end of CoT chains are used to train the model. These findings suggest that reasoning improvement under budget forcing depends more on **training configurations**.
+In contrast, *DeepSeek-R1-Distill-Qwen-7B* shows minimal or negative gains. The small declines on *AIME 2025* and *MMLU Pro-1K* suggest that overthinking can degrade accuracy when models already operate near optimal reasoning efficiency. Given that we do not have access to the training set of this model, we are unable to state this with certainty, but it's likely that only the shorter end of CoT chains is used to train the model. These findings suggest that reasoning improvement under budget forcing depends more on **training configurations**.
 
 ### Is Linear Scaling Real?
 
@@ -741,7 +817,7 @@ In contrast, *DeepSeek-R1-7B* show minimal or negative gains. The small declines
             <td><strong>59.51</strong></td>
             </tr>
             <tr>
-            <td>DS-R1-Distill-Qwen-7B</td>
+            <td>DeepSeek-R1-Distill-Qwen-7B</td>
             <td>256</td>
             <td>26.67</td>
             <td>84.20</td>
@@ -750,7 +826,7 @@ In contrast, *DeepSeek-R1-7B* show minimal or negative gains. The small declines
             <td>31.47</td>
             </tr>
             <tr>
-            <td>DS-R1-Distill-Qwen-7B</td>
+            <td>DeepSeek-R1-Distill-Qwen-7B</td>
             <td>512</td>
             <td>26.67</td>
             <td>84.00</td>
@@ -759,7 +835,7 @@ In contrast, *DeepSeek-R1-7B* show minimal or negative gains. The small declines
             <td>31.57</td>
             </tr>
             <tr>
-            <td>DS-R1-Distill-Qwen-7B</td>
+            <td>DeepSeek-R1-Distill-Qwen-7B</td>
             <td>1024</td>
             <td>16.67</td>
             <td>81.80</td>
@@ -768,7 +844,7 @@ In contrast, *DeepSeek-R1-7B* show minimal or negative gains. The small declines
             <td>28.67</td>
             </tr>
             <tr>
-            <td>DS-R1-Distill-Qwen-7B</td>
+            <td>DeepSeek-R1-Distill-Qwen-7B</td>
             <td>2048</td>
             <td>20.00</td>
             <td>83.20</td>
@@ -777,7 +853,7 @@ In contrast, *DeepSeek-R1-7B* show minimal or negative gains. The small declines
             <td>30.10</td>
             </tr>
             <tr>
-            <td>DS-R1-Distill-Qwen-7B</td>
+            <td>DeepSeek-R1-Distill-Qwen-7B</td>
             <td>4096</td>
             <td>20.00</td>
             <td>83.20</td>
@@ -786,7 +862,7 @@ In contrast, *DeepSeek-R1-7B* show minimal or negative gains. The small declines
             <td>30.55</td>
             </tr>
             <tr>
-            <td>DS-R1-Distill-Qwen-7B</td>
+            <td>DeepSeek-R1-Distill-Qwen-7B</td>
             <td>8192</td>
             <td>26.67</td>
             <td>83.40</td>
@@ -808,9 +884,9 @@ In this experiment, we vary the **thinking token budget** from **256** to *
 
 As expected, all models perform better at a higher budget (8192) compared to the lowest budget (256). However, the trend is **not linear**.
 
-- Only the **RFT model** exhibits a roughly linear improvement from 256 to 1024 tokens, after which its performance becomes inconsistent.
-- **s1.1** and **OpenThinker3** both show an early **performance plateau**, with gains concentrated in a mid-range of budgets.
-- **DeepSeek-R1 Distill** fluctuates slightly with little overall difference across the scaling curve.
+- Only the **RFT model** exhibits a roughly linear improvement from 256 to 1024 tokens, after which its performance becomes inconsistent.
+- **s1.1** and **OpenThinker3** both show an early **performance plateau**, with gains concentrated in a mid-range of budgets.
+- **DeepSeek-R1-Distill-Qwen-7B** fluctuates slightly with little overall difference across the scaling curve.
 
 Interestingly, **s1.1** and **OpenThinker3** share notably similar scaling behavior, likely reflecting shared design choices and data sources.
 
@@ -824,7 +900,7 @@ We can peek into the generations to understand how additional tokens are used.
 
 {% details Examples of Repetitive Chunks %}
 
-**Qwen2.5 7B Instruct; budget = 256 tokens**
+**Qwen2.5-7B-Instruct; budget = 256 tokens**
 
 {% details MATH500 (Correct answer: 15x - 80) %}
 
@@ -938,7 +1014,7 @@ Here, the first few "Wait" tokens trigger genuine re-checking. After that, the m
         
 {% details Example of Alternating Answers %}
 
-**Qwen2.5 7B Instruct; budget = 8192 tokens**
+**Qwen2.5-7B-Instruct; budget = 8192 tokens**
 
 {% details MMLU Pro %}
 
@@ -1013,7 +1089,7 @@ The answer flips back and forth among A, E, and F multiple times. Here, "Wait" *
 
 {% enddetails %}
 
-At a high level, our quantitative results support the view that models can only use additional tokens productively up to the lengths represented in their training data. Beyond that range, longer chains of thought become out-of-distribution, and extra tokens may introduce noise, redundancy, or even self-contradiction.
+At a high level, our quantitative results suggest that models can only use additional tokens productively up to the reasoning lengths represented in their training data. Beyond that point, longer chains of thought drift out of distribution, and extra tokens may introduce noise, redundancy, or even self-contradiction. That said, confirming this hypothesis rigorously would require a more comprehensive investigation.
 
 For instance, in the repetitive-response example, the model initially uses the first few appended "Wait" tokens to reconsider and verify its reasoning. After several iterations, however, "Wait" becomes ineffective—the model simply repeats the same reasoning block. This may indicate that the model is confident in its answer, or that the extended reasoning length has moved far beyond its training distribution.
 
@@ -1060,7 +1136,7 @@ Importantly, this structure can often be induced **through prompting alone**, e
 
 ---
 
-To explore this, we prompted **Qwen2.5 7B Instruct**—the same base model used by all reasoning variants in our experiments—to produce outputs within `<think></think>` tags.
+To explore this, we prompted **Qwen2.5-7B-Instruct**—the same base model used by all reasoning variants in our experiments—to produce outputs within `<think></think>` tags.
 
 {% details Prompt template %}
 
@@ -1077,7 +1153,7 @@ If this setup works, it means we can apply **test-time scaling** techniques like
 
 So, what happens when we try it?
 
-### Results with Qwen2.5 7B Instruct
+### Results with Qwen2.5-7B-Instruct
 
 {% details Result Table %}
 
@@ -1322,8 +1398,8 @@ All runs use the same budget-forcing machinery (with `<think>...</think>` and 
 
 Unfortunately, the benefits of budget forcing do not generally transfer across model families.
 
-- For **Llama 3.1 8B Instruct** and **Ministral 8B Instruct**, budget forcing **reduces performance** on most benchmarks, with the minor exception of AIME 2025 for Ministral.
-- **Gemma 3 4B Instruct** shows a small positive effect, especially on QA benchmarks, but CoT alone already harms some metrics, and CoT+BF mostly recovers them.
+- For **Llama 3.1 8B Instruct** and **Ministral 8B Instruct 2410**, budget forcing **reduces performance** on most benchmarks, with the minor exception of AIME 2025 for Ministral.
+- **Gemma 3 4B IT** shows a small positive effect, especially on QA benchmarks, but CoT alone already harms some metrics, and CoT+BF mostly recovers them.
 
 Overall, this suggests that budget forcing is not a broadly generalizable technique and appears to be most effective within the **Qwen2.5 model family (and close relatives)** under our experimental conditions.
 
@@ -1363,7 +1439,7 @@ Before running our experiments, we first needed a principled way to **choose ke
 
 To do this, we started with a simple approach: we performed a **word-frequency analysis** on sampled reasoning traces from Qwen3-8B and DeepSeek-R1-Distill-8B across MATH500 and MMLU Pro-1K. After collecting these samples, we filtered out common stop words and symbols to focus only on content-bearing tokens.
 
-We found that **"Wait" isn't actually the most frequent word** in the models' reasoning traces. Instead, each model had its own set of frequently used reasoning words.
+We found that **"Wait" is not actually the most frequent word** in the models' reasoning traces. Instead, each model has its own set of frequently used reasoning words.
 
 Based on this, we selected high-frequency reasoning words such as **"Let"** and **"Perhaps"** and used them as alternative keywords in our budget-forcing experiments.
 
@@ -1453,7 +1529,7 @@ Overall: `['Perhaps', 'Option', 'Maybe', 'Let', 'Yes']`
 - **Philosophy**: `['Option', 'Perhaps', 'Kant', 'Let', 'Maybe']`
 {% enddetails %}
 
-This analysis suggested that "Let" and "Perhaps" are **natural reasoning words** for these models—often appearing at the beginning of sub-derivations or alternative hypotheses.
+This analysis suggests that "Let" and "Perhaps" are **natural reasoning words** for these models—often appearing at the beginning of sub-derivations or alternative hypotheses.
 {% enddetails %}
     
 
@@ -1482,7 +1558,7 @@ We then followed the same experimental setup as before, testing multiple reasoni
 </thead>
 <tbody>
 <tr>
-<td>Qwen2.5 7B Instruct</td>
+<td>Qwen2.5-7B-Instruct</td>
 <td>Wait</td>
 <td>20.00</td>
 <td>61.00</td>
@@ -1491,7 +1567,7 @@ We then followed the same experimental setup as before, testing multiple reasoni
 <td>39.27</td>
 </tr>
 <tr>
-<td>Qwen2.5 7B Instruct</td>
+<td>Qwen2.5-7B-Instruct</td>
 <td>Perhaps</td>
 <td>23.33</td>
 <td>64.00</td>
@@ -1500,7 +1576,7 @@ We then followed the same experimental setup as before, testing multiple reasoni
 <td>41.16</td>
 </tr>
 <tr>
-<td>Qwen2.5 7B Instruct</td>
+<td>Qwen2.5-7B-Instruct</td>
 <td>Let</td>
 <td>26.67</td>
 <td>66.40</td>
@@ -1536,7 +1612,7 @@ We then followed the same experimental setup as before, testing multiple reasoni
 <td>41.83</td>
 </tr>
 <tr>
-<td>s1.1 7B</td>
+<td>s1.1-7B</td>
 <td>Wait</td>
 <td>23.33</td>
 <td>74.20</td>
@@ -1545,7 +1621,7 @@ We then followed the same experimental setup as before, testing multiple reasoni
 <td>48.26</td>
 </tr>
 <tr>
-<td>s1.1 7B</td>
+<td>s1.1-7B</td>
 <td>Perhaps</td>
 <td><strong>33.33</strong></td>
 <td>73.80</td>
@@ -1554,7 +1630,7 @@ We then followed the same experimental setup as before, testing multiple reasoni
 <td><strong>50.21</strong></td>
 </tr>
 <tr>
-<td>s1.1 7B</td>
+<td>s1.1-7B</td>
 <td>Let</td>
 <td>16.67</td>
 <td>76.20</td>
@@ -1654,13 +1730,13 @@ Across all six models, we observe a consistent pattern:
 
 - The three keywords yield **similar** performance ranges,
 - But **"Wait" is never the best keyword** for any model,
-- And the best keyword is **model-specific** (e.g., "Let" for Qwen2.5 Instruct, "Perhaps" for s1.1 in terms of average score).
+- And the best keyword is **model-specific** (e.g., "Let" for Qwen2.5-7B-Instruct, "Perhaps" for s1.1 in terms of average score).
 
 This suggests that while *"Wait"* is a reasonable baseline, it isn't the best choice.
 
 Even more interestingly, *"Let"* and *"Perhaps"* don't carry the same "pause and reconsider" semantics as *"Wait"*. Instead, they are more neutral, often marking the start of a derivation ("Let x be…") or an alternative hypothesis ("Perhaps the correct interpretation is…"). Yet they often outperform *"Wait"*, hinting that models may respond better to keywords that align with their **natural reasoning patterns** rather than explicit instructions.
 
-Our word-frequency analysis offers a plausible explanation: models tend to use words like *"Let"* and *"Perhaps"*frequently in their own reasoning tracRees. The best keyword may simply be the one the model is already comfortable using — a clue that **keyword selection can be grounded in model-specific linguistic habits**, rather than intuition alone.
+Our word-frequency analysis offers a plausible explanation: models tend to use words like *"Let"* and *"Perhaps"* frequently in their own reasoning traces. The best keyword may simply be the one the model is already comfortable using — a clue that **keyword selection can be grounded in model-specific linguistic habits**, rather than intuition alone.
 
 <div class="highlight-card">
     <div class="icon">📝</div>
@@ -1685,7 +1761,7 @@ Across a broad set of experiments, several key insights emerge:
 
 **1. Budget forcing helps—but only for some models.**
 
-SFT-based reasoning models such as s1.1 and OpenThinker3 (and, to a lesser extent, Qwen2.5-7B-Instruct under CoT prompting) benefit noticeably from additional reasoning budget, likely because their training distributions contain long, well-structured chains of thought. In contrast, RFT-based and distillation-based models show mixed results, and DeepSeek R1 Distill often degrades when forced to "overthink."
+SFT-based reasoning models such as s1.1 and OpenThinker3 (and, to a lesser extent, Qwen2.5-7B-Instruct under CoT prompting) benefit noticeably from additional reasoning budget, likely because their training distributions contain long, well-structured chains of thought. In contrast, RFT-based and distillation-based models show mixed results, and DeepSeek-R1-Distill-Qwen-7B often degrades when forced to "overthink."
 
 **2. The popular claim of "linear scaling" does not hold universally.**
 
@@ -1699,14 +1775,83 @@ Instruction-tuned models without explicit reasoning training (e.g., Qwen2.5-7B-I
 
 Replacing "Wait" with high-frequency reasoning words such as "Let" or "Perhaps" often yields better results. Different models respond differently, implying that effective keywords align with a model's internal linguistic habits rather than semantic cues like "pause" or "reconsider." Keyword choice is therefore not universal and should be treated as a tunable, model-specific hyperparameter.
 
+<div class="highlight-card">
+    <div class="icon">⚡</div>
+    <div class="content">
+        <div class="title">Bottom Line</div>
+        <p><strong>Budget forcing is neither a universal law nor a guaranteed improvement.</strong> Its effectiveness depends on:</p>
+        <ul>
+            <li><strong>Training style</strong>: SFT models with long CoT data benefit most</li>
+            <li><strong>Model family</strong>: Qwen-based models respond best; others often don't</li>
+            <li><strong>Keyword choices</strong>: Keyword matters significantly</li>
+        </ul>
+        <p>While budget forcing can provide meaningful gains for the right models (especially SFT reasoning models in the Qwen family), many open questions remain—including whether improvements correlate with token entropy <d-cite key="wang2025beyond"></d-cite>, internal uncertainty, or other emergent signals not yet fully understood.</p>
+    </div>
+</div>
+
 ---
 
-Altogether, these findings show that **budget forcing is neither a universal test-time scaling law nor a guaranteed improvement**. Its effectiveness depends heavily on training style, model family, reasoning length distribution in training data, and even seemingly small linguistic choices like the keyword. While the method can provide meaningful gains—especially for SFT reasoning models in the Qwen family—many open questions remain, including whether improvements correlate with token entropy <d-cite key="wang2025beyond"></d-cite>, internal uncertainty, or other emergent signals not yet fully understood.
+## Practical Recommendations
+
+Based on our experiments, here are actionable guidelines for practitioners looking to apply budget forcing.
+
+<div class="highlight-card">
+    <div class="icon">🎯</div>
+    <div class="content">
+        <div class="title">Quick Start</div>
+        <p>Before diving into details: <strong>Budget forcing works best for Qwen2.5-based SFT reasoning models.</strong> If you're using Llama, Mistral, or other families, test carefully—it may not help.</p>
+    </div>
+</div>
+
+### Step 1: Check Model Compatibility
+
+Not all models benefit from budget forcing. Here's what to expect:
+
+| Category | Models | Expected Outcome |
+|----------|--------|------------------|
+| ✅ **Best** | s1.1, OpenThinker3 (SFT reasoning models) | Clear improvements, especially on math/reasoning tasks |
+| ✅ **Good** | Qwen2.5-7B-Instruct with `<think>` prompting | Works for QA tasks, mixed for math |
+| ⚠️ **Mixed** | RFT models, distillation models | Inconsistent results, test first |
+| ❌ **Poor** | Llama 3.1, Ministral, most non-Qwen families | Often degrades performance |
+
+### Step 2: Choose the Right Keyword
+
+The keyword "Wait" is **not optimal** for most models. Choose based on your model's natural reasoning patterns:
+
+#### Our Top Findings
+
+- **Qwen2.5-7B-Instruct** → Use **"Let"**
+- **s1.1** → Use **"Perhaps"**
+- **General rule** → Pick words your model naturally uses (e.g., "Let", "Perhaps", "Therefore"), not instruction words like "Wait"
+
+### Step 3: Set the Right Budget
+
+Bigger budgets are **not always better**. Performance typically plateaus around 2048-4096 tokens.
+
+#### Recommended Starting Points
+
+- **First test**: Start with **1024 tokens** (good baseline for most models)
+- **Math/reasoning**: Try 2048-4096 tokens
+- **QA tasks**: 512-1024 tokens usually enough
+- **Don't exceed**: 4096 tokens (rarely helps beyond this)
+
+Monitor for failure modes: repetition (model loops) or instability (answer keeps changing).
+
+### When to Avoid Budget Forcing
+
+**Don't use budget forcing** if:
+
+| ❌ Skip if... | Why |
+|--------------|-----|
+| Using Llama or Mistral families | Rarely helps, often hurts |
+| Zero-shot already works well | Budget forcing may degrade performance |
+| Compute budget is tight | Token cost increase |
+| See large numbers of repetition in of outputs | Model is looping, not thinking |
 
 ---
 
 ## Limitations
 
-Our results are based on a limited set of models, scales, and training pipelines. Most of the positive findings come from Qwen2.5-based models; while we also test Llama 3.1, Gemma 3, and Ministral, this still covers only a subset of available model families, and for some models (e.g., DeepSeek-R1-Distill) we do not know the exact training data or CoT length distribution.
+Our results are based on a limited set of models, scales, and training pipelines. Most of the positive findings come from Qwen2.5-based models; while we also test Llama 3.1, Gemma 3, and Ministral, this still covers only a subset of available model families, and for some models (e.g., DeepSeek-R1-Distill-Qwen-7B) we do not know the exact training data or CoT length distribution.
 
 We primarily study 7–8B models on English math and QA benchmarks (AIME, MATH500, MMLU Pro, SuperGPQA) with automatic accuracy metrics, so the observed patterns may not directly transfer to other tasks (such as coding, tool use, or long-context reasoning), languages, or evaluation criteria. Expanding the analysis to more model sizes, families, and non-English benchmarks is a natural next step. Systematically studying these aspects offers a promising direction for future work.
