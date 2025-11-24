@@ -678,7 +678,7 @@ Solution via Discretization: The parameter space $\Theta$ can be partitioned int
 $$ p_{PCC}(x, \theta) = \sum_{k=1}^K \mathbb{I}(\theta \in \Delta^k) \cdot p_{PC}(g_{\theta^k}(x), \theta) \cdot g'_{\theta^k}(x) $$
 Each term in the sum is locally tractable. The overall mechanism can be represented as a large PC starting with a root sum node switching over the regions $\Delta^k$. This increases model size linearly with $K$ but preserves exact inference.
 
-## Construction of Admissible Recalibration Functions
+### Construction of Admissible Recalibration Functions
 
 The theoretical guarantee of the PCC Theorem relies on the choice of function $g(x)$. It must be "admissible," i.e., strictly monotonically increasing and continuously differentiable, to function as a valid density transformer.
 
@@ -697,6 +697,18 @@ To guarantee monotonicity, I-Splines (Integrated Splines) can be used. These are
 For highly complex calibration errors, Deep Learning offers a more powerful solution. Unconstrained Monotonic Neural Networks (UMNNs) define a monotonic function $g(x)$ as the integral of a strictly positive neural network $f(t)$
 $$g(x) = \int_0^x f(t; \psi) dt + \beta$$
 The network $f(t)$ can be arbitrarily complex (e.g., an MLP with ELU+1 activation), provided it remains positive. By the Fundamental Theorem of Calculus, $g'(x) = f(x)$. Since $f(x) > 0$, $g$ is strictly monotonic.
+
+### Alternative and Complementary Approaches
+
+Tractable Dropout Inference (TDI)
+Comparison: TDI primarily targets the detection of Out-of-Distribution (OOD) data by estimating epistemic uncertainty regarding model parameters themselves. PCCs, conversely, correct the aleatoric and epistemic uncertainty of the predictive distribution post-hoc. While TDI improves robustness on OOD data, it does not guarantee statistical calibration on In-Distribution (ID) data, which is the primary goal of PCCs.
+
+Simulation-Based Calibration (SBC)
+SBC is a simmilar diagnostic tool like PIT resulting in the same calibration error. Just PIT is efficiently computabel by PCs.
+
+Conformal Prediction (CP)
+
+Certifiably Robust Learning-Reasoning Conformal Prediction via Probabilistic Circuits (COLEP)
 
 ### Discussion and Limitations
 
