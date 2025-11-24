@@ -1115,6 +1115,8 @@ Conversely, we also observe cases where the model continually changes its answer
 
 ## Budget Forcing Works With Non-Reasoning Models? Or Not?
 
+{% include figure.liquid path="assets/img/2026-04-27-wait-do-we-need-to-wait/llms.jpg" class="img-fluid rounded-lg" %}
+
 Now that we've seen **budget forcing** improve performance in reasoning models, though the promised *linear performance trend* doesn't always hold, this raises another intriguing question:
 
 <div class="highlight-card">
@@ -1421,6 +1423,8 @@ Overall, this suggests that budget forcing is not a broadly generalizable techni
 
 ## Wait, You Do Not Need to Wait?
 
+{% include figure.liquid path="assets/img/2026-04-27-wait-do-we-need-to-wait/hero_keywords.png" class="img-fluid rounded-lg" %}
+
 Let's turn our attention to another interesting aspect of budget forcing — the **keyword**.
 
 So far we've treated "Wait" as the canonical budget-forcing keyword. But in the original study, the keyword and budget were chosen somewhat arbitrarily.
@@ -1535,7 +1539,7 @@ This analysis suggests that "Let" and "Perhaps" are **natural reasoning words** 
 
 ### Let Us Try Other Keywords: Perhaps We Will Get Interesting Results
 
-{% include figure.liquid path="assets/img/2026-04-27-wait-do-we-need-to-wait/keywords.png" class="img-fluid rounded-lg" %}
+{% include figure.liquid path="assets/img/2026-04-27-wait-do-we-need-to-wait/keyword_choices.png" class="img-fluid rounded-lg" %}
 
 We then followed the same experimental setup as before, testing multiple reasoning models with:
 
