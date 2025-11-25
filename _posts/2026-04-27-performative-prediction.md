@@ -137,11 +137,29 @@ $$ \mathcal{PR}(\theta) := \mathcal{DPR}(\theta, \theta) = \mathbb{E}_{(x,y) \si
 
 The performative risk captures the risk after the automatic distribution shift due to model deployment, so after some time the risk will no longer be $$\mathcal{DPR}(\theta^{(t)}, \theta^{(t+1)})$$ but $$\mathcal{PR}(\theta^{(t+1)})$$. Note that compared to the risk in the traditional ML setup, in the performative risk the data distribution is not fixed but depends on $$\theta$$.
 
-**Replace this figure with the interactive figure**
+<div class="l-screen" style="display: flex; justify-content: center; align-items: center; padding: 40px 0; min-height: 90vh;">
+  <div style="background: #FFF8E7; border-radius: 40px; padding: 30px; width: 90%; height: 90%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+    <iframe src="{{ 'assets/html/2026-04-27-performative-prediction/risk_iteration_scroll.html' | relative_url }}" 
+            frameborder="0" 
+            scrolling="yes" 
+            width="100%" 
+            height="100%" 
+            style="border: none; border-radius: 30px; background: transparent;">
+    </iframe>
+  </div>
+</div>
 
-{% include figure.liquid path="assets/img/2026-04-27-performative-prediction/Line Plot.svg" class="img-fluid" %}
+### Visualizing the decoupled risk v2
 
-### Visualizing the decoupled risk 
+<div class="l-screen" style="min-height: 90vh;">
+  <iframe src="{{ 'assets/html/2026-04-27-performative-prediction/decoupled_risk_landscape.html' | relative_url }}?v=3" 
+          frameborder='0' 
+          scrolling='no' 
+          width="100%" 
+          height="100%" 
+          style="border: none; background: transparent; min-height: 90vh;">
+  </iframe>
+</div>
 
 Most works center their analysis on the performative risk <d-footnote> And it is understandable as it is the final objetive of optimization</d-footnote>. Nevertheless, as we saw in the last section, the performative risk is not valid right after the deployment. To have full underdstanding of the optimization landscape, we need to take then a look beyond the performative risk. We introduce a simple visualization technique based on decoupling the predictive model, $\theta_M$, from the model that the distribution reacts to, $\theta_D$, which is used as input for the distribution map: $\mathcal{D}(\theta_D)$.Thoughout this blogpost, we use this visualization to gain insights into questions like: what are the practical differences between an stable and optimal point? How do certain algorithm converge? Or how can we have a sense of convergence if theorical assumptions are not met?
 
