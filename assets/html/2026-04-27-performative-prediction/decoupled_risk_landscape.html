@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: transparent;
+        }
+        .container {
+            display: flex;
+            gap: 20px;
+            width: 100%;
+            height: 650px;
+        }
+        #plot {
+            flex: 1;
+            height: 100%;
+        }
+        #risk-chart {
+            flex: 1;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #loading {
+            text-align: center;
+            padding: 20px;
+            font-size: 16px;
+            color: #666;
+        }
+        svg {
+            overflow: visible;
+        }
+    </style>
+</head>
+<body>
+    <div id="loading">Loading data...</div>
+    <div class="container">
+    <div id="plot"></div>
+        <div id="risk-chart"></div>
+    </div>
+    
+    <script>
+        // Global variables
+        let landscapeData = null;
+        let algorithmTrajectories = {};
+        let currentAlgorithm = 'PerfGDReparam';
+        let showDiagonal = true;
+        
+        // Load the pricing landscape data
+        async function loadLandscape() {
+            try {
+                const cacheBuster = new Date().getTime();
+                const response = await fetch(`../../json/2026-04-27-performative-prediction/decoupled_risk_surface.json?v=${cacheBuster}`);
+                const data = await response.json();
+                
+                const landscapeMatrix = data.landscape[0];
+                const transposed = landscapeMatrix[0].map((_, colIndex) => 
+                    landscapeMatrix.map(row => row[colIndex])
+                );
+                
+                landscapeData = {
+                    x: data.x[0].map(arr => arr[0]),
+                    y: data.y[0].map(arr => arr[0]),
+                    z: transposed
+                };
+                return true;
+            } catch (error) {
+                console.error('Error loading landscape:', error);
+                createDemoData();
+                return false;
+            }
+        }
+        
+        // Load algorithm trajectory
+        async function loadTrajectory(name, filename, maxIterations = null) {
+            try {
+                const cacheBuster = new Date().getTime();
+                const response = await fetch(`../../json/2026-04-27-performative-prediction/${filename}?v=${cacheBuster}`);
+                const data = await response.json();
+                
+                const limit = maxIterations !== null ? Math.min(maxIterations * 2 + 1, data.p_d.length) : data.p_d.length;
+                
+                algorithmTrajectories[name] = {
+                    p_d: data.p_d.slice(0, limit).map(arr => arr[0]),
+                    p_m: data.p_m.slice(0, limit).map(arr => arr[0]),
+                    losses: data.losses.slice(0, limit),
+                    iterations: data.iteration.slice(0, limit)
+                };
+            } catch (error) {
+                console.error(`Error loading ${name}:`, error);
+            }
+        }
+        
+        // Create demo data if loading fails
+        function createDemoData() {
+            const n = 50;
+            const range = 4;
+            const x = [], y = [];
+            
+            for (let i = 0; i < n; i++) {
+                x.push(-range + 2 * range * i / (n - 1));
+                y.push(-range + 2 * range * i / (n - 1));
+            }
+            
+            const zGrid = [];
+            for (let i = 0; i < n; i++) {
+                const row = [];
+                for (let j = 0; j < n; j++) {
+                    const tM = y[j];
+                    const tD = x[i];
+                    const risk = Math.pow(tM - tD + 1, 2) + 0.5 * Math.pow(tM, 2);
+                    row.push(risk);
+                }
+                zGrid.push(row);
+            }
+            
+            landscapeData = { x, y, z: zGrid };
+        }
+        
+        // Create the 3D plot (left side)
+        function createPlot() {
+            const traces = [];
+            
+            traces.push({
+                type: 'surface',
+                x: landscapeData.x,
+                y: landscapeData.y,
+                z: landscapeData.z,
+                colorscale: 'Viridis',
+                showscale: true,
+                name: 'DR(θ_M, θ_D)',
+                hovertemplate: 'θ<sub>D</sub>: %{x:.3f}<br>θ<sub>M</sub>: %{y:.3f}<br>DR: %{z:.3f}<extra></extra>',
+                colorbar: {
+                    title: 'DR',
+                    len: 0.7,
+                    x: -0.15,
+                    xanchor: 'left'
+                }
+            });
+            
+            if (showDiagonal) {
+                const diagonalZ = landscapeData.x.map((val, i) => {
+                    const idx = Math.floor(i * landscapeData.z.length / landscapeData.x.length);
+                    return landscapeData.z[idx][i];
+                });
+                
+                traces.push({
+                    type: 'scatter3d',
+                    mode: 'lines',
+                    x: landscapeData.x,
+                    y: landscapeData.x,
+                    z: diagonalZ,
+                    line: { color: 'black', width: 8 },
+                    name: 'PR(θ): θ<sub>M</sub> = θ<sub>D</sub>',
+                    hovertemplate: 'θ: %{x:.3f}<br>PR: %{z:.3f}<extra></extra>'
+                });
+            }
+            
+            if (currentAlgorithm !== 'none' && algorithmTrajectories[currentAlgorithm]) {
+                const traj = algorithmTrajectories[currentAlgorithm];
+                const colors = traj.iterations.map((_, i) => 
+                    `hsl(${Math.floor(240 - 240 * i / (traj.iterations.length - 1))}, 100%, 50%)`
+                );
+                
+                traces.push({
+                    type: 'scatter3d',
+                    mode: 'lines+markers',
+                    x: traj.p_d,
+                    y: traj.p_m,
+                    z: traj.losses,
+                    line: { color: '#4169E1', width: 5 },
+                    marker: {
+                        size: 6,
+                        color: colors,
+                        symbol: 'circle',
+                        line: { color: 'white', width: 1 }
+                    },
+                    name: `${currentAlgorithm} (14 iter)`,
+                    hovertemplate: '<b>Iteration %{text}</b><br>θ<sub>D</sub>: %{x:.4f}<br>θ<sub>M</sub>: %{y:.4f}<br>DR: %{z:.4f}<extra></extra>',
+                    text: traj.iterations,
+                    showlegend: true
+                });
+            }
+            
+            const layout = {
+                scene: {
+                    xaxis: { title: 'θ<sub>D</sub>', titlefont: { size: 12 } },
+                    yaxis: { title: 'θ<sub>M</sub>', titlefont: { size: 12 } },
+                    zaxis: { title: 'DR(θ<sub>M</sub>,θ<sub>D</sub>)', titlefont: { size: 12 } },
+                    camera: {
+                        eye: { x: 1.8, y: -1.6, z: -2.0 },
+                        up: { x: 0, y: 0, z: 1 },
+                        center: { x: 0, y: 0, z: 0 }
+                    }
+                },
+                showlegend: false,
+                margin: { l: 0, r: 0, b: 0, t: 40 },
+                autosize: true
+            };
+            
+            const config = {
+                responsive: true,
+                displayModeBar: true,
+                displaylogo: false,
+                modeBarButtonsToRemove: ['toImage']
+            };
+            
+            Plotly.newPlot('plot', traces, layout, config);
+        }
+        
+        // Create the 2D risk chart (right side) - all points visible
+        async function createRiskChart() {
+            const container = document.getElementById('risk-chart');
+            if (!container) return;
+
+            // Load risk iterations data
+            const cacheBuster = new Date().getTime();
+            let points;
+            try {
+                const response = await fetch(`../../json/2026-04-27-performative-prediction/risk_iterations.json?v=${cacheBuster}`);
+                const data = await response.json();
+                points = data.points;
+            } catch (error) {
+                console.error('Error loading risk iterations:', error);
+                return;
+            }
+
+            // Set up dimensions
+            const containerHeight = 500;
+            const margin = { top: 40, right: 40, bottom: 50, left: 60 };
+            const width = 500 - margin.left - margin.right;
+            const height = containerHeight - margin.top - margin.bottom;
+
+            // Create SVG
+            const svg = d3.select('#risk-chart')
+                .append('svg')
+                .attr('viewBox', `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
+                .attr('width', '100%')
+                .style('max-width', '550px')
+                .append('g')
+                .attr('transform', `translate(${margin.left},${margin.top})`);
+
+            // Set up scales
+            const xScale = d3.scaleLinear()
+                .domain([0, 6])
+                .range([0, width]);
+
+            const yScale = d3.scaleLinear()
+                .domain([5, 11])
+                .range([height, 0]);
+
+            // Add axes
+            svg.append('g')
+                .attr('transform', `translate(0,${height})`)
+                .call(d3.axisBottom(xScale).ticks(7))
+                .style('font-size', '12px');
+
+            svg.append('g')
+                .call(d3.axisLeft(yScale).ticks(7))
+                .style('font-size', '12px');
+
+            // Add axis labels
+            svg.append('text')
+                .attr('x', width / 2)
+                .attr('y', height + 40)
+                .style('text-anchor', 'middle')
+                .style('font-size', '14px')
+                .text('Iteration');
+
+            svg.append('text')
+                .attr('transform', 'rotate(-90)')
+                .attr('x', -height / 2)
+                .attr('y', -45)
+                .style('text-anchor', 'middle')
+                .style('font-size', '14px')
+                .text('Risk');
+
+            // Draw all lines
+            for (let i = 0; i < points.length - 1; i++) {
+                const currentPoint = points[i];
+                const nextPoint = points[i + 1];
+                const lineColor = currentPoint.color === 'blue' ? '#7BA3D1' : '#D4A574';
+
+                svg.append('line')
+                    .attr('x1', xScale(currentPoint.iteration))
+                    .attr('y1', yScale(currentPoint.value))
+                    .attr('x2', xScale(nextPoint.iteration))
+                    .attr('y2', yScale(nextPoint.value))
+                    .attr('stroke', lineColor)
+                    .attr('stroke-width', 2);
+            }
+
+            // Draw all points
+            points.forEach(point => {
+                svg.append('circle')
+                    .attr('cx', xScale(point.iteration))
+                    .attr('cy', yScale(point.value))
+                    .attr('r', 6)
+                    .attr('fill', point.color === 'blue' ? '#7BA3D1' : '#D4A574');
+            });
+
+            // Define arrowhead markers
+            const defs = svg.append('defs');
+            ['blue', 'orange', 'black'].forEach(color => {
+                const fillColor = color === 'blue' ? '#7BA3D1' : color === 'orange' ? '#D4A574' : 'black';
+                defs.append('marker')
+                    .attr('id', `arrowhead-static-${color}`)
+                    .attr('viewBox', '0 0 10 10')
+                    .attr('refX', 8)
+                    .attr('refY', 5)
+                    .attr('markerWidth', 6)
+                    .attr('markerHeight', 6)
+                    .attr('orient', 'auto')
+                    .append('path')
+                    .attr('d', 'M 0 0 L 10 5 L 0 10 z')
+                    .attr('fill', fillColor);
+            });
+        }
+        
+        // Initialize
+        async function init() {
+            await loadLandscape();
+            await loadTrajectory('PerfGDReparam', 'algorithm_trajectory.json', 14);
+            
+            document.getElementById('loading').style.display = 'none';
+            createPlot();
+            await createRiskChart();
+            
+            window.addEventListener('resize', () => {
+                Plotly.Plots.resize('plot');
+            });
+        }
+        
+        init();
+    </script>
+</body>
+</html>
