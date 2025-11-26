@@ -342,7 +342,51 @@ shift in power grid data—the conditional likelihood computed by the PC drops
 sharply. This score allows operators to distinguish between a ''hard to
 predict'' stochastic sequence (high aleatoric uncertainty) and a ''structurally
 novel'' sequence (high epistemic uncertainty), enabling trustworthy anomaly
-detection in time-series data<d-cite key="thoma_recowns_2021"></d-cite>.   
+detection in time-series data<d-cite key="thoma_recowns_2021"></d-cite>.
+
+### Probabilistic Calibrated Circuits
+While PCs offer exact and efficient inference, a critical problem of calibration arises when applying them to Uncertainty Quantification. The standard training objective for PCs is to approximate the joint distribution $P(X,Y)$ by minimizing the negative log-likelihood, $\mathcal{L}_{NLL} = - \mathbb{E}_{\text{data}} [\log P_{\text{PC}}(x, y)]$.
+However, accurate UQ requires well-calibrated conditional distributions, which are computed only as a secondary step in PCs.
+Since the training objective prioritizes the joint likelihood, it does not guarantee that the conditionals are calibrated. This misalignment can lead to systematic errors in uncertainty estimate. The model might capture the global density well but fail to accurately reflect the confidence in specific predictions.
+
+The authors' current work addresses this miscalibration by answering two key questions: how can systematic calibration error be quantified, and how can it be mitigated? In response, they introduce Probabilistic Calibrated Circuits (PCCs), a novel post-hoc recalibration technique that provably retains the structure and tractability of PCs while reducing miscalibration.
+This section provides a high-level overview of the core concepts, while a more comprehensive treatment will be presented in an upcoming publication.
+
+#### Quantifying the Miscalibration
+
+To diagnose the extend of miscalibration, Probability Integral Transform (PIT) can be utilized. For a continuous random variable $X$ and its cumulative distribution function (CDF) $F_X$, the random variable $Z = F_X(X)$ is uniformly distributed $Z \sim \mathcal{U}(0, 1)$.
+
+The calibration of the conditional distribution $p(x|y)$ can be checked by calculating the PIT values for a recalibration dataset $\{(x_i, y_i)\}$ 
+$z_i = F_{PC}(x_i | y_i) = \int_{-\infty}^{x_i} p_{PC}(x' | y_i) dx'$
+Thanks to the properties of PCs (marginalization and integration), the calculation of $F_{PC}$ is exact and efficient.
+The resulting histogram of PIT values reveals the nature of the error:
+- Uniform Distribution: The model is perfectly calibrated.
+- U-Shape: The model is under-dispersed (distribution too narrow, uncertainty underestimated).
+- Inverted U-Shape: The model is over-dispersed (distribution too broad, uncertainty overestimated).
+- Systematic Shift: The mean of the prediction is systematically incorrect.
+To formally quantify the deviation from uniformity, we can calculate the distance between the empirical CDF of the PIT values, $\hat{F}_{\text{cal}}$, and the ideal uniform CDF. This calibration error, $E_{\text{cal}} = d(\hat{F}_{\text{cal}}(z), \mathcal{U}(0,1))$, serves as the objective function for optimization in PCCs.
+
+#### Post-hoc Input Recalibration
+
+Leveraging the calibration error metric, PCCs employ a post-hoc recalibration method to correct systematic errors in the conditional distributions. The core idea is that a learnable transformation function $g(x)$ is applied to the input variables such that the resulting PIT values approach a uniform distribution. The recalibrated density $p_{cal}$ is derived using the change of variables formula for probability densities
+$p_{cal}(x, y) = p_{PC}(g(x), y) \cdot |g'(x)|$
+The term $|g'(x)|$ is the determinant of the Jacobian matrix (here simply the derivative in the univariate case).
+
+At first glance, this transformation seems to break the tractability. while the transformed inputs $g(x)$ can be easily fed into the leaves, the multiplier $|g'(x)|$ sits outside the graph structure. In a product node separating variables $X$ and $Y$ (decomposability), a global multiplication by a term dependent on $X$ would violate the independence assumption.
+
+However, the following Probabilistic Calibrated Circuit Theorem proves that this external term can be absorbed entirely into the leaf nodes, resulting in a new, valid PC structure.
+
+Theorem (Probabilistic Calibrated Circuits):
+Let $C$ be a valid Probabilistic Circuit computing $p_C(x,y)$. Let $g$ be strictly monotonic and continuously differentiable. The recalibrated density
+$p_{cal}(x,y) = p_C(g(x), y) \cdot g'(x)$
+can be exactly computed by a new, valid Probabilistic Circuit $C_{cal}$, which possesses the identical graph structure to $C$, but with modified leaf distributions.
+
+Proof (Sketch):
+1. At Sum Nodes: A factor $c$ can be pulled into the sum: $(\sum w_i p_i) \cdot c = \sum w_i (p_i \cdot c)$. The Jacobian term $g'(x)$ thus "travels" down the edges to the children.
+2. At Product Nodes: Due to the decomposability property, variable $X$ appears in at most one child branch. The factor $g'(x)$ is therefore passed exclusively to this branch; all other branches remain untouched.
+3. At Leaves: The term eventually reaches the leaf modeling $X$ (originally $\rho_L(x)$). The new leaf now computes $\eta_L(x) = \rho_L(g(x)) \cdot g'(x)$. Since $g$ is a monotonic transformation, $\eta_L$ is itself a valid probability density.
+The result is elegant: A PCC is structurally indistinguishable from a PC. The entire complexity of recalibration is hidden within the leaf nodes. Thus, all inference times remain $O(|C|)$.
+
 
 ## Scaling Circuit Architectures to High Dimensions
 
