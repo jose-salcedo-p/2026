@@ -121,11 +121,29 @@ Ultimately, we are, however, mostly interested in the risk of the model on the d
 
 $$ \mathcal{PR}(\theta) := \mathcal{DPR}(\theta, \theta) = \mathbb{E}_{(x,y) \sim \mathcal{D}(\theta)} [\ell(\theta; x, y)]. $$
 
-**Replace this figure with the interactive figure**
+<div class="l-screen" style="display: flex; justify-content: center; align-items: center; padding: 40px 0; min-height: 90vh;">
+  <div style="background: #FFF8E7; border-radius: 40px; padding: 30px; width: 90%; height: 90%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+    <iframe src="{{ 'assets/html/2026-04-27-performative-prediction/risk_iteration_scroll.html' | relative_url }}" 
+            frameborder="0" 
+            scrolling="yes" 
+            width="100%" 
+            height="100%" 
+            style="border: none; border-radius: 30px; background: transparent;">
+    </iframe>
+  </div>
+</div>
 
-{% include figure.liquid path="assets/img/2026-04-27-performative-prediction/Line Plot.svg" class="img-fluid" %}
+### Visualizing the decoupled risk v2
 
-### Visualizing the decoupled risk 
+<div class="l-screen" style="min-height: 90vh;">
+  <iframe src="{{ 'assets/html/2026-04-27-performative-prediction/decoupled_risk_landscape.html' | relative_url }}?v=3" 
+          frameborder='0' 
+          scrolling='no' 
+          width="100%" 
+          height="100%" 
+          style="border: none; background: transparent; min-height: 90vh;">
+  </iframe>
+</div>
 
 Most works center their analysis on the performative risk (and it is understandable as it is the final objective of optimization). However, as we saw in the last section, the performative risk is not valid right after the deployment. To have full understanding of the optimization dynamics, we need to take then a look beyond the performative risk. 
 

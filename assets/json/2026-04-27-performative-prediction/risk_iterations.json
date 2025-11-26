@@ -1,0 +1,99 @@
+{
+  "points": [
+    {
+      "iteration": 0,
+      "value": 10.22,
+      "color": "blue",
+      "annotations":[
+        {
+          "type": "line",
+          "text": "Optimizing the model for a fixed distribution improves the risk...",
+          "translateX": -20,
+          "translateY": -100
+        }
+      ]
+    },
+    {
+      "iteration": 1,
+      "value": 7.68,
+      "color": "orange",
+      "annotations":[
+        {
+          "type": "point",
+          "text": "... therefore, the risk in this point is DPR(theta_0, theta_1)",
+          "translateX": -30,
+          "translateY": 140
+        },
+        {
+          "type": "line",
+          "text": "but upon deployment, a distribution shift happens...",
+          "translateX": 0,
+          "translateY": 100
+        }
+      ]
+    },
+    {
+      "iteration": 1,
+      "value": 8.50,
+      "color": "blue",
+      "annotations":[
+        {
+          "type": "point",
+          "text": "and the risk becomes PR(theta_1)",
+          "translateX": 0,
+          "translateY": -80
+        }
+      ]
+    },
+    {
+      "iteration": 2,
+      "value": 7.80,
+      "color": "orange"
+    },
+    {
+      "iteration": 2,
+      "value": 7.98,
+      "color": "blue"
+    },
+    {
+      "iteration": 3,
+      "value": 7.80,
+      "color": "orange"
+    },
+    {
+      "iteration": 3,
+      "value": 7.85,
+      "color": "blue"
+    },
+    {
+      "iteration": 4,
+      "value": 7.80,
+      "color": "orange"
+    },
+    {
+      "iteration": 4,
+      "value": 7.81,
+      "color": "blue"
+    },
+    {
+      "iteration": 5,
+      "value": 7.80,
+      "color": "orange"
+    },
+    {
+      "iteration": 5,
+      "value": 7.81,
+      "color": "blue"
+    },
+    {
+      "iteration": 6,
+      "value": 7.80,
+      "color": "orange"
+    },
+    {
+      "iteration": 6,
+      "value": 7.81,
+      "color": "blue"
+    }
+  ]
+}
