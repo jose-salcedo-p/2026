@@ -121,8 +121,8 @@ Ultimately, we are, however, mostly interested in the risk of the model on the d
 
 $$ \mathcal{PR}(\theta) := \mathcal{DPR}(\theta, \theta) = \mathbb{E}_{(x,y) \sim \mathcal{D}(\theta)} [\ell(\theta; x, y)]. $$
 
-<div class="l-screen" style="display: flex; justify-content: center; align-items: center; padding: 40px 0; min-height: 90vh;">
-  <div style="background: #FFF8E7; border-radius: 40px; padding: 30px; width: 90%; height: 90%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+<div class="l-page-outset" style="display: flex; justify-content: center; align-items: center; padding: 40px 0; min-height: 90vh;">
+  <div style="background: #f2f2f2ff; border-radius: 40px; padding: 30px; width: 90%; height: 90%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
     <iframe src="{{ 'assets/html/2026-04-27-performative-prediction/risk_iteration_scroll.html' | relative_url }}" 
             frameborder="0" 
             scrolling="yes" 
@@ -133,17 +133,7 @@ $$ \mathcal{PR}(\theta) := \mathcal{DPR}(\theta, \theta) = \mathbb{E}_{(x,y) \si
   </div>
 </div>
 
-### Visualizing the decoupled risk v2
-
-<div class="l-screen" style="min-height: 90vh;">
-  <iframe src="{{ 'assets/html/2026-04-27-performative-prediction/decoupled_risk_landscape.html' | relative_url }}?v=3" 
-          frameborder='0' 
-          scrolling='no' 
-          width="100%" 
-          height="100%" 
-          style="border: none; background: transparent; min-height: 90vh;">
-  </iframe>
-</div>
+### Visualizing the decoupled risk 
 
 Most works center their analysis on the performative risk (and it is understandable as it is the final objective of optimization). However, as we saw in the last section, the performative risk is not valid right after the deployment. To have full understanding of the optimization dynamics, we need to take then a look beyond the performative risk. 
 
@@ -157,7 +147,15 @@ Note that in this example, the model is the price of the products and the output
 
 With the decoupled risk visualization, it is easier to understand the optimization dynamics! Consider the case where your retailer company only sells one product, $z,\theta \in \mathbb{R}$. <span style="color:#8DA0CB">You train an initial model $\theta^{(1)}$ on the initial distribution $\mathcal{D}(\theta^{(0)})$. Your risk is then $\mathcal{DPR}(\theta^{(0)}, \theta^{(1)})$.</span> <span style="color:#E5C494">After deployment, the distribution changes to $\mathcal{D}(\theta^{(1)})$. Your risk is then $\mathcal{PR}(\theta^{(1)}) = \mathcal{DPR}(\theta^{(1)}, \theta^{(1)})$.</span> This pull towards the diagonal happens again at every step, creating a repeated cycle of updating the model and observing the induced distribution shift.
 
-**Add the second interactive figure**
+<div class="l-screen" style="min-height: 90vh;">
+  <iframe src="{{ 'assets/html/2026-04-27-performative-prediction/decoupled_risk_landscape.html' | relative_url }}?v=3" 
+          frameborder='0' 
+          scrolling='no' 
+          width="100%" 
+          height="100%" 
+          style="border: none; background: transparent; min-height: 90vh;">
+  </iframe>
+</div>
 
 During the optimization step, the data distribution does not change. Therefore, the optimization happens in a vertical section of the plane, where $\theta_D$ is fixed. We will call this section of the plane the **fixed-distribution cross-section**. Its corresponding risk is:
 

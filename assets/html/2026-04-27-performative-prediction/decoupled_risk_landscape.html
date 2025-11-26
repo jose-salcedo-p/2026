@@ -136,12 +136,16 @@
                 x: landscapeData.x,
                 y: landscapeData.y,
                 z: landscapeData.z,
-                colorscale: 'Viridis',
+                colorscale: 'YlGnBu',
                 showscale: true,
-                name: 'DR(θ_M, θ_D)',
-                hovertemplate: 'θ<sub>D</sub>: %{x:.3f}<br>θ<sub>M</sub>: %{y:.3f}<br>DR: %{z:.3f}<extra></extra>',
+                name: 'DPR(θ_D, θ_M)',
+                hovertemplate: 'θ<sub>D</sub>: %{x:.3f}<br>θ<sub>M</sub>: %{y:.3f}<br>DPR: %{z:.3f}<extra></extra>',
+                hoverlabel: {
+                    bgcolor: '#f2f2f2ff',  
+                    font: { color: 'black' }
+                },
                 colorbar: {
-                    title: 'DR',
+                    title: 'DPR',
                     len: 0.7,
                     x: -0.15,
                     xanchor: 'left'
@@ -168,17 +172,38 @@
             
             if (currentAlgorithm !== 'none' && algorithmTrajectories[currentAlgorithm]) {
                 const traj = algorithmTrajectories[currentAlgorithm];
+                
+                const altColors = ['#8DA0CB', '#E5C494'];
+                const hoverLabels = ['Training step', 'Deployment (distribution shift)'];
                 const colors = traj.iterations.map((_, i) => 
-                    `hsl(${Math.floor(240 - 240 * i / (traj.iterations.length - 1))}, 100%, 50%)`
+                    altColors[i % 2]
                 );
                 
+                for (let i = 0; i < traj.p_d.length - 1; i++) {
+                    
+                    const label = hoverLabels[i % 2];
+
+                    traces.push({
+                        type: 'scatter3d',
+                        mode: 'lines',
+                        x: [traj.p_d[i], traj.p_d[i+1]],
+                        y: [traj.p_m[i], traj.p_m[i+1]],
+                        z: [traj.losses[i], traj.losses[i+1]],
+                        line: {
+                            width: 10,
+                            color: altColors[i % 2]   // alternate here
+                        },
+                        hovertemplate: `<b>${label}</b><extra></extra>`,
+                        showlegend: false          // avoid repeating legend entries
+                    });
+                }
+
                 traces.push({
                     type: 'scatter3d',
-                    mode: 'lines+markers',
+                    mode: 'markers',
                     x: traj.p_d,
                     y: traj.p_m,
                     z: traj.losses,
-                    line: { color: '#4169E1', width: 5 },
                     marker: {
                         size: 6,
                         color: colors,
@@ -186,19 +211,21 @@
                         line: { color: 'white', width: 1 }
                     },
                     name: `${currentAlgorithm} (14 iter)`,
-                    hovertemplate: '<b>Iteration %{text}</b><br>θ<sub>D</sub>: %{x:.4f}<br>θ<sub>M</sub>: %{y:.4f}<br>DR: %{z:.4f}<extra></extra>',
+                    hovertemplate: '<b>Iteration %{text}</b><br>θ<sub>D</sub>: %{x:.4f}<br>θ<sub>M</sub>: %{y:.4f}<br>DPR: %{z:.4f}<extra></extra>',
                     text: traj.iterations,
                     showlegend: true
                 });
+
+                
             }
             
             const layout = {
                 scene: {
                     xaxis: { title: 'θ<sub>D</sub>', titlefont: { size: 12 } },
                     yaxis: { title: 'θ<sub>M</sub>', titlefont: { size: 12 } },
-                    zaxis: { title: 'DR(θ<sub>M</sub>,θ<sub>D</sub>)', titlefont: { size: 12 } },
+                    zaxis: { title: 'DPR(θ<sub>D</sub>,θ<sub>M</sub>)', titlefont: { size: 12 } },
                     camera: {
-                        eye: { x: 1.8, y: -1.6, z: -2.0 },
+                        eye: { x: -1.75, y: 1.65, z: 1.5 },
                         up: { x: 0, y: 0, z: 1 },
                         center: { x: 0, y: 0, z: 0 }
                     }
@@ -289,7 +316,7 @@
             for (let i = 0; i < points.length - 1; i++) {
                 const currentPoint = points[i];
                 const nextPoint = points[i + 1];
-                const lineColor = currentPoint.color === 'blue' ? '#7BA3D1' : '#D4A574';
+                const lineColor = currentPoint.color === 'blue' ? '#8DA0CB' : '#E5C494';
 
                 svg.append('line')
                     .attr('x1', xScale(currentPoint.iteration))
@@ -306,13 +333,13 @@
                     .attr('cx', xScale(point.iteration))
                     .attr('cy', yScale(point.value))
                     .attr('r', 6)
-                    .attr('fill', point.color === 'blue' ? '#7BA3D1' : '#D4A574');
+                    .attr('fill', point.color === 'blue' ? '#8DA0CB' : '#E5C494');
             });
 
             // Define arrowhead markers
             const defs = svg.append('defs');
             ['blue', 'orange', 'black'].forEach(color => {
-                const fillColor = color === 'blue' ? '#7BA3D1' : color === 'orange' ? '#D4A574' : 'black';
+                const fillColor = color === 'blue' ? '#8DA0CB' : color === 'orange' ? '#E5C494' : 'black';
                 defs.append('marker')
                     .attr('id', `arrowhead-static-${color}`)
                     .attr('viewBox', '0 0 10 10')

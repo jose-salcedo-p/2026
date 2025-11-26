@@ -32,9 +32,9 @@
             top: 0;
             height: 100vh;
             display: flex;
+            flex-direction: column;   /* ← stack vertically */
             align-items: center;
             justify-content: center;
-            gap: 40px;
             padding: 20px;
         }
         
@@ -46,7 +46,7 @@
         }
         
         #iteration-image {
-            max-width: 100%;
+            max-width: 80%;
             height: auto;
             display: block;
         }
@@ -147,7 +147,7 @@
             for (let i = 0; i < points.length - 1; i++) {
                 const currentPoint = points[i];
                 const nextPoint = points[i + 1];
-                const lineColor = currentPoint.color === 'blue' ? '#7BA3D1' : '#D4A574';
+                const lineColor = currentPoint.color === 'blue' ? '#8DA0CB' : '#E5C494';
 
                 const line = svg.append('line')
                     .attr('x1', xScale(currentPoint.iteration))
@@ -167,7 +167,7 @@
                     .attr('cx', xScale(point.iteration))
                     .attr('cy', yScale(point.value))
                     .attr('r', 6)
-                    .attr('fill', point.color === 'blue' ? '#7BA3D1' : '#D4A574')
+                    .attr('fill', point.color === 'blue' ? '#8DA0CB' : '#E5C494')
                     .attr('opacity', 0);
 
                 allPoints.push(circle);
@@ -180,7 +180,7 @@
                 point.annotations.forEach(annotation => {
                     if (annotation.type !== 'line') return;
 
-                    const pointColor = point.color === 'blue' ? '#7BA3D1' : '#D4A574';
+                    const pointColor = point.color === 'blue' ? '#8DA0CB' : '#E5C494';
                     const xPos = xScale(point.iteration);
                     const yPos = yScale(point.value);
                     const nextPoint = points[index + 1];
@@ -194,11 +194,17 @@
                     const translateY = annotation.translateY || 0;
                     const textX = midX + 50 + translateX;
                     const textY = midY - 20 + translateY;
+                    
+                    function convertSubscripts(str) {
+                        return str.replace(/_(\w+)/g, (_, sub) =>
+                            `<tspan baseline-shift="sub" font-size="70%">${sub}</tspan>`
+                        );
+                    }
 
                     annotationGroup.append('text')
                         .attr('x', textX)
                         .attr('y', textY)
-                        .style('font-size', '13px')
+                        .style('font-size', '20px')
                         .style('fill', pointColor)
                         .text(annotation.text);
 
@@ -239,11 +245,11 @@
                     const translateY = annotation.translateY || 0;
                     const textX = xPos + 80 + translateX;
                     const textY = yPos - 30 + translateY;
-
+                    
                     annotationGroup.append('text')
                         .attr('x', textX)
                         .attr('y', textY)
-                        .style('font-size', '12px')
+                        .style('font-size', '20px')
                         .style('font-style', 'italic')
                         .text(annotation.text);
 
@@ -273,7 +279,7 @@
             const defs = svg.append('defs');
 
             ['blue', 'orange', 'black'].forEach(color => {
-                const fillColor = color === 'blue' ? '#7BA3D1' : color === 'orange' ? '#D4A574' : 'black';
+                const fillColor = color === 'blue' ? '#8DA0CB' : color === 'orange' ? '#E5C494' : 'black';
                 defs.append('marker')
                     .attr('id', `arrowhead-${color}`)
                     .attr('viewBox', '0 0 10 10')

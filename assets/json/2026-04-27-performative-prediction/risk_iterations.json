@@ -20,7 +20,7 @@
       "annotations":[
         {
           "type": "point",
-          "text": "... therefore, the risk in this point is DPR(theta_0, theta_1)",
+          "text": "... therefore, the risk in this point is DPR(θ<sub>0</sub>, θ<sub>1</sub>)",
           "translateX": -30,
           "translateY": 140
         },
@@ -39,7 +39,7 @@
       "annotations":[
         {
           "type": "point",
-          "text": "and the risk becomes PR(theta_1)",
+          "text": "and the risk becomes PR(θ<sub>1</sub>)",
           "translateX": 0,
           "translateY": -80
         }
