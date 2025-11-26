@@ -385,8 +385,39 @@ Proof (Sketch):
 1. At Sum Nodes: A factor $c$ can be pulled into the sum: $(\sum w_i p_i) \cdot c = \sum w_i (p_i \cdot c)$. The Jacobian term $g'(x)$ thus "travels" down the edges to the children.
 2. At Product Nodes: Due to the decomposability property, variable $X$ appears in at most one child branch. The factor $g'(x)$ is therefore passed exclusively to this branch; all other branches remain untouched.
 3. At Leaves: The term eventually reaches the leaf modeling $X$ (originally $\rho_L(x)$). The new leaf now computes $\eta_L(x) = \rho_L(g(x)) \cdot g'(x)$. Since $g$ is a monotonic transformation, $\eta_L$ is itself a valid probability density.
-The result is elegant: A PCC is structurally indistinguishable from a PC. The entire complexity of recalibration is hidden within the leaf nodes. Thus, all inference times remain $O(|C|)$.
+The result is elegant: A PCC is structurally indistinguishable from a PC. The entire complexity of recalibration is hidden within the leaf nodes. Thus, the tractability is guaranteed.
 
+#### Extension: dependent Recalibration
+
+While a univariate transformation $g(x)$ suffices for correcting global shifts, calibration errors in practice often depend on the context $Y$. Addressing this requires a context-aware transformation $g_y(x)$.
+
+However, this dependency introduces a theoretical challenge: the Jacobian term $|g'_y(x)|$ now depends on both $X$ and $Y$. In a product node, this coupling violates the decomposability assumption, as factors involving $X$ and $Y$ can no longer be factorized independently.
+
+Solution via Discretization:
+To circumvent this, the domain of $Y$ is partitioned into $K$ disjoint regions $\{\Delta^k\}_{k=1}^K$. Within each region $\Delta^k$, a fixed recalibration function $g_k(x)$ is applied. The resulting Probabilistic Calibrated Circuit is defined as a mixture model:
+
+$$P_{\text{PCC}}(x, y) = \sum_{k=1}^K \mathbb{I}(y \in \Delta^k) \cdot P_{\text{PC}}(g_k(x), y) \cdot |g'_k(x)|$$
+
+Here, $\mathbb{I}(\cdot)$ denotes the indicator function. Each component of the sum is locally tractable. Structurally, this is equivalent to a larger PC rooted at a sum node that selects the appropriate sub-circuit based on the region $\Delta^k$. This expansion scales the model size linearly with $K$, but it rigorously preserves tractability.
+
+#### Construction of Admissible Recalibration Functions
+
+The practical implementation of PCCs relies on constructing an admissible transformation function $g(x)$. To satisfy the theorem's requirements, $g(x)$ must be strictly monotonically increasing and continuously differentiable. Two primary methods are proposed to learn this function from data.
+
+##### Method 1: Monotonic Spline Interpolation
+A robust and interpretable approach is to employ Integrated Splines (I-Splines). This method essentially performs quantile mapping, aligning the empirical quantiles of the faulty PIT distribution with the theoretical quantiles of the uniform distribution.
+
+I-Splines are constructed by integrating non-negative B-Spline basis functions. Since the integral of a non-negative function is monotonically increasing, constraining the coefficients of the linear combination to be positive guarantees the strict monotonicity of $g(x)$.
+
+- Advantages: Analytically tractable derivatives and computationally efficient evaluation.
+- Disadvantages: The expressivity of the function is limited by the number and placement of the spline knots.
+
+##### Method 2: Unconstrained Monotonic Neural Networks
+For complex calibration errors, Deep Learning offers superior expressivity. Unconstrained Monotonic Neural Networks (UMNNs) parametrize the monotonic function $g(x)$ as the integral of a strictly positive neural network $f(t; \psi)$:
+
+$$g(x) = \int_0^x f(t; \psi) \, dt + \beta$$
+
+Here, the network $f(t)$ can be of arbitrary complexity. By the Fundamental Theorem of Calculus, the derivative required for the Jacobian term is simply $g'(x) = f(x; \psi)$. Since $f(x)$ is designed to be strictly positive, $g(x)$ is guaranteed to be strictly monotonic. This approach allows for learning arbitrary calibration mappings while enforcing admissibility by design.
 
 ## Scaling Circuit Architectures to High Dimensions
 
