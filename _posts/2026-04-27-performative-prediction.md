@@ -1,8 +1,7 @@
 ---
 layout: distill
 title: Performative Prediction made practical
-description: Performative Prediction deals with the challenges that arise when deploying a model induces a distribution shift in the data it receives. Most of the literature on Performative Prediction has been theoretical, focusing primarily on proving convergence guarantees for optimization algorithms under strong assumptions within the Performative Prediction framework. This is somewhat contradictory with the inherently practical nature of the field, which fundamentally concerns model deployment. It also creates a substantial entry barrier, as the technical details can be difficult to navigate. Modify for readability, make it smaller- In this blogpost, we leverage visualization techniques to provide an intuitive explanation of PP to the broader Machine Learning (ML) community and to derive practical insights that deem useful to study convergence when theorical assumptions are not met. Furthermore, we reflect on future directions of _practical_ Performative Prediction.
-  Do not include math/latex or hyperlinks.
+description: Performative Prediction deals with the challenges that arise when deploying a model induces a distribution shift in the data it receives. Most of the literature on Performative Prediction has been theoretical, focusing primarily on proving convergence guarantees for optimization algorithms to interest points under strict assumptions. This creates a substantial entry barrier, as the technical details can be difficult to navigate. It is also somewhat contradictory with the inherently practical nature of the field, which fundamentally concerns model deployment. In this blogpost, we leverage visualization techniques to provide an intuitive explanation of Performative Prediction to the broader Machine Learning (ML) community. We also use visualization to derive practical insights that deem useful to study convergence when theorical assumptions are not met. Finally, we reflect on future directions of practical Performative Prediction.
 date: 2026-04-27
 future: true
 htmlwidgets: true
@@ -14,13 +13,13 @@ mermaid:
   zoomable: true
 
 # Anonymize when submitting
-# authors:
-#   - name: Anonymous
-
 authors:
-  - name: Anonymous
-    affiliations:
-      name: None
+   - name: Anonymous
+
+#authors:
+#  - name: Anonymous
+#    affiliations:
+#      name: None
 
 # must be the exact same name as your blogpost
 bibliography: 2026-04-27-performative-prediction.bib
@@ -67,14 +66,15 @@ _styles: >
     font-size: 16px;
   }
 ---
+
 ## Deployed model = Happy ML Engineer?
-You are a machine learning engineer working at a bank. You build a model to grant loans by predicting whether an applicant is likely to default. The model performs extremely well on your test set. The company deploys it, and in the first weeks everything looks great — the model performs just as expected. You receive congratulations, and you feel proud of a well-done job.
+You are a ML engineer working at a bank. You build a model to grant loans by predicting whether an applicant is likely to default. The model performs extremely well on your test set. The company deploys it, and in the first weeks everything looks great — the model performs just as expected. You receive congratulations, and you feel proud of a well-done job.
 
 But… a few months later, performance starts to drop. Repeat applicants have begun adjusting their financial profiles just enough to get approved. They have learned how to game your model. As a result, the reapplicants your system sees no longer resemble those in your training data. Simply by deploying your model, you have changed the data distribution. In other words, **deploying your model has triggered a distribution shift**.
 
-Once a Machine Learning (ML) model is deployed, it undoubtedly has an effect in the real world. Yet, this effect has been largely overlooked in ML, as deployment is often the _final_ step of the ML pipeline. If we want models to perform reliably in practice, those post-deployment effects must be taken into account.
+Once a ML model is deployed, it undoubtedly has an effect in the real world. Yet, this effect has been largely overlooked in ML, as deployment is often the _final_ step of the ML pipeline. If we want models to perform reliably in practice, those post-deployment effects must be taken into account.
 
-This scenario has been formalized in the field of *Performative Prediction* (PP), <d-cite key="perdomo2020performative"></d-cite><span style="color:#FFFFFF">i</span>which studies situations when deploying a learnt model ($\theta$)<d-footnote>Throughout the text, we use $\theta$ to refer both to the model parameters and to the model itself.</d-footnote>  changes the data distribution. In PP, these distribution changes have been formalized with a *distribution map* $\mathcal{D}(\theta)$, a function from the parameter space to the set of probability distributions ($\Delta$) over $\mathcal{X} \times \mathcal{Y}$. 
+This scenario has been formalized in the field of *Performative Prediction*, <d-cite key="perdomo2020performative"></d-cite><span style="color:#FFFFFF">i</span>which studies situations when deploying a learnt model ($\theta$)<d-footnote>Throughout the text, we use $\theta$ to refer both to the model parameters and to the model itself.</d-footnote>  changes the data distribution. In PP, these distribution changes have been formalized with a *distribution map* $\mathcal{D}(\theta)$, a function from the parameter space to the set of probability distributions ($\Delta$) over predictive data $\mathcal{X} \times \mathcal{Y}$. 
 
 $$
 \begin{aligned}
@@ -83,46 +83,39 @@ $$
 \end{aligned}
 $$
 
-This formulation contrasts with the classical machine learning setup, where one assumes a fixed data distribution $\mathcal{Q}$. This next sentence, queda un poco descolgada, hay que decir algo de entrenamiento antes. This feedback loop between model training and distribution shift upon deployment is the key distinguishing feature of the performative setting.
+This formulation contrasts with the classical ML setup, where one assumes a fixed data distribution $\mathcal{Q}$. In Performative Prediction, however, each deployment of the model induces a shift in the data distribution. After this shift occurs, the model must be retrained, but the newly trained model, once deployed, triggers yet another distribution change. This creates an iterative feedback loop between model training and distribution shift, which is the defining characteristic of the performative setting.
 
 {% include figure.liquid path="assets/img/2026-04-27-performative-prediction/ML vs PP.svg" class="img-fluid" %}
 
-As the data distribution changes over time, <d-footnote>The change rate is variable across applications.</d-footnote><span style="color:#FFFFFF">i</span>the model’s original performance guarantees no longer hold, leaving us unable to make meaningful statements about its performance.
+Whereas in classical ML the main objective is to find a model that minimizes the risk under a fixed data distribution, Performative Prediction presents a more intricate challenge because the model itself affects the distribution. In this setting, one may still seek an *optimal* model, which parallels the classical goal of risk minimization but is now defined with respect to the data–model interaction. One may also seek a *stable* model, meaning parameters that remain robust to the distribution they induce through deployment. 
 
-Meter aquí las dos soluciones para saber un poco donde convergen los algoritmos
+Works in Performative Prediction have mainly adopted a theoretical perspective, relying on strict assumptions to ensure mathematical guarantees for the convergence of optimization algorithms to stable or optimal points. However, these assumptions significantly narrow the scope of problems that can be solved. This can be surprising, since the motivation of the field is intrinsically practical — it concerns what happens after a model is put into production. Another issue of this is that although Performative Prediction is now well recognized as a framework for studying the effects of deployment, its technical details remain relatively unknown to the broader ML community. 
 
-Thus, the core problem PP tackles is convergence of risk minimization once the model begins influencing the data it learns from. Works on PP have mainly followed a theoretical point of view, relying on strict assumptions to ensure mathematical guarantees for the convergence of optimization algorithms. However, these assumptions significantly narrow the scope of problems that can be solved. This can be surprising, since the motivation of the field is intrinsically practical — it concerns what happens after a model is put into production. Another issue of this is that although PP is now well recognized as a framework for studying the effects of deployment, its technical details remain relatively unknown to the broader ML community. 
+Through visualization, this blog post aims to make the technical details of performative prediction more accessible to the broader ML community and to provide insights that can support more practical research and emerge directly from these visualizations. Specifically, our goals are:
 
-#Redo to show that insights is consequence of the viz.
-The aim of this blog post is to make Performative Prediction more accessible for the wider Machine Learning community and to provide some insights that allow more practical research gained thought a specific visualization. Specifically, our goals are:
-
-1. To introduce Performative Prediction as a two-step iterative process, an intuitive interpretation that naturally reveals the structure of the optimization landscape and to explain how to visualize it (Section [Introduction](#introduction-performative-prediction-is-a-two-step-iterative-process)).
+1. To introduce Performative Prediction as a two-step iterative process, an intuitive interpretation that naturally reveals the structure of the optimization landscape, and to explain how this landscape can be visualized (Section [Introduction](#introduction-performative-prediction-is-a-two-step-iterative-process)).
    
 2. To use the vizualization to describe the two key convergence points of Performative Prediction and reformulate them (Section [Interest Points](#interest-points-of-performative-prediction)) and to visualize the trajectories of different optimization algorithms in PP, developing intuition for why they converge (Section [Optimization in Performative Prediction](#how-to-reach-them-optimization-in-performative-prediction)).
 
-3. To show how this reformulation of the interest points can be practically used in experimental settings that fall outside the usual theoretical assumptions, illustrating their value in more realistic scenarios (Section [Practical insights in experiments](#practical-insights-in-real-world-experiments)). #Change As part of pushing practical PP forward, we also reflect on the future of practical research in Performative Prediction, hoping to spark a discussion within the community about its present limitations and emerging opportunities (Section [Future directions of the field](##to-open-a-discussion-on-future-directions-of-the-field)).
+3. To show how this reformulation of the interest points can be practically used in experimental settings that fall outside the usual theoretical assumptions, illustrating their value in more realistic scenarios (Section [Practical insights in experiments](#practical-insights-in-real-world-experiments)). As part of pushing Performative Prediction forward, we also reflect on the future of its practical research, hoping to spark a discussion within the community about its current limitations and emerging opportunities (Section [Future directions of the field](##to-open-a-discussion-on-future-directions-of-the-field)).
 
 To support practical research, we also make available [*name-of-the-library*](https://www.google.com/), a small library that implements the main algorithms used in Performative Prediction. 
 
 ## Introduction: Performative Prediction is a two-step iterative process
 
-In order to characterize this feedback loop between the model and the data distribution, Performative Prediction can be described as an iterative process. Before the process begins, we have an initial data distribution $$\mathcal{D}_0$$, which we use to train the first model $\theta^{(1)}$. Some time after deployment, the world will react to the model causing a distribution shift. The data will then follow a new probability distribution given by $\mathcal{D}(\theta^{(1)})$. In each iteration, we <span style="color:#8DA0CB"> 1) obtain a model $$\theta^{(t+1)}$$ trained on the data distribution $$\mathcal{D}(\theta^{(t)})$$</span> and <span style="color:#E5C494">2) deploy it, causing the distribution to shift to $$\mathcal{D}(\theta^{(t+1)})$$</span>. This distribution shift is inherent to model deployment, i.e. it happens because of the mere deployment of the model and is unavoidable.
+In order to characterize this feedback loop between the model and the data distribution, Performative Prediction can be described as an iterative process. Before the process begins, we have an initial data distribution, which we use to train the first model $\theta^{(1)}$. Some time after deployment, the world will react to the model causing a distribution shift. The data will then follow a new probability distribution given by $\mathcal{D}(\theta^{(1)})$. In each iteration, we <span style="color:#8DA0CB"> 1) obtain a model $$\theta^{(t+1)}$$ trained on the data distribution $$\mathcal{D}(\theta^{(t)})$$</span> and <span style="color:#E5C494">2) deploy it, causing the distribution to shift to $$\mathcal{D}(\theta^{(t+1)})$$</span>. This distribution shift is inherent to model deployment, i.e. it happens because of the mere deployment of the model and is unavoidable.
 
-
-En la imagen, training y deployment (Distr. shift) 
 {% include figure.liquid path="assets/img/2026-04-27-performative-prediction/Iteration.svg" class="img-fluid" %}
 
-In classical ML, one has to report the performance of the model after training. But this is not enough in PP due to the distribution shift. The fact that the environment reacts to our model makes it difficult to evaluate the performance of the model. 
+In classical ML, one has to report the performance of the model after training. But this is not enough in Performative Prediction due to the distribution shift. The fact that the environment reacts to the model makes it difficult to evaluate its performance. 
 
 ### How to measure performance of the model then?
 
-In PP, we can to consider two risks when evaluating a model $\theta^{(t+1)}$: the risk of the model under the previous distribution $\mathcal{D}(\theta^{(t)})$ (i.e., the distribution which the model has learnt, important to report model training performance), and the risk of the same model under the new distribution $\mathcal{D}(\theta^{(t+1)})$ (i.e., the distribution after the shift, the truly interesting one). The <em>decoupled performative risk</em> allows us to measure both. For clarity, we will introduce the notation $$\theta_M$$ to refer to the parameters of the model we want to evaluate and $$\theta_D$$ to refer to the parameters of the model that defines the data distribution. diffcult to understand last sentecence
-
-The decoupled performative risk is then simply the risk of a model $$\theta_M$$ on the distribution $$\mathcal{D}(\theta_D)$$:
+In PP, we can to consider two risks when evaluating a model $\theta^{(t+1)}$: the risk of the model under the previous distribution $\mathcal{D}(\theta^{(t)})$ (i.e., the distribution on which the model has been trained), important to report model training performance, and the risk of the same model under the new distribution $\mathcal{D}(\theta^{(t+1)})$ (i.e., the distribution after the shift), the truly interesting one. The <em>decoupled performative risk</em> allows us to measure both. For clarity, we will introduce the notation $$\theta_M$$ to refer to the parameters of the model we want to evaluate and $$\theta_D$$ to refer to the parameters of the model that defines the data distribution $\mathcal{D}(\theta_D)$.
 
 $$ \mathcal{DPR}(\theta_D, \theta_M) := \mathbb{E}_{(x,y) \sim \mathcal{D}(\theta_D)} \big[\ell(\theta_M; x, y)\big], $$
 
-where $$\ell(\theta; x, y)$$ is the loss function of the model $$\theta$$ on the data sample $$(x,y)$$. 
+where $$\ell(\theta_M; x, y)$$ is the loss function of the model $$\theta_M$$ on the data sample $$(x,y)$$. 
 
 Ultimately, we are, however, mostly interested in the risk of the model on the distribution <em>induced by its own parameters</em>, since this captures its actual post-deployment performance. This risk is referred to as the <em>performative risk</em> and is defined like this:
 
@@ -148,7 +141,7 @@ With the decoupled risk visualization, it is easier to understand the optimizati
 
 **Add the second interactive figure**
 
-During the optimization step, the data distribution does not change. Therefore, the optimization happens in a vertical section of the plane. We will call this section of the plane the **fixed-distribution cross-section**. Its corresponding risk is:
+During the optimization step, the data distribution does not change. Therefore, the optimization happens in a vertical section of the plane, where $\theta_D$ is fixed. We will call this section of the plane the **fixed-distribution cross-section**. Its corresponding risk is:
 
 $$\mathcal{DPR}(\theta_D, \theta_M)\big|_{\theta_D = \theta^{\prime}_D} = \mathcal{R}_{\theta^{\prime}_D} (\theta_M) = \mathbb{E}_{(x,y) \sim \mathcal{D}(\theta^{\prime}_D)} \big[\ell(\theta_M; x, y)\big] .$$
 
@@ -288,9 +281,9 @@ We believe that these new insights about the gradients of the decoupled risk are
 
 ## To open a discussion on future directions of the field
 
-We could conclude the blogpost at this point. We have clarified why PP is a relevant problem, introduced the core ideas of the field to a broader ML audience, and proposed metrics that can be directly applied in practical scenarios. However, the blogpost format gives us space to reflect more broadly. In particular, we would like to use this opportunity to discuss the challenges ahead and outline what we see as meaningful next steps for practical research on PP within the community.
+We could conclude the blogpost at this point. We have clarified why Performative Prediction is a relevant problem, introduced the core ideas of the field to a broader ML audience, and proposed metrics that can be directly applied in practical scenarios. However, the blogpost format gives us space to reflect more broadly. In particular, we would like to use this opportunity to discuss the challenges ahead and outline what we see as meaningful next steps for practical research on Performative Prediction within the community.
 
-Performative Prediction is, in many ways, a cursed field. Its motivation is fundamentally practical—models deployed in the world influence the data they will later learn from—yet practical research faces severe, structural limitations. To converge to the truly relevant performative optimum, we need information about the distribution map $\mathcal{D}(\theta)$, which governs how the environment shifts in response to a model’s predictions. Recall that PP is a two-step iterative process: (1) train a model, (2) deploy it and observe the induced distribution shift. Most existing works focus on the first step, proposing algorithms that optimize under the assumption that either (a) the distribution map is known, or (b) it can be reliably estimated from samples. The core barrier to practical PP is that in realistic settings, we have very limited visibility into how deployment shifts the data. Estimating $\mathcal{D}(\theta)$ from samples alone is difficult or ethically constrained. Once a model is deployed, it is typically fixed, and deploying multiple models across different populations solely to collect data for estimation would be highly unethical.
+Performative Prediction is, in many ways, a cursed field. Its motivation is fundamentally practical—models deployed in the world influence the data they will later learn from—yet practical research faces severe, structural limitations. To converge to the truly relevant performative optimum, we need information about the distribution map $\mathcal{D}(\theta)$, which governs how the environment shifts in response to a model’s predictions. Recall that Performative Prediction is a two-step iterative process: (1) train a model, (2) deploy it and observe the induced distribution shift. Most existing works focus on the first step, proposing algorithms that optimize under the assumption that either (a) the distribution map is known, or (b) it can be reliably estimated from samples. The core barrier to practical Performative Prediction is that in realistic settings, we have very limited visibility into how deployment shifts the data. Estimating $\mathcal{D}(\theta)$ from samples alone is difficult or ethically constrained. Once a model is deployed, it is typically fixed, and deploying multiple models across different populations solely to collect data for estimation would be highly unethical.
 
 We argue that there are two main directions for the field of *practical* Performative Prediction to advance:  
 1) developing techniques to estimate $\mathcal{D}(\theta)$ considering the previously stated limiations  
@@ -311,6 +304,6 @@ Crucially, it is often possible to collect data that reflects this effect, becau
 
 ## Conclusion
 
-Now imagine you are a machine learning engineer working in the company of your dreams. You have been hired some time ago and you are excited because you worked on the next big thing. The soon-to-be-released model that works amazingly well in your test sets — AGI is just around the corner! But… have you considered the effects that this model will have on the data distribution? If the internet is populated with text and images created by your model… you might not be able to train the next model.
+Now imagine you are a ML engineer working in the company of your dreams. You have been hired some time ago and you are excited because you worked on the next big thing. The soon-to-be-released model that works amazingly well in your test sets — AGI is just around the corner! But… have you considered the effects that this model will have on the data distribution? If the internet is populated with text and images created by your model… you might not be able to train the next model.
 
 It is crucial to consider post-deployment effects... and it seems that retraining is not enough.
