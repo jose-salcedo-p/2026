@@ -523,22 +523,25 @@ Probabilistic Flow Circuits (PFCs) integrate NFs at the leaf nodes of a PC
   guarantees<d-cite key="sidheekh_building_2024"></d-cite>.
 - Synergy: This architecture allows the PC to handle the multimodal, discrete structure of the data (e.g., different object categories in an image) while the flow leaves handle the continuous manifold of pixel variations within each category.
 
+Another promising hybrid direction involves integrating Probabilistic Circuits with Normalizing Flows (NFs)<d-cite key="sidheekh_probabilistic_2023a"></d-cite>. This synergy addresses the complementary limitations of both architectures: Normalizing Flows are highly effective at modeling continuous, local correlations through diffeomorphic transformations but lack mechanisms for handling global discrete structure and efficient marginalization. Conversely, PCs excel at capturing global structure via mixture models and performing exact marginalization but can be inefficient at modeling complex local continuous manifolds, often requiring an excessive number of mixture components to approximate them.
+
+Probabilistic Flow Circuits (PFCs) bridge this gap by replacing the standard univariate leaf distributions of a PC with flexible, invertible flow transformations. This integration yields a powerful dual-structure model.
+The PC backbone manages the multimodal, discrete structure of the data (such as distinct object categories in an image), while the flow-based leaves model the continuous manifold of variations (such as pixel intensities) within each category.
+A naive integration of flows would violate the decomposability required for tractable inference, as flows inherently couple variables. To preserve the circuit's marginalization guarantees, recent theoretical work introduces structural constraints such as $\tau$-decomposability<d-cite key="sidheekh_building_2024"></d-cite>. These conditions ensure that flow transformations are applied only to disjoint subsets of variables in a way that does not entangle the global independence structure maintained by the circuit.
+This architecture enables PFCs to improve density estimation performance while retaining the capability to answer complex probabilistic queries, such as marginals and conditionals, that are typically intractable for standalone Normalizing Flows.
+
+Interestingly, despite originating from distinct research motivations, the authors worl on Probabilistic Calibrated Circuits can be viewed as a specialized subclass of Probabilistic Flow Circuits. While PFCs generally employ flows to enhance the flexibility of density estimation, PCCs utilize specific monotonic transformations at the leaves to minimize calibration error. Thus, the PCC framework effectively instantiates a Probabilistic Flow Circuit where the flow transformations are constrained by the objective of post-hoc uncertainty calibration.
+
 ### Multi-Token Prediction with Probabilistic Circuits 
 
 Perhaps the most high-impact application of PCs in 2025 involves their
 integration into the training and inference of Large Language Models (LLMs),
 specifically in the domain of Multi-Token Prediction (MTP).
 
-LLMs are autoregressive, that is, they predict the next token $x_{t+1}$ given
-the history $x_{1:t}$. To generate a sequence of length $L$, the model must run
-$L$ forward passes. This is memory-bandwidth bound and slow.Speculative Decoding
-attempts to speed this up by using a small "draft" model to predict a chunk of
-$K$ tokens, which are then verified in parallel by the large model. However,
-most draft models assume independence between the $K$ predicted tokens (e.g.,
-predicting them all in parallel), which sacrifices accuracy (expressiveness) for
-speed (latency).
+ Standard LLMs are autoregressive, that is, they predict the next token $x_{t+1}$ given
+the history $x_{1:t}$. Generating a sequence of length $L$ requires $L$ sequential forward passes, a process bound by memory bandwidth and thus inherently slow. Speculative Decoding addresses this by employing a lightweight "draft" model to predict a chunk of $K$ tokens, which are subsequently verified in parallel by the large target model. However, conventional draft models often prioritize speed over expressiveness by assuming independence among the $K$ predicted tokens. This approximation sacrifices accuracy, leading to lower acceptance rates and reduced speedups.
 
-Multi-Token Prediction with Probabilistic Circuits (MTPC) proposes a framework
+# Multi-Token Prediction with Probabilistic Circuits (MTPC) proposes a framework
 using a PC to model the joint distribution of the next $K$ tokens: $P(x_{t+1},
 \dots, x_{t+K} | x_{1:t})$<d-cite key="grivas_fast_2025"></d-cite>. Why PCs? PCs
 can model the complex dependencies between the future tokens (e.g., if $x_{t+1}$
