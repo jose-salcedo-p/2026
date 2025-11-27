@@ -541,7 +541,7 @@ specifically in the domain of Multi-Token Prediction (MTP).
  Standard LLMs are autoregressive, that is, they predict the next token $x_{t+1}$ given
 the history $x_{1:t}$. Generating a sequence of length $L$ requires $L$ sequential forward passes, a process bound by memory bandwidth and thus inherently slow. Speculative Decoding addresses this by employing a lightweight "draft" model to predict a chunk of $K$ tokens, which are subsequently verified in parallel by the large target model. However, conventional draft models often prioritize speed over expressiveness by assuming independence among the $K$ predicted tokens. This approximation sacrifices accuracy, leading to lower acceptance rates and reduced speedups.
 
-# Multi-Token Prediction with Probabilistic Circuits (MTPC) proposes a framework
+% Multi-Token Prediction with Probabilistic Circuits (MTPC) proposes a framework
 using a PC to model the joint distribution of the next $K$ tokens: $P(x_{t+1},
 \dots, x_{t+K} | x_{1:t})$<d-cite key="grivas_fast_2025"></d-cite>. Why PCs? PCs
 can model the complex dependencies between the future tokens (e.g., if $x_{t+1}$
