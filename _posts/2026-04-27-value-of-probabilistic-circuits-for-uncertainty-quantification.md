@@ -530,7 +530,7 @@ The PC backbone manages the multimodal, discrete structure of the data (such as 
 A naive integration of flows would violate the decomposability required for tractable inference, as flows inherently couple variables. To preserve the circuit's marginalization guarantees, recent theoretical work introduces structural constraints such as $\tau$-decomposability<d-cite key="sidheekh_building_2024"></d-cite>. These conditions ensure that flow transformations are applied only to disjoint subsets of variables in a way that does not entangle the global independence structure maintained by the circuit.
 This architecture enables PFCs to improve density estimation performance while retaining the capability to answer complex probabilistic queries, such as marginals and conditionals, that are typically intractable for standalone Normalizing Flows.
 
-Interestingly, despite originating from distinct research motivations, the authors worl on Probabilistic Calibrated Circuits can be viewed as a specialized subclass of Probabilistic Flow Circuits. While PFCs generally employ flows to enhance the flexibility of density estimation, PCCs utilize specific monotonic transformations at the leaves to minimize calibration error. Thus, the PCC framework effectively instantiates a Probabilistic Flow Circuit where the flow transformations are constrained by the objective of post-hoc uncertainty calibration.
+Interestingly, despite originating from distinct research motivations, the authors work on Probabilistic Calibrated Circuits can be viewed as a specialized subclass of Probabilistic Flow Circuits. While PFCs generally employ flows to enhance the flexibility of density estimation, PCCs utilize specific monotonic transformations at the leaves to minimize calibration error. Thus, the PCC framework effectively instantiates a Probabilistic Flow Circuit where the flow transformations are constrained by the objective of post-hoc uncertainty calibration.
 
 ### Multi-Token Prediction with Probabilistic Circuits 
 
@@ -538,10 +538,21 @@ Perhaps the most high-impact application of PCs in 2025 involves their
 integration into the training and inference of Large Language Models (LLMs),
 specifically in the domain of Multi-Token Prediction (MTP).
 
- Standard LLMs are autoregressive, that is, they predict the next token $x_{t+1}$ given
+Standard LLMs are autoregressive, that is, they predict the next token $x_{t+1}$ given
 the history $x_{1:t}$. Generating a sequence of length $L$ requires $L$ sequential forward passes, a process bound by memory bandwidth and thus inherently slow. Speculative Decoding addresses this by employing a lightweight "draft" model to predict a chunk of $K$ tokens, which are subsequently verified in parallel by the large target model. However, conventional draft models often prioritize speed over expressiveness by assuming independence among the $K$ predicted tokens. This approximation sacrifices accuracy, leading to lower acceptance rates and reduced speedups.
 
-% Multi-Token Prediction with Probabilistic Circuits (MTPC) proposes a framework
+To bridge this gap, recent work introduces Multi-Token Prediction with Probabilistic Circuits (MTPC)<d-cite key="grivas_fast_2025"></d-cite>. This framework utilizes a PC to model the joint distribution of the next $K$ tokens, $P(x_{t+1}, \dots, x_{t+K} \mid x_{1:t})$.
+Why are PCs uniquely and ideally suited for this task? They offer a tractable mechanism to model complex dependencies between future tokens (e.g., capturing that "San" strongly implies "Francisco") without the computational overhead of a full Transformer. A PC can evaluate the likelihood of candidate sequences with extreme efficiency.
+
+The MTPC framework systematically explores a spectrum of PC architectures to balance expressiveness and latency:
+- Fully Factorized (FF): The baseline approach that assumes independence between tokens. While fast, it suffers from low acceptance rates due to its inability to model correlations.
+- Canonical Polyadic (CP): Introduces a single latent variable $Z$ with $r$ states to model the joint distribution as a mixture of independent components. This captures shared global context through the mixture weights while keeping the structure shallow for fast inference.
+- Hidden Markov Models (HMM): A deeper PC structure that models sequential dependencies explicitly via latent state transitions $z_1 \to z_2 \to \dots \to z_K$. This offers higher expressiveness by capturing local dependencies between adjacent tokens but incurs increased latency due to the sequential summation.
+- Binary Tree Factorizations (BTree): A novel hierarchical structure that recursively splits the token window. This architecture strikes an optimal balance between depth and width, efficiently capturing long-range dependencies among the $K$ tokens while enabling parallel sampling.
+
+Empirical evaluations retrofitting EvaByte, a byte-level LLM, with MTPC demonstrate the efficacy of this approach<d-cite key="grivas_fast_2025"></d-cite>. MTPC increases generation throughput by a factor of $5.47\times$ compared to standard autoregressive generation, achieving a $1.22\times$ speedup over MTP baselines that rely on independence assumptions. This significant performance gain stems from the fact that the PC-based draft model is sufficiently expressive to generate high-quality drafts, which are accepted by the verifier model significantly more often than those from independent drafters. These results establish PCs as a viable, real-time accelerator for foundation models, capable of efficiently capturing the local correlations of language and byte sequences.
+
+Multi-Token Prediction with Probabilistic Circuits (MTPC) proposes a framework
 using a PC to model the joint distribution of the next $K$ tokens: $P(x_{t+1},
 \dots, x_{t+K} | x_{1:t})$<d-cite key="grivas_fast_2025"></d-cite>. Why PCs? PCs
 can model the complex dependencies between the future tokens (e.g., if $x_{t+1}$
@@ -649,6 +660,16 @@ are anatomically impossible. Experiments on the CheXpert dataset showed that
 this method produces anatomically plausible alterations (e.g., removing
 specific lung opacities) that are far more stable than baseline DNN methods.
 
+In the domain of medical AI, "explainability" is not merely a desirable feature but a crucial safety requirement. Clinicians need to understand the rationale behind a model's decision, for instance, why a specific scan was diagnosed as containing a tumor. A powerful technique for providing such insights is the generation of counterfactual explanations: answering the question, "What would this scan look like if the patient were healthy?"
+
+However, generating plausible counterfactuals is challenging; standard methods often produce unrealistic images that trick the classifier but are medically meaningless. To address this, recent research proposes SPN-Guided Latent Space Manipulation, utilizing the rigorous density estimation capabilities of PCs to generate high-fidelity counterfactuals<d-cite key="siekiera_counterfactual_2025"></d-cite>.
+
+The approach is built upon a hybrid architecture that integrates an SPN into the latent space of a semi-supervised Variational Autoencoder (VAE). First, a VAE is trained to compress high-dimensional medical images into a lower-dimensional latent space $\mathbf{z}$. Unlike standard VAEs, which assume a simple Gaussian prior and often fail to capture complex data manifolds, this method employs an SPN to model the true, complex distribution of latent vectors, $P_{\text{SPN}}(\mathbf{z} \mid y)$, where $y$ denotes the class label (e.g., "Healthy" or "Sick"). The SPN serves a dual purpose: it acts as a flexible prior describing the latent topology and as a classifier $P(y \mid \mathbf{z})$, ensuring the latent space is structured according to the diagnostic classes.
+
+To generate a counterfactual for a patient diagnosed as "Sick" ($y_{\text{orig}}$), the model optimizes a new latent vector $\mathbf{z}_{cf}$ that flips the classification to "Healthy" ($y_{\text{target}}$). This optimization is governed by three competing objectives: validity, proximity, and plausibility. First, the model maximizes the SPN's predicted probability for the target class, $P_{\text{SPN}}(y_{\text{target}} \mid \mathbf{z}_{cf})$, to ensure the diagnosis changes. Second, it minimizes the distance $||\mathbf{z}_{cf} - \mathbf{z}_{\text{orig}}||$ to guarantee that the counterfactual remains semantically similar to the original patient scan. Finally, and crucially, the optimization maximizes the likelihood of the vector under the SPN prior, $P_{\text{SPN}}(\mathbf{z}_{cf})$. This constraint forces the search into the high-density regions of the "Healthy" distribution, effectively preventing the generation of out-of-distribution or hallucinated samples.
+
+Experiments on the CheXpert dataset demonstrate that this SPN-guided approach produces anatomically plausible alterations, such as the specific removal of lung opacities, that are far more stable and interpretable than those generated by baseline Deep Neural Network (DNN) methods. While simple MLP classifiers require aggressive regularization to avoid adversarial noise, the SPN's robust density modeling naturally guides the generation toward semantically meaningful counterfactuals without such fragile tuning.
+
 ## A Personal Note 
 
 To fully contextualize the value of PCs, we must contrast them with the dominant
@@ -667,8 +688,8 @@ deep generative paradigms: Variational Autoencoders (VAEs), Normalizing Flows
 NFs provide exact likelihoods via the change-of-variables formula. However,
 calculating the determinant of the Jacobian is computationally expensive
 ($O(D^3)$) unless the flow is restricted (e.g., to triangular matrices)<d-cite
-key="wehenkel_unconstrained_2021,papamakarios_normalizing_2021"></d-cite>. The
-- Marginalization Gap: Crucially, NFs cannot easily compute marginals.
+key="wehenkel_unconstrained_2021,papamakarios_normalizing_2021"></d-cite>.
+Crucially, NFs cannot easily compute marginals.
 Integrating a flow over a subset of variables is analytically intractable. This
 makes NFs poor at handling missing data or partial evidence. PCs, with their
 decomposability property, handle marginals natively in linear time. This is a
@@ -689,115 +710,4 @@ toward valid regions<d-cite key="liu_image_2024"></d-cite>. This combines the
 high-fidelity texture generation of diffusion with the logical rigor of PCs.
 
 <!-- todo: future challanges / trajeectories -->
-
-## Probabilistic Calibrated Circuits
-
-Modern science increasingly relies on complex simulators to describe natural phenomena. Whether in particle physics, epidemiology, or econometrics, these simulators function as generative models $p(x|\theta)$, producing observable data $x$ from latent parameters $\theta$. The inverse problem, determining the parameter distribution $p(\theta|x)$ given an observation, is the core of scientific knowledge discovery.
-
-Traditional Bayesian inference methods like Markov Chain Monte Carlo (MCMC) often fail due to the complexity of modern simulators, as they lack an explicit, evaluable likelihood function ("Intractable Likelihood"). Simulation-Based Inference (SBI) circumvents this issue by training neural networks to learn the posterior distribution or the likelihood directly from simulated data pairs $(\theta, x)$.
-Models such as Normalizing Flows have assumed a dominant role here, as they enable exact density estimation through invertible transformations. However, as mentioned above, their intractability makes flexible computation of different posteriors difficult.
-Here Probabilistic Circuits can be a compelling alternative. First PCs are trained to appoximate the joint probability of the data $p(x,\theta)$ and afterwards different posteriors can be computate exact and tractable. 
-
-### The Calibration Dilemma: The Inadequacy of Maximum Likelihood Estimation
-
-Despite the theoretical elegance of PCs, a grave problem exists in practice: the Calibration Gap. Since PCs are trained to approximate the joint distribution, there is no guarantee, that the conditionals are calibrated correctly.
-
-Probabilistic Circuits are typically trained by maximizing the likelihood (or minimizing the negative log-likelihood, NLL):
-$$\mathcal{L}_{NLL} = - \mathbb{E}_{data} [\log p_{PC}(x, \theta)]$$
-The NLL is a strictly proper scoring rule, theoretically reaching its minimum at the true data distribution. However, in practice, with limited data and model capacity, minimizing NLL often leads the model to attempt covering every data point ("Mode Covering" or "Mass Covering"). This frequently results in distributions that are too broad (over-dispersion) to avoid penalizing data points with extremely low probability, or that concentrate on specific modes while ignoring others.
-
-The fundamental issue is that a global fit of the joint distribution $p(x, \theta)$ offers no guarantee that the conditional distributions $p(\theta | x)$, the actual objects of interest in inference, are locally calibrated. A model can be good on average but systematically biased or overconfident in specific regions of the input space.
-
-### Quantifying Miscalibration: The Probability Integral Transform
-
-To measure this problem, the Probability Integral Transform (PIT) can be utilized. For a continuous random variable $X$ and its cumulative distribution function (CDF) $F_X$, the random variable $Z = F_X(X)$ is uniformly distributed: $Z \sim \mathcal{U}(0, 1)$.
-
-The calibration of the conditional distribution $p(x|\theta)$ can be checked by calculating the PIT values for a validation dataset $\{(x_i, \theta_i)\}$: 
-$$z_i = F_{PC}(x_i | \theta_i) = \int_{-\infty}^{x_i} p_{PC}(x' | \theta_i) dx'$$
-Thanks to the properties of PCs (marginalization and integration), the calculation of $F_{PC}$ is exact and efficient.
-The shape of the PIT-histogram shows the extend of miscalibration:
-- Uniform Distribution: The model is perfectly calibrated.
-- U-Shape: The model is under-dispersed (distribution too narrow, uncertainty underestimated).
-- Inverted U-Shape: The model is over-dispersed (distribution too broad, uncertainty overestimated).
-- Systematic Shift: The mean of the prediction is systematically incorrect.
-As a quantitative metric for deviation from uniformity, a metric like the Kolmogorov-Smirnov (KS) Statistic can be used to quantify the calibration error
-$$E_{KS} = \sup_{z \in } | \hat{F}_{cal}(z) - z |$$
-Where $\hat{F}_{cal}$ is the empirical CDF of the PIT values. This metric serves as the objective function for optimization in PCCs.
-
-### Post-hoc Input Recalibration
-
-The information gained by quantifying the calibration error can be used to apply a post-hoc recalibration methode to reduce the systematic error in the conditional distributions.
-Classical post-hoc calibration methods like Platt Scaling scale the output logits of a classifier. For density estimators, this is not trivially possible, as scaling the density $p(x)$ would violate the integration condition ($\int p(x)dx = 1$).
-Input recalibration circumvents this problem. A transformation function $g(x)$ applied to the input variables such that the transformed variable $Y = g(X)$ follows the desired (calibrated) distribution. The recalibrated density $p_{cal}$ results from the change of variables formula for probability densities
-$$p_{cal}(x, \theta) = p_{PC}(g(x), \theta) \cdot |g'(x)|$$
-The term $|g'(x)|$ is the determinant of the Jacobian matrix (here simply the derivative in the univariate case).
-
-At first glance, this definition seems to destroy tractability. A PC is a carefully constructed graph. If we compute $p_{PC}(g(x))$, we simply feed $g(x)$ into the leaves. But the multiplier $|g'(x)|$ sits outside the graph.In a product node $\otimes$ separating variables $X_1$ and $X_2$ (decomposability), a global multiplication by a term dependent on $X_1$ would violate the independence structure.
-
-To correct this decomposability violation a so called Probabilistic Calibrated Circuit (PCC) is introduced. The following PCC Theorem prooves that this external term can indeed be completely absorbed into the leaf nodes, creating a new valid PC.
-
-Theorem (Probabilistic Calibrated Circuits):
-Let $C$ be a valid Probabilistic Circuit computing $p_C(x)$. Let $g \in G_{C,k}$ be an admissible recalibration function for variable $X_k$. The recalibrated density
-$$p_{cal}(x) = p_C(g(x_k), x_{\backslash k}) \cdot g'(x_k)$$
-can be exactly computed by a new, valid Probabilistic Circuit $C_{cal}$, which possesses the identical graph structure to $C$, but with modified leaf distributions.
-
-Proof (Sketch):
-1. At Sum Nodes: A factor $c$ can be pulled into the sum: $(\sum w_i p_i) \cdot c = \sum w_i (p_i \cdot c)$. The Jacobian term $g'(x_k)$ thus "travels" down the edges to the children.
-2. At Product Nodes: Due to the decomposability property, variable $X_k$ appears in at most one child branch. The factor $g'(x_k)$ is therefore passed exclusively to this branch; all other branches remain untouched.
-3. At Leaves: Finally, the term reaches the leaf modeling $X_k$ (originally $\rho_L(x_k)$). The new leaf now computes $\eta_L(x_k) = \rho_L(g(x_k)) \cdot g'(x_k)$. Since $g$ is a monotonic transformation, $\eta_L$ is itself a valid probability density.
-The result is elegant: A PCC is structurally indistinguishable from a PC. The entire complexity of recalibration is hidden within the parameters of the leaf nodes. Thus, all inference times remain $O(|C|)$.
-
-#### Extension: Dependent Recalibration
-
-A simple function $g(x)$ can correct global shifts. But in SBI, the error often depends on the context $\theta$. We require a function $g_\theta(x)$.
-This violates decomposability, however, as the Jacobian term $g'_\theta(x)$ now depends on both $x$ and $\theta$, coupling branches that should be independent.
-
-Solution via Discretization: The parameter space $\Theta$ can be partitioned into $K$ disjoint regions $\Delta^k$. In each region, a fixed recalibration function $g_{\theta^k}$ is used. The resulting model is a weighted sum of sub-circuits:
-$$ p_{PCC}(x, \theta) = \sum_{k=1}^K \mathbb{I}(\theta \in \Delta^k) \cdot p_{PC}(g_{\theta^k}(x), \theta) \cdot g'_{\theta^k}(x) $$
-Each term in the sum is locally tractable. The overall mechanism can be represented as a large PC starting with a root sum node switching over the regions $\Delta^k$. This increases model size linearly with $K$ but preserves exact inference.
-
-### Construction of Admissible Recalibration Functions
-
-The theoretical guarantee of the PCC Theorem relies on the choice of function $g(x)$. It must be "admissible," i.e., strictly monotonically increasing and continuously differentiable, to function as a valid density transformer.
-
-In classification, Isotonic Regression is the gold standard for calibration. It fits a piecewise constant, monotonically increasing function to data to minimize quadratic error.4
-For PCCs, this approach is unsuitable. A piecewise constant function has undefined derivatives (or Dirac impulses) at jump points and is flat (derivative zero) in between. Applying $p(g(x)) \cdot g'(x)$ would result in a density that is zero almost everywhere. PCCs strictly require smooth, differentiable functions.
-
-#### Method 1: Monotonic Spline Interpolation
-
-A robust approach is Quantile Mapping using Splines. Points $(u_k, v_k)$ are identified that map the empirical quantiles of the faulty PIT distribution to the theoretical quantiles of the uniform distribution.
-To guarantee monotonicity, I-Splines (Integrated Splines) can be used. These are based on integrating non-negative B-Spline basis functions (M-Splines). Since the integral of a non-negative function is monotonically increasing, any linear combination with positive coefficients guarantees admissibility.
-- Advantage: Analytically clean, fast to compute.
-- Disadvantage: Expressivity is limited by the number of knots.
-
-#### Methode 2: Unconstrained Monotonic Neural Networks
-
-For highly complex calibration errors, Deep Learning offers a more powerful solution. Unconstrained Monotonic Neural Networks (UMNNs) define a monotonic function $g(x)$ as the integral of a strictly positive neural network $f(t)$
-$$g(x) = \int_0^x f(t; \psi) dt + \beta$$
-The network $f(t)$ can be arbitrarily complex (e.g., an MLP with ELU+1 activation), provided it remains positive. By the Fundamental Theorem of Calculus, $g'(x) = f(x)$. Since $f(x) > 0$, $g$ is strictly monotonic.
-
-### Alternative and Complementary Approaches
-
-Tractable Dropout Inference (TDI)
-Comparison: TDI primarily targets the detection of Out-of-Distribution (OOD) data by estimating epistemic uncertainty regarding model parameters themselves. PCCs, conversely, correct the aleatoric and epistemic uncertainty of the predictive distribution post-hoc. While TDI improves robustness on OOD data, it does not guarantee statistical calibration on In-Distribution (ID) data, which is the primary goal of PCCs.
-
-Simulation-Based Calibration (SBC)
-SBC is a simmilar diagnostic tool like PIT resulting in the same calibration error. Just PIT is efficiently computabel by PCs.
-
-Conformal Prediction (CP)
-
-Certifiably Robust Learning-Reasoning Conformal Prediction via Probabilistic Circuits (COLEP)
-
-### Discussion and Limitations
-
-Despite successes, the PCC framework is not without limitations that must be considered in application.
-
-#### The Discretization Bottleneck
-
-The dependent recalibration requires partitioning the parameter space $\Theta$. This leads to a trade-off:
-- Fine discretization (large $K$) increases recalibration accuracy but causes circuit size to grow linearly with $K$. While inference time remains linear to the new size, memory requirements increase.
-- Coarse discretization may miss fine dependencies of the calibration error.
-- Solution Approach: Future work could derive the partitioning automatically from the structure of the PC to avoid redundancy.
-
-#### The Curse of Dimensionality
 
