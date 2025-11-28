@@ -122,8 +122,8 @@ This report posits that Probabilistic Circuits (PCs) offer a transformative
 solution to this epistemic crisis. Unlike standard neural networks, PCs are
 designed not merely to predict, but to represent the joint probability
 distribution of the data as a computational graph. Crucially, they do so while
-guaranteeing tractability. Through strict structural properties—smoothness,
-decomposability, and determinism—PCs enable the exact computation of marginals,
+guaranteeing tractability. Through strict structural properties, smoothness,
+decomposability, and determinism, PCs enable the exact computation of marginals,
 conditionals, and moments in polynomial time<d-cite
 key="choi_probabilistic_,peharz_probabilistic_2023"></d-cite>. This capability
 fundamentally alters the UQ landscape, moving from approximate guesses of
@@ -345,7 +345,7 @@ novel'' sequence (high epistemic uncertainty), enabling trustworthy anomaly
 detection in time-series data<d-cite key="thoma_recowns_2021"></d-cite>.
 
 ### Probabilistic Calibrated Circuits
-While PCs offer exact and efficient inference, a critical problem of calibration arises when applying them to Uncertainty Quantification. The standard training objective for PCs is to approximate the joint distribution $P(X,Y)$ by minimizing the negative log-likelihood, $\mathcal{L}_{NLL} = - \mathbb{E}_{\text{data}} [\log P_{\text{PC}}(x, y)]$.
+While PCs offer exact and efficient inference, a critical problem of calibration arises when applying them to Uncertainty Quantification. The standard training objective for PCs is to approximate the joint distribution $P(X,Y)$ by minimizing the negative log-likelihood, $\mathcal{L}\_{\text{NLL}} = - \mathbb{E}\_{\text{data}} [\log P\_{\text{PC}}(x, y)]$.
 However, accurate UQ requires well-calibrated conditional distributions, which are computed only as a secondary step in PCs.
 Since the training objective prioritizes the joint likelihood, it does not guarantee that the conditionals are calibrated. This misalignment can lead to systematic errors in uncertainty estimate. The model might capture the global density well but fail to accurately reflect the confidence in specific predictions.
 
@@ -356,15 +356,18 @@ This section provides a high-level overview of the core concepts, while a more c
 
 To diagnose the extend of miscalibration, Probability Integral Transform (PIT) can be utilized. For a continuous random variable $X$ and its cumulative distribution function (CDF) $F_X$, the random variable $Z = F_X(X)$ is uniformly distributed $Z \sim \mathcal{U}(0, 1)$.
 
-The calibration of the conditional distribution $p(x|y)$ can be checked by calculating the PIT values for a recalibration dataset $\{(x_i, y_i)\}$ 
-$z_i = F_{PC}(x_i | y_i) = \int_{-\infty}^{x_i} p_{PC}(x' | y_i) dx'$
+The calibration of the conditional distribution $p(x|y)$ can be checked by calculating the PIT values for a recalibration dataset $\\{(x\_i, y\_i)\\}$ 
+
+$$z\_i = F\_{\text{PC}}(x\_i \mid y\_i) = \int\_{-\infty}^{x\_i} p\_{\text{PC}}(x' \mid y\_i) dx'$$
+
 Thanks to the properties of PCs (marginalization and integration), the calculation of $F_{PC}$ is exact and efficient.
 The resulting histogram of PIT values reveals the nature of the error:
 - Uniform Distribution: The model is perfectly calibrated.
 - U-Shape: The model is under-dispersed (distribution too narrow, uncertainty underestimated).
 - Inverted U-Shape: The model is over-dispersed (distribution too broad, uncertainty overestimated).
 - Systematic Shift: The mean of the prediction is systematically incorrect.
-To formally quantify the deviation from uniformity, we can calculate the distance between the empirical CDF of the PIT values, $\hat{F}_{\text{cal}}$, and the ideal uniform CDF. This calibration error, $E_{\text{cal}} = d(\hat{F}_{\text{cal}}(z), \mathcal{U}(0,1))$, serves as the objective function for optimization in PCCs.
+
+To formally quantify the deviation from uniformity, we can calculate the distance between the empirical CDF of the PIT values, $\hat{F}_{\text{cal}}$, and the ideal uniform CDF. This calibration error, $E\_{\text{cal}} = d(\hat{F}\_{\text{cal}}(z),\mathcal{U}(0,1))$, serves as the objective function for optimization in PCCs.
 
 #### Post-hoc Input Recalibration
 
@@ -376,15 +379,16 @@ At first glance, this transformation seems to break the tractability. while the 
 
 However, the following Probabilistic Calibrated Circuit Theorem proves that this external term can be absorbed entirely into the leaf nodes, resulting in a new, valid PC structure.
 
-Theorem (Probabilistic Calibrated Circuits):
+**Theorem (Probabilistic Calibrated Circuits)**
+
 Let $C$ be a valid Probabilistic Circuit computing $p_C(x,y)$. Let $g$ be strictly monotonic and continuously differentiable. The recalibrated density
 $p_{cal}(x,y) = p_C(g(x), y) \cdot g'(x)$
 can be exactly computed by a new, valid Probabilistic Circuit $C_{cal}$, which possesses the identical graph structure to $C$, but with modified leaf distributions.
 
-Proof (Sketch):
+**Proof (Sketch)**
 1. At Sum Nodes: A factor $c$ can be pulled into the sum: $(\sum w_i p_i) \cdot c = \sum w_i (p_i \cdot c)$. The Jacobian term $g'(x)$ thus "travels" down the edges to the children.
 2. At Product Nodes: Due to the decomposability property, variable $X$ appears in at most one child branch. The factor $g'(x)$ is therefore passed exclusively to this branch; all other branches remain untouched.
-3. At Leaves: The term eventually reaches the leaf modeling $X$ (originally $\rho_L(x)$). The new leaf now computes $\eta_L(x) = \rho_L(g(x)) \cdot g'(x)$. Since $g$ is a monotonic transformation, $\eta_L$ is itself a valid probability density.
+3. At Leaves: The term eventually reaches the leaf modeling $X$ (originally $\rho_L$). The new leaf now computes $\eta_L(x) = \rho_L(g(x)) \cdot g'(x)$. Since $g$ is a monotonic transformation, $\eta_L$ is itself a valid probability density.
 The result is elegant: A PCC is structurally indistinguishable from a PC. The entire complexity of recalibration is hidden within the leaf nodes. Thus, the tractability is guaranteed.
 
 #### Extension: dependent Recalibration
@@ -394,7 +398,7 @@ While a univariate transformation $g(x)$ suffices for correcting global shifts, 
 However, this dependency introduces a theoretical challenge: the Jacobian term $|g'_y(x)|$ now depends on both $X$ and $Y$. In a product node, this coupling violates the decomposability assumption, as factors involving $X$ and $Y$ can no longer be factorized independently.
 
 Solution via Discretization:
-To circumvent this, the domain of $Y$ is partitioned into $K$ disjoint regions $\{\Delta^k\}_{k=1}^K$. Within each region $\Delta^k$, a fixed recalibration function $g_k(x)$ is applied. The resulting Probabilistic Calibrated Circuit is defined as a mixture model:
+To circumvent this, the domain of $Y$ is partitioned into $K$ disjoint regions $\\{\Delta^k\\}_{k=1}^K$. Within each region $\Delta^k$, a fixed recalibration function $g_k(x)$ is applied. The resulting Probabilistic Calibrated Circuit is defined as a mixture model:
 
 $$P_{\text{PCC}}(x, y) = \sum_{k=1}^K \mathbb{I}(y \in \Delta^k) \cdot P_{\text{PC}}(g_k(x), y) \cdot |g'_k(x)|$$
 
@@ -507,6 +511,7 @@ reasoning of circuits<d-cite key="martires_probabilistic_2024"></d-cite>.
 
 ### Probabilistic Flow Circuits 
 
+{% comment %}
 Another hybrid approach combines PCs with Normalizing Flows (NFs)<d-cite
 key="sidheekh_probabilistic_2023a"></d-cite>. NFs are excellent at modeling
 continuous local correlations but struggle with global structure and
@@ -522,6 +527,7 @@ Probabilistic Flow Circuits (PFCs) integrate NFs at the leaf nodes of a PC
   entangle variables in a way that breaks the circuit's marginalization
   guarantees<d-cite key="sidheekh_building_2024"></d-cite>.
 - Synergy: This architecture allows the PC to handle the multimodal, discrete structure of the data (e.g., different object categories in an image) while the flow leaves handle the continuous manifold of pixel variations within each category.
+{% endcomment %}
 
 Another promising hybrid direction involves integrating Probabilistic Circuits with Normalizing Flows (NFs)<d-cite key="sidheekh_probabilistic_2023a"></d-cite>. This synergy addresses the complementary limitations of both architectures: Normalizing Flows are highly effective at modeling continuous, local correlations through diffeomorphic transformations but lack mechanisms for handling global discrete structure and efficient marginalization. Conversely, PCs excel at capturing global structure via mixture models and performing exact marginalization but can be inefficient at modeling complex local continuous manifolds, often requiring an excessive number of mixture components to approximate them.
 
@@ -560,6 +566,7 @@ is ''San'', $x_{t+2}$ is likely ''Francisco'') tractably. Unlike a full
 Transformer which would be too slow as a drafter, a PC can evaluate the
 likelihood of candidate sequences extremely fast.
 
+{% comment %}
 The MTPC framework explores a spectrum of PC architectures for this task:
 - Fully Factorized (FF): Assumes independence (baseline). Fast but low
 acceptance rate.
@@ -581,6 +588,7 @@ assumptions.
 accepted by the verifier model much more often than the independent drafter.
 This proves that PCs can capture the local correlations of language/bytes
 efficiently enough to serve as a real-time accelerator for foundation models.
+{% endcomment %}
 
 ### Physics-Driven Deep Latent Variable Models
 
@@ -639,6 +647,7 @@ hardware elements to solve inverse problems in statistical physics.
 
 ### SPN-Guided Latent Space Manipulation
 
+{% comment %}
 In medical AI, ''explainability'' is a safety requirement. A clinician needs to
 know why a model diagnosed a tumor. A powerful explanation technique is the
 counterfactual: ''What would this scan look like if the patient were healthy?''
@@ -659,6 +668,7 @@ high-density region of "Healthy" patients. This prevents the generation of
 are anatomically impossible. Experiments on the CheXpert dataset showed that
 this method produces anatomically plausible alterations (e.g., removing
 specific lung opacities) that are far more stable than baseline DNN methods.
+{% endcomment %}
 
 In the domain of medical AI, "explainability" is not merely a desirable feature but a crucial safety requirement. Clinicians need to understand the rationale behind a model's decision, for instance, why a specific scan was diagnosed as containing a tumor. A powerful technique for providing such insights is the generation of counterfactual explanations: answering the question, "What would this scan look like if the patient were healthy?"
 
