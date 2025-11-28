@@ -507,6 +507,7 @@ reasoning of circuits<d-cite key="martires_probabilistic_2024"></d-cite>.
 
 ### Probabilistic Flow Circuits 
 
+{% comment %}
 Another hybrid approach combines PCs with Normalizing Flows (NFs)<d-cite
 key="sidheekh_probabilistic_2023a"></d-cite>. NFs are excellent at modeling
 continuous local correlations but struggle with global structure and
@@ -522,6 +523,7 @@ Probabilistic Flow Circuits (PFCs) integrate NFs at the leaf nodes of a PC
   entangle variables in a way that breaks the circuit's marginalization
   guarantees<d-cite key="sidheekh_building_2024"></d-cite>.
 - Synergy: This architecture allows the PC to handle the multimodal, discrete structure of the data (e.g., different object categories in an image) while the flow leaves handle the continuous manifold of pixel variations within each category.
+{% endcomment %}
 
 Another promising hybrid direction involves integrating Probabilistic Circuits with Normalizing Flows (NFs)<d-cite key="sidheekh_probabilistic_2023a"></d-cite>. This synergy addresses the complementary limitations of both architectures: Normalizing Flows are highly effective at modeling continuous, local correlations through diffeomorphic transformations but lack mechanisms for handling global discrete structure and efficient marginalization. Conversely, PCs excel at capturing global structure via mixture models and performing exact marginalization but can be inefficient at modeling complex local continuous manifolds, often requiring an excessive number of mixture components to approximate them.
 
