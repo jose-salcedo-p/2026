@@ -53,7 +53,7 @@
         // Global variables
         let landscapeData = null;
         let algorithmTrajectories = {};
-        let currentAlgorithm = 'PerfGDReparam';
+        let currentAlgorithm = 'RGD';
         let showDiagonal = true;
         
         // Load the pricing landscape data
@@ -278,12 +278,17 @@
                 .attr('transform', `translate(${margin.left},${margin.top})`);
 
             // Set up scales
+            const values = points.map(points => points.value);
+            const minVal = d3.min(values);
+            const maxVal = d3.max(values);
+            const padding = Math.max((maxVal - minVal) * 0.1, 1);
+
             const xScale = d3.scaleLinear()
                 .domain([0, 6])
                 .range([0, width]);
 
             const yScale = d3.scaleLinear()
-                .domain([5, 11])
+                .domain([minVal - padding, maxVal + padding]) 
                 .range([height, 0]);
 
             // Add axes
@@ -357,7 +362,7 @@
         // Initialize
         async function init() {
             await loadLandscape();
-            await loadTrajectory('PerfGDReparam', 'algorithm_trajectory.json', 14);
+            await loadTrajectory('RGD', 'RGD_1d_0.25lr_10.json', 14);
             
             document.getElementById('loading').style.display = 'none';
             createPlot();

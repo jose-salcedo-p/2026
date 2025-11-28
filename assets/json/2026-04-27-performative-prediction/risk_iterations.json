@@ -2,98 +2,106 @@
   "points": [
     {
       "iteration": 0,
-      "value": 10.22,
+      "value": -5.903707350728794,
       "color": "blue",
       "annotations":[
         {
           "type": "line",
           "text": "Optimizing the model for a fixed distribution improves the risk...",
-          "translateX": -20,
-          "translateY": -100
+          "translateX": -40,
+          "translateY": -120
         }
       ]
     },
     {
       "iteration": 1,
-      "value": 7.68,
+      "value": -10.21631575452217,
       "color": "orange",
       "annotations":[
         {
           "type": "point",
-          "text": "... therefore, the risk in this point is DPR(θ<sub>0</sub>, θ<sub>1</sub>)",
-          "translateX": -30,
-          "translateY": 140
+          "text": "...therefore, the risk at this point is measured with the DPR.",
+          "translateX": -100,
+          "translateY": -240
         },
         {
           "type": "line",
-          "text": "but upon deployment, a distribution shift happens...",
-          "translateX": 0,
-          "translateY": 100
+          "text": "But upon deployment, a distribution shift happens...",
+          "translateX": 40,
+          "translateY": 70
         }
       ]
     },
     {
       "iteration": 1,
-      "value": 8.50,
+      "value": -7.6847725332702215,
       "color": "blue",
       "annotations":[
         {
           "type": "point",
-          "text": "and the risk becomes PR(θ<sub>1</sub>)",
-          "translateX": 0,
-          "translateY": -80
+          "text": "...and the risk becomes the PR",
+          "translateX": 10,
+          "translateY": 220
         }
       ]
     },
     {
       "iteration": 2,
-      "value": 7.80,
+      "value": -8.495764856837349,
       "color": "orange"
     },
     {
       "iteration": 2,
-      "value": 7.98,
+      "value": -7.796089107179061,
       "color": "blue"
     },
     {
       "iteration": 3,
-      "value": 7.80,
+      "value": -7.982139701984523,
       "color": "orange"
     },
     {
       "iteration": 3,
-      "value": 7.85,
+      "value": -7.803046393048362,
       "color": "blue"
     },
     {
       "iteration": 4,
-      "value": 7.80,
+      "value": -7.848515448869333,
       "color": "orange"
     },
     {
       "iteration": 4,
-      "value": 7.81,
+      "value": -7.803481223415195,
       "color": "blue"
     },
     {
       "iteration": 5,
-      "value": 7.80,
+      "value": -7.814783262815411,
       "color": "orange"
     },
     {
       "iteration": 5,
-      "value": 7.81,
+      "value": -7.80350840031312,
       "color": "blue"
     },
     {
       "iteration": 6,
-      "value": 7.80,
+      "value": -7.806329833628485,
       "color": "orange"
     },
     {
       "iteration": 6,
-      "value": 7.81,
-      "color": "blue"
+      "value": -7.803510098869242,
+      "color": "blue",
+      "annotations":[
+        {
+          "type": "point",
+          "text": "The distribution shift does not change the risk: the algorithm has converged!",
+          "translateX": -450,
+          "translateY": 120
+        }
+      ]
     }
   ]
 }
