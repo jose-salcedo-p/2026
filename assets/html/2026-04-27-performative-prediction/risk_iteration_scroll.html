@@ -26,36 +26,40 @@
             height: 200vh; /* Matches body height - scroll ends when last point appears */
             position: relative;
         }
-                
+        
         #iteration-fixed-wrapper {
             position: sticky;
             top: 0;
             height: 100vh;
             display: flex;
-            flex-direction: column;   /* ← stack vertically */
+            flex-direction: column;
             align-items: center;
-            justify-content: center;
-            padding: 20px;
+            justify-content: flex-start;
+            padding: 0;
+            gap: 20px;
         }
-
+        
         #iteration-fixed-image {
-            flex: 0 0 45%;
+            flex: 0 0 auto;
+            width: 100%;
             display: flex;
             align-items: center;
             justify-content: center;
+            margin-top: 5px;
         }
         
         #iteration-image {
-            max-width: 80%;
+            max-width: 75%;
+            max-height: 28vh;
             height: auto;
             display: block;
         }
         
         #risk-chart {
-            flex: 0 0 45%;
-            height: 600px;
+            flex: 0 0 auto;
+            width: 100%;
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             justify-content: center;
         }
         
@@ -91,9 +95,9 @@
             let allAnnotations = [];
 
             // Set up dimensions
-            const containerHeight = 600;
-            const margin = { top: 40, right: 80, bottom: 50, left: 60 };
-            const width = 700 - margin.left - margin.right;
+            const containerHeight = 320;
+            const margin = { top: 15, right: 100, bottom: 50, left: 55 };
+            const width = 800 - margin.left - margin.right;
             const height = containerHeight - margin.top - margin.bottom;
 
             // Create SVG
@@ -101,22 +105,17 @@
                 .append('svg')
                 .attr('viewBox', `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
                 .attr('width', '100%')
-                .style('max-width', '800px')
+                .style('max-width', '700px')
                 .append('g')
                 .attr('transform', `translate(${margin.left},${margin.top})`);
 
             // Set up scales
-            const values = points.map(points => points.value);
-            const minVal = d3.min(values);
-            const maxVal = d3.max(values);
-            const padding = Math.max((maxVal - minVal) * 0.1, 1);
-
             const xScale = d3.scaleLinear()
                 .domain([0, 6])
                 .range([0, width]);
 
             const yScale = d3.scaleLinear()
-                .domain([minVal - padding, maxVal + padding]) 
+                .domain([5, 11])
                 .range([height, 0]);
 
             // Add axes
@@ -200,13 +199,29 @@
                     const textX = midX + 50 + translateX;
                     const textY = midY - 20 + translateY;
                     
-                    annotationGroup.append('text')
+                    // Convert <sub>X</sub> to SVG tspans
+                    function renderTextWithSubscripts(textEl, str) {
+                        const parts = str.split(/(<sub>[^<]+<\/sub>)/g);
+                        parts.forEach(part => {
+                            const subMatch = part.match(/<sub>([^<]+)<\/sub>/);
+                            if (subMatch) {
+                                textEl.append('tspan')
+                                    .attr('baseline-shift', 'sub')
+                                    .attr('font-size', '70%')
+                                    .text(subMatch[1]);
+                            } else if (part) {
+                                textEl.append('tspan').text(part);
+                            }
+                        });
+                    }
+
+                    const textEl = annotationGroup.append('text')
                         .attr('x', textX)
                         .attr('y', textY)
                         .style('font-size', '20px')
-                        .style('fill', pointColor)
-                        .text(annotation.text);
-                    
+                        .style('fill', pointColor);
+                    renderTextWithSubscripts(textEl, annotation.text);
+
                     const dx = midX - textX;
                     const dy = midY - textY;
                     const distance = Math.sqrt(dx * dx + dy * dy);
@@ -235,8 +250,6 @@
 
                 point.annotations.forEach(annotation => {
                     if (annotation.type !== 'point') return;
-                    
-                    const pointColor = point.color === 'blue' ? '#8DA0CB' : '#E5C494';
 
                     const xPos = xScale(point.iteration);
                     const yPos = yScale(point.value);
@@ -247,13 +260,28 @@
                     const textX = xPos + 80 + translateX;
                     const textY = yPos - 30 + translateY;
                     
-                    annotationGroup.append('text')
+                    // Convert <sub>X</sub> to SVG tspans
+                    function renderTextWithSubscripts(textEl, str) {
+                        const parts = str.split(/(<sub>[^<]+<\/sub>)/g);
+                        parts.forEach(part => {
+                            const subMatch = part.match(/<sub>([^<]+)<\/sub>/);
+                            if (subMatch) {
+                                textEl.append('tspan')
+                                    .attr('baseline-shift', 'sub')
+                                    .attr('font-size', '70%')
+                                    .text(subMatch[1]);
+                            } else if (part) {
+                                textEl.append('tspan').text(part);
+                            }
+                        });
+                    }
+
+                    const textEl = annotationGroup.append('text')
                         .attr('x', textX)
                         .attr('y', textY)
                         .style('font-size', '20px')
-                        .style('font-style', 'italic')
-                        .style('fill', pointColor)
-                        .text(annotation.text);
+                        .style('font-style', 'italic');
+                    renderTextWithSubscripts(textEl, annotation.text);
 
                     const dx = xPos - textX;
                     const dy = yPos - textY;
@@ -261,21 +289,17 @@
                     const unitX = dx / distance;
                     const unitY = dy / distance;
 
-                    let arrowStartX = textX + unitX * 15;
-                    let arrowStartY = textY + unitY * 15;
+                    const arrowStartX = textX + unitX * 15;
+                    const arrowStartY = textY + unitY * 15;
                     const arrowEndX = xPos - unitX * 10;
                     const arrowEndY = yPos - unitY * 10;
-                    
-                    if (point.iteration === 6) {
-                        arrowStartY = arrowStartY - 16;
-                    }
 
                     annotationGroup.append('path')
                         .attr('d', `M ${arrowStartX} ${arrowStartY} L ${arrowEndX} ${arrowEndY}`)
                         .attr('fill', 'none')
-                        .attr('stroke', pointColor)
+                        .attr('stroke', 'black')
                         .attr('stroke-width', 1.5)
-                        .attr('marker-end', `url(#arrowhead-${point.color})`);
+                        .attr('marker-end', 'url(#arrowhead-black)');
 
                     allAnnotations.push({ element: annotationGroup, index, type: 'point' });
                 });
