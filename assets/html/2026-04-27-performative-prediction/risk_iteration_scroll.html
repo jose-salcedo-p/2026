@@ -111,12 +111,17 @@
                 .attr('transform', `translate(${margin.left},${margin.top})`);
 
             // Set up scales
+            const values = points.map(p => p.value);
+            const minVal = d3.min(values);
+            const maxVal = d3.max(values);
+            const padding = Math.max((maxVal - minVal) * 0.1, 1);
+
             const xScale = d3.scaleLinear()
                 .domain([0, 6])
                 .range([0, width]);
 
             const yScale = d3.scaleLinear()
-                .domain([-11, -5])
+                .domain([minVal - padding, maxVal + padding])
                 .range([height, 0]);
 
             // Add axes
