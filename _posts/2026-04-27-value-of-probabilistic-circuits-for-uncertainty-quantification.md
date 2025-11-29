@@ -150,18 +150,18 @@ key="choi_probabilistic_,peharz_probabilistic_2023"></d-cite>.
 
 At the fundamental level, a PC represents a joint distribution $P(\mathbf{X})$
 over a set of random variables $\mathbf{X}$. The graph is composed of three
-primary types of nodes, each serving a distinct probabilistic function:Input
-Units (Leaves): These are the building blocks of the circuit, representing
-simple, tractable univariate distributions over a single variable or a small
+primary types of nodes, each serving a distinct probabilistic function. **Input
+Units** (Leaves) are the building blocks of the circuit, representing
+simple, tractable distributions over a single variable or a small
 subset of variables. Common choices include Gaussian distributions for
 continuous data, Bernoulli or Categorical distributions for discrete data, or
-even piecewise polynomials. **Sum Units** ($\oplus$): These nodes compute a
+even piecewise polynomials. **Sum Units** ($\oplus$) compute a
 weighted sum of their children's outputs. In the probabilistic interpretation, a
 sum node represents a mixture model<d-cite
 key="choi_probabilistic_,peharz_probabilistic_2023"></d-cite>. It introduces a
 latent variable $Z$ that selects which branch of the mixture is active, thereby
 allowing the circuit to model multimodality and complex dependencies. **Product
-Units** ($\otimes$): These nodes compute the product of their children's
+Units** ($\otimes$) compute the product of their children's
 outputs. Probabilistically, product nodes represent factorizations, encoding
 independence assumptions between subsets of variables<d-cite
 key="choi_probabilistic_,peharz_probabilistic_2023"></d-cite>. The value
@@ -196,8 +196,8 @@ key="choi_probabilistic_,peharz_probabilistic_2023,sidheekh_building_2024"></d-c
 
 The significance of smoothness for UQ cannot be overstated. It ensures that the
 sum node represents a valid mixture distribution where the weights sum to unity
-(or a normalizing constant). If a sum node were non-smooth—meaning one child
-covered variables $\{X_1, X_2\}$ and another covered only $\{X_1\}$—the
+(or a normalizing constant). If a sum node were non-smooth, meaning one child
+covered variables $\{X_1, X_2\}$ and another covered only $\{X_1\}$, the
 resulting function would not integrate to a consistent value, as the missing
 variable $X_2$ in the second branch is unaccounted for. Smoothness guarantees
 that when we perform marginalization (integrating out a variable), the integral
@@ -285,8 +285,8 @@ to the direction of inference.
 
 This capability is particularly vital for handling missing data. In real-world
 scientific engineering, sensor failure is common. When a standard neural network
-encounters missing inputs, it usually requires imputation—guessing the missing
-values—before processing. This imputation introduces a point estimate that
+encounters missing inputs, it usually requires imputation, guessing the missing
+values, before processing. This imputation introduces a point estimate that
 ignores the uncertainty of the missing value. A PC, conversely, handles missing
 data by integrating out the missing variables analytically<d-cite
 key="choi_probabilistic_,peharz_probabilistic_2023,sidheekh_building_2024"></d-cite>.
@@ -310,13 +310,13 @@ distribution under the dropout noise model in a single forward pass. Instead of
 sampling dropout masks, TDI propagates the first and second moments (mean and
 variance) through the sum and product nodes.   
 
-Mechanism: For a sum node, the mean is the weighted sum of children's means. The
+For a sum node, the mean is the weighted sum of children's means. The
 variance computation involves the variances of children plus a term accounting
 for the variance of the gating weights themselves (if they are stochastic). For
 product nodes, due to independence (decomposability), the mean is the product of
 means, and the variance follows standard variance-of-product rules.
 
-Implication: This allows PCs to provide ''dropout-based'' uncertainty estimates
+This allows PCs to provide ''dropout-based'' uncertainty estimates
 that are theoretically sound and computationally efficient, eliminating the
 sampling noise inherent in standard MC Dropout. This technique has been shown to
 significantly improve the robustness of PCs to distribution shifts and OOD
@@ -335,10 +335,10 @@ uncertainty<d-cite key="thoma_recowns_2021"></d-cite>. These models use a PC
 (specifically a Conditional Whittle SPN) to model the distribution of the
 spectral coefficients of the time series.   
 
-Log-Likelihood Ratio Score (LLRS): This integration allows for the computation
-of the LLRS, a dynamic uncertainty metric. When the model encounters a sequence
-that deviates from the learned temporal dynamics—such as a sudden frequency
-shift in power grid data—the conditional likelihood computed by the PC drops
+This integration allows for the computation
+of the Log-Likelihood Ratio Score (LLRS), a dynamic uncertainty metric. When the model encounters a sequence
+that deviates from the learned temporal dynamics, such as a sudden frequency
+shift in power grid data, the conditional likelihood computed by the PC drops
 sharply. This score allows operators to distinguish between a ''hard to
 predict'' stochastic sequence (high aleatoric uncertainty) and a ''structurally
 novel'' sequence (high epistemic uncertainty), enabling trustworthy anomaly
@@ -447,12 +447,12 @@ EiNets is to reformulate the execution of sum and product layers using the
 Einstein summation (einsum) convention, a standard operation in tensor algebra
 libraries like PyTorch and TensorFlow.   
 
-Mechanism: Instead of processing nodes individually, EiNets organize nodes into
+Instead of processing nodes individually, EiNets organize nodes into
 layers. A ''product layer'' can be viewed as a mixing operation that can be
 computed via element-wise multiplication and reshaping of large tensors. A ''sum
 layer'' becomes a tensor contraction (matrix multiplication).
 
-Impact: By combining these monolithic tensor operations, EiNets allow PCs to
+By combining these monolithic tensor operations, EiNets allow PCs to
 utilize the massive parallelism of GPUs. This vectorization enables the training
 of PCs with millions of parameters and hundreds of layers, achieving density
 estimation performance on benchmarks like ImageNet that rivals intractable deep
@@ -469,11 +469,11 @@ PCs<d-cite key="zhang_scaling_2025"></d-cite>. Monarch matrices are a class of
 structured sparse matrices that are highly expressive (capable of representing
 permutations and Fast Fourier Transforms) yet computationally efficient.   
 
-Monarch Parameterization: By replacing dense weight matrices in sum layers with
+By replacing dense weight matrices in sum layers with
 products of sparse Monarch factors, researchers have reduced the memory and
 computation footprint of PCs significantly.
 
-Result: This approach has enabled ''unprecedented scaling'', allowing PCs to
+This Monarch Parameterization approach has enabled ''unprecedented scaling'', allowing PCs to
 achieve state-of-the-art generative modeling performance on challenging
 benchmarks like Text8 and ImageNet 32x32, demonstrating superior scaling laws
 (better performance for fewer FLOPs) compared to traditional dense
@@ -490,12 +490,12 @@ key="zhang_restructuring_2025"></d-cite>. These algorithms allow a
 structured-decomposable PC to be transformed into a new PC that respects a
 target vtree while representing the same distribution.   
 
-Algorithm: The restructuring process involves converting the original PC into an
+The restructuring process involves converting the original PC into an
 equivalent Bayesian Network with latent variables, identifying the conditional
 independencies required by the target vtree, and then recursively constructing
 the new circuit layers.
 
-Benefit: This breakthrough allows for dynamic inference optimization. A large,
+This breakthrough allows for dynamic inference optimization. A large,
 complex PC trained for high expressiveness can be ''compiled'' or restructured
 into a shallower, optimized circuit for faster inference on edge devices. It
 also enables the multiplication of circuits with different structures, which is
@@ -676,7 +676,7 @@ However, generating plausible counterfactuals is challenging; standard methods o
 
 The approach is built upon a hybrid architecture that integrates an SPN into the latent space of a semi-supervised Variational Autoencoder (VAE). First, a VAE is trained to compress high-dimensional medical images into a lower-dimensional latent space $\mathbf{z}$. Unlike standard VAEs, which assume a simple Gaussian prior and often fail to capture complex data manifolds, this method employs an SPN to model the true, complex distribution of latent vectors, $P_{\text{SPN}}(\mathbf{z} \mid y)$, where $y$ denotes the class label (e.g., "Healthy" or "Sick"). The SPN serves a dual purpose: it acts as a flexible prior describing the latent topology and as a classifier $P(y \mid \mathbf{z})$, ensuring the latent space is structured according to the diagnostic classes.
 
-To generate a counterfactual for a patient diagnosed as "Sick" ($y_{\text{orig}}$), the model optimizes a new latent vector $\mathbf{z}_{cf}$ that flips the classification to "Healthy" ($y_{\text{target}}$). This optimization is governed by three competing objectives: validity, proximity, and plausibility. First, the model maximizes the SPN's predicted probability for the target class, $P_{\text{SPN}}(y_{\text{target}} \mid \mathbf{z}_{cf})$, to ensure the diagnosis changes. Second, it minimizes the distance $||\mathbf{z}_{cf} - \mathbf{z}_{\text{orig}}||$ to guarantee that the counterfactual remains semantically similar to the original patient scan. Finally, and crucially, the optimization maximizes the likelihood of the vector under the SPN prior, $P_{\text{SPN}}(\mathbf{z}_{cf})$. This constraint forces the search into the high-density regions of the "Healthy" distribution, effectively preventing the generation of out-of-distribution or hallucinated samples.
+To generate a counterfactual for a patient diagnosed as "Sick" ($y_{\text{orig}}$), the model optimizes a new latent vector $\mathbf{z}\_{cf}$ that flips the classification to "Healthy" ($y\_{\text{target}}$). This optimization is governed by three competing objectives: validity, proximity, and plausibility. First, the model maximizes the SPN's predicted probability for the target class, $P\_{\text{SPN}}(y\_{\text{target}} \mid \mathbf{z}\_{cf})$, to ensure the diagnosis changes. Second, it minimizes the distance $\\|\mathbf{z}\_{cf} - \mathbf{z}\_{\text{orig}}\\|$ to guarantee that the counterfactual remains semantically similar to the original patient scan. Finally, and crucially, the optimization maximizes the likelihood of the vector under the SPN prior, $P\_{\text{SPN}}(\mathbf{z}\_{cf})$. This constraint forces the search into the high-density regions of the "Healthy" distribution, effectively preventing the generation of out-of-distribution or hallucinated samples.
 
 Experiments on the CheXpert dataset demonstrate that this SPN-guided approach produces anatomically plausible alterations, such as the specific removal of lung opacities, that are far more stable and interpretable than those generated by baseline Deep Neural Network (DNN) methods. While simple MLP classifiers require aggressive regularization to avoid adversarial noise, the SPN's robust density modeling naturally guides the generation toward semantically meaningful counterfactuals without such fragile tuning.
 
