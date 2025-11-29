@@ -34,9 +34,9 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: flex-start;
-            padding: 0;
-            gap: 20px;
+            justify-content: space-between;
+            padding: 16px 0;
+            gap: 32px;
         }
         
         #iteration-fixed-image {
@@ -45,7 +45,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-top: 5px;
+            margin-top: 0;
         }
         
         #iteration-image {
@@ -61,6 +61,7 @@
             display: flex;
             align-items: flex-start;
             justify-content: center;
+            margin-top: 0;
         }
         
         svg {
@@ -96,8 +97,8 @@
 
             // Set up dimensions
             const containerHeight = 320;
-            const margin = { top: 15, right: 100, bottom: 50, left: 55 };
-            const width = 800 - margin.left - margin.right;
+            const margin = { top: 0, right: 80, bottom: 25, left: 50 };
+            const width = 760 - margin.left - margin.right;
             const height = containerHeight - margin.top - margin.bottom;
 
             // Create SVG
@@ -105,7 +106,7 @@
                 .append('svg')
                 .attr('viewBox', `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
                 .attr('width', '100%')
-                .style('max-width', '700px')
+                .style('max-width', '680px')
                 .append('g')
                 .attr('transform', `translate(${margin.left},${margin.top})`);
 
@@ -115,7 +116,7 @@
                 .range([0, width]);
 
             const yScale = d3.scaleLinear()
-                .domain([5, 11])
+                .domain([-11, -5])
                 .range([height, 0]);
 
             // Add axes
@@ -125,26 +126,26 @@
             svg.append('g')
                 .attr('transform', `translate(0,${height})`)
                 .call(xAxis)
-                .style('font-size', '14px');
+                .style('font-size', '12px');
 
             svg.append('g')
                 .call(yAxis)
-                .style('font-size', '14px');
+                .style('font-size', '12px');
 
             // Add axis labels
             svg.append('text')
                 .attr('x', width / 2)
-                .attr('y', height + 45)
+                .attr('y', height + 18)
                 .style('text-anchor', 'middle')
-                .style('font-size', '16px')
+                .style('font-size', '12px')
                 .text('Iteration');
 
             svg.append('text')
                 .attr('transform', 'rotate(-90)')
                 .attr('x', -height / 2)
-                .attr('y', -50)
+                .attr('y', -32)
                 .style('text-anchor', 'middle')
-                .style('font-size', '16px')
+                .style('font-size', '12px')
                 .text('Risk');
 
             // Create lines (initially hidden)
@@ -170,7 +171,7 @@
                 const circle = svg.append('circle')
                     .attr('cx', xScale(point.iteration))
                     .attr('cy', yScale(point.value))
-                    .attr('r', 6)
+                    .attr('r', 5)
                     .attr('fill', point.color === 'blue' ? '#8DA0CB' : '#E5C494')
                     .attr('opacity', 0);
 
@@ -218,7 +219,7 @@
                     const textEl = annotationGroup.append('text')
                         .attr('x', textX)
                         .attr('y', textY)
-                        .style('font-size', '20px')
+                        .style('font-size', '14px')
                         .style('fill', pointColor);
                     renderTextWithSubscripts(textEl, annotation.text);
 
@@ -279,7 +280,7 @@
                     const textEl = annotationGroup.append('text')
                         .attr('x', textX)
                         .attr('y', textY)
-                        .style('font-size', '20px')
+                        .style('font-size', '14px')
                         .style('font-style', 'italic');
                     renderTextWithSubscripts(textEl, annotation.text);
 
