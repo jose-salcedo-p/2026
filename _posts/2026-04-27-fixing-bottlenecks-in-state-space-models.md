@@ -1,9 +1,7 @@
 ---
 layout: distill
 title: "Understanding and Fixing Bottlenecks in State Space Models: What Recency and Over-Smoothing Tell Us"
-description: Todo-Your blog post's abstract.
-  Please add your abstract or summary here and not in the main body of your text.
-  Do not include math/latex or hyperlinks.
+#description: To be added
 date: 2026-04-27
 future: true
 htmlwidgets: true
@@ -41,39 +39,37 @@ bibliography: 2026-04-27-fixing-bottlenecks-in-state-space-models.bib
 #   - please use this format rather than manually creating a markdown table of contents.
 toc:
   - name: "The Promise of SSMs: Long-Range Memory & Efficiency"
-  - name: Images and Figures
     subsections:
-      - name: Interactive Figures
-  - name: Citations
-  - name: Footnotes
-  - name: Code Blocks
-  - name: Diagrams
-  - name: Tweets
-  - name: Layouts
-  - name: Other Typography?
+      - name: Matrix Representation of State Space Models
+      - name: Selection Mechanisms
+        subsections:
+          - name: "Mamba-1"
+          - name: "Mamba-2"
+      - name: Selection as a means of Gating
+      - name: Hippo:Long-Range Modeling Claims
+  - name: "Reality Check: SSMs are Recency-Biased"
+    subsections:
+      - name: "Hidden Problem: SSMs are Recency-Biased"
+      - name: "Why SSMs forget Long-Range Context?"
 
 # Below is an example of injecting additional post-specific styles.
 # This is used in the 'Layouts' section of this post.
 # If you use this post as a template, delete this _styles block.
 _styles: >
-  .fake-img {
-    background: #bbb;
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    box-shadow: 0 0px 4px rgba(0, 0, 0, 0.1);
-    margin-bottom: 12px;
+  .theorem-box {
+    border-left: 4px solid #3b75ff;
+    background: rgba(59, 117, 255, 0.08);
+    padding: 1rem 1.25rem;
+    margin: 1.5rem 0;
+    border-radius: 6px;
   }
-  .fake-img p {
-    font-family: monospace;
-    color: white;
-    text-align: left;
-    margin: 12px 0;
-    text-align: center;
-    font-size: 16px;
+  .theorem-title {
+    font-weight: 600;
+    color: #1a4dcc;
+    margin-bottom: 0.5rem;
+    font-size: 1.02rem;
   }
 ---
-
-Note: please use the table of contents as defined in the front matter rather than the traditional markdown styling.
-
 ## The Promise of SSMs: Long-Range Memory & Efficiency
 
 **Structured State Space Sequence Models (S4, DSS, S4D)** represent a modern class of deep learning sequence models that share conceptual similarities with RNNs, CNNs, and classical state space models. In control systems, state-space models (SSMs) represent a system where the relationship between inputs and outputs is defined through state variables (or simply states), with the system's behavior described by first-order differential equations governing these states <d-cite key="xiao2023introductiontransformersnlpperspective"></d-cite>.
@@ -146,382 +142,277 @@ where the input first passes through an intermediate linear layer before being p
 
 To retain data dependencies without sacrificing parallelism, Mamba leverages a hardware-efficient associative scan–based algorithm that enables linear-time training while effectively modeling long-range dependencies. Notably, these parameters now have a length dimension $T$, shifting the model from time-invariant to time-varying.
 
+### Matrix Representation of State Space Models
 
+State Space Models (SSMs) and self-attention based mechanisms, despite their differing implementations, can be unified under a shared theoretical framework. Both classes of models can be interpreted as operating through *structured semiseparable matrices or matrix mixers*, which undergo efficient decompositions and enable long-range sequence modeling. Gu and Dao <d-cite key="dao2024transformersssmsgeneralizedmodels"></d-cite> leveraged this connection to propose the **State Space Duality (SSD)** framework, which formalizes the equivalence between recurrent and global (attention-like) views of sequence transformations.
 
+Mamba-2 establishes a connection between State Space Models (SSMs) and Transformers by demonstrating that certain SSMs can be interpreted as a specific instance of causal linear attention <d-cite key="katharopoulos2020transformersrnnsfastautoregressive"></d-cite>. This equivalence serves as a foundational component of the proposed framework, enabling a reinterpretation of various SSM computations as structured matrix multiplication algorithms. Leveraging this connection, the framework introduces new properties and more efficient algorithms for SSMs.
 
-## Images and Figures
+In simple terms, the way selective SSMs like Mamba process input sequences—by mapping $X \in \mathbb{R}^{T \times D}$ to $Y \in \mathbb{R}^{T \times D}$—can be naturally expressed using a matrix mixer framework. Starting from the initial hidden state $h_0 = B_0 x_0$, the hidden state at each time step $h_t$ is computed recursively as a composition of input projections and recurrent $A$ matrices:
 
-Its generally a better idea to avoid linking to images hosted elsewhere - links can break and you
-might face losing important information in your blog post.
-To include images in your submission in this way, you must do something like the following:
+$$
+h_t = \sum_{s=0}^t A_{t:s}^\times B_s x_s
+$$
 
-```markdown
-{% raw %}{% include figure.liquid path="assets/img/2026-04-27-distill-example/iclr.png" class="img-fluid" %}{% endraw %}
-```
+The output is then given by
 
-which results in the following image:
+$$
+y_t = \sum_{s=0}^t C_t^\top A_{t:s}^\times B_s x_s
+$$
 
-{% include figure.liquid path="assets/img/2026-04-27-distill-example/iclr.png" class="img-fluid" %}
+where $C_t^\top$ is the time-dependent output projection. Collecting the outputs across all time steps yields the matrix form
 
-To ensure that there are no namespace conflicts, you must save your asset to your unique directory
-`/assets/img/2025-04-27-[SUBMISSION NAME]` within your submission.
+$$
+y = \mathrm{SSM}(A, B, C)(x) = M(x) \cdot x
+$$
 
-Please avoid using the direct markdown method of embedding images; they may not be properly resized.
-Some more complex ways to load images (note the different styles of the shapes/shadows):
+where $M$ is the mixer matrix and is represented as
 
-<div class="row mt-3">
-    <div class="col-sm mt-3 mt-md-0">
-        {% include figure.liquid path="assets/img/2026-04-27-distill-example/9.jpg" class="img-fluid rounded z-depth-1" %}
-    </div>
-    <div class="col-sm mt-3 mt-md-0">
-        {% include figure.liquid path="assets/img/2026-04-27-distill-example/7.jpg" class="img-fluid rounded z-depth-1" %}
-    </div>
-</div>
-<div class="caption">
-    A simple, elegant caption looks good between image rows, after each row, or doesn't have to be there at all.
-</div>
+$$
+M_{ji} := C_j^\top A_j \cdots A_{i+1} B_i
+$$
 
-<div class="row mt-3">
-    <div class="col-sm mt-3 mt-md-0">
-        {% include figure.liquid path="assets/img/2026-04-27-distill-example/8.jpg" class="img-fluid z-depth-2" %}
-    </div>
-    <div class="col-sm mt-3 mt-md-0">
-        {% include figure.liquid path="assets/img/2026-04-27-distill-example/10.jpg" class="img-fluid z-depth-2" %}
-    </div>
-</div>
+For scalar SSMs, the matrices $A_t$ reduce to scalars, which can be factored out of the entries:
 
-<div class="row mt-3">
-    <div class="col-sm mt-3 mt-md-0">
-        {% include figure.liquid path="assets/img/2026-04-27-distill-example/11.jpg" class="img-fluid"  %}
-    </div>
-    <div class="col-sm mt-3 mt-md-0">
-        {% include figure.liquid path="assets/img/2026-04-27-distill-example/12.jpg" class="img-fluid" %}
-    </div>
-    <div class="col-sm mt-3 mt-md-0">
-        {% include figure.liquid path="assets/img/2026-04-27-distill-example/7.jpg" class="img-fluid" %}
-    </div>
-</div>
+$$
+C_t^\top A_{t:s}^\times B_s = A_{t:s}^\times \cdot (C_t^\top B_s)
+$$
 
-### Interactive Figures
+### Selection Mechanisms
 
-Here's how you could embed interactive figures that have been exported as HTML files.
-Note that we will be using plotly for this demo, but anything built off of HTML should work
-(**no extra javascript is allowed!**).
-All that's required is for you to export your figure into HTML format, and make sure that the file
-exists in the `assets/html/[SUBMISSION NAME]/` directory in this repository's root directory.
-To embed it into any page, simply insert the following code anywhere into your page.
+#### Mamba-1
 
-```markdown
-{% raw %}{% include [FIGURE_NAME].html %}{% endraw %}
-```
+Mamba makes the discrete parameters in the S4 algorithm vary based on the input:
 
-For example, the following code can be used to generate the figure underneath it.
+$$
+h_t = s_{\overline{A}}(x_t) h_{t-1} + s_{\overline{B}}(x_t) x_t \\
+y_t = s_C(x_t) h_t
+$$
 
-```python
-import pandas as pd
-import plotly.express as px
+The core challenge in sequence modeling lies in compressing context into a smaller state. Attention mechanisms are effective but inefficient, as they avoid compression entirely—requiring storage of the full context (e.g., KV cache), leading to quadratic training and linear inference costs. Recurrent models, while efficient with constant-time inference and linear-time training, struggle with compressing context effectively into a finite state. Static recurrent updates also fail to adapt their hidden state dynamically based on input, while fixed convolution kernels struggle with tasks requiring context awareness.
 
-df = pd.read_csv('https://raw.githubusercontent.com/plotly/datasets/master/earthquakes-23k.csv')
+This tradeoff underscores the need for sequence models to balance efficiency (small states) with effectiveness (context-aware states). A key principle for achieving this is *selectivity*: the ability to focus on relevant inputs while filtering out irrelevant ones during state propagation. The selection mechanism in Mamba makes parameters that influence sequence interactions dependent on the input, modifying the structure to adapt dynamically to context across a sequence.
 
-fig = px.density_mapbox(
-    df, lat='Latitude', lon='Longitude', z='Magnitude', radius=10,
-    center=dict(lat=0, lon=180), zoom=0, mapbox_style="stamen-terrain")
-fig.show()
+This mechanism can be compared to the update gate in GRUs, balancing the influence of past hidden states and the current input <d-cite key="de2024griffinmixinggatedlinear"></d-cite>. By selectively retaining or discarding information, it enables the hidden state to reset when necessary—similar to the forget gate in LSTMs—thereby enhancing the model’s ability to manage long-range dependencies efficiently.
 
-fig.write_html('./assets/html/2026-04-27-distill-example/plotly_demo_1.html')
-```
+#### Mamba-2
 
-And then include it with the following:
+In Mamba-2, the SSD (Selective SSM) layer introduces a further simplification by constraining the matrix $A$ to a scaled identity form. That is, all diagonal entries of $A$ are required to be equal at each time step, such that $A_t$ becomes a scalar multiple of the identity matrix. Consequently, $A$ can be compactly represented as a tensor of shape $(T)$, with each element $a_t$ denoting the scalar coefficient at time step $t$. This structural constraint reduces both the number of parameters and the computational overhead, while retaining the expressive power needed for sequence modeling.
 
-```html
-{% raw %}
-<div class="l-page">
-  <iframe
-    src="{{ 'assets/html/2026-04-27-distill-example/plotly_demo_1.html' | relative_url }}"
-    frameborder="0"
-    scrolling="no"
-    height="600px"
-    width="100%"
-  ></iframe>
-</div>
-{% endraw %}
-```
+Gu and Dao <d-cite key="dao2024transformersssmsgeneralizedmodels"></d-cite> defined a matrix $M$ to encode a sequence-to-sequence transformation mapping where a one-dimensional input vector $x \in \mathbb{R}^T$ is transformed into a one-dimensional output vector $y \in \mathbb{R}^T$ through matrix multiplication $y = Mx$. Here, $T$ denotes the sequence length, and $M = L \circ C B^\top \in \mathbb{R}^{T \times T}$.
 
-Voila!
+To ensure computational efficiency, *structured SSMs* impose specific constraints on the transition matrix $A$. A common and effective structure is to assume $A$ is diagonal <d-cite key="gu2022efficientlymodelinglongsequences,gupta2022diagonalstatespaceseffective,gupta2023simplifyingunderstandingstatespace,smith2023simplifiedstatespacelayers"></d-cite>, in which case only the diagonal entries of each $N \times N$ matrix are stored. This reduces the shape of $A$ to $(T, N)$, significantly lowering both memory and compute requirements, where $T$ is the sequence or time dimension.
 
-<div class="l-page">
-  <iframe src="{{ 'assets/html/2026-04-27-distill-example/plotly_demo_1.html' | relative_url }}" frameborder='0' scrolling='no' height="600px" width="100%"></iframe>
+Let the input sequence be $Z \in \mathbb{R}^{T \times D}$, where $T$ is the number of tokens and $D$ is the feature (or channel) dimension. The model produces an output $O \in \mathbb{R}^{T \times D}$ while maintaining an internal hidden state of size $H$.
+
+To begin, the model computes three intermediate projections $B, C, V \in \mathbb{R}^{T \times H}$ using functions $g_K$, $g_Q$, and $g_U$, which apply input-dependent transformations. These typically consist of linear projections along the feature dimension, short convolutions across the sequence axis, and nonlinear activations such as Swish <d-cite key="ramachandran2017searchingactivationfunctions"></d-cite>.
+
+These matrices can be interpreted as analogs to the key, query, and value components used in attention <d-cite key="vaswani2023attentionneed"></d-cite>. For each output channel $j$, the model maintains a hidden state vector $s^j_t$ and updates it at each time step via the recurrence:
+
+$$
+s^j_t = \alpha_t \cdot s^j_{t-1} + \beta_t \cdot B_t \cdot v^j_t
+$$
+
+where $v^j = V_{:,j} \in \mathbb{R}^H$ and $v^j_t = v^j[t]$. Let $B_t = B[t, :]$ and $C_t = C[t, :]$ denote the $t$-th rows of $B$ and $C$, respectively. The output is then computed as:
+
+$$
+o^j_t = C_t^\top s^j_t, \quad o^j_t = O[t, j]
+$$
+
+In models such as Linear Attention <d-cite key="katharopoulos2020transformersrnnsfastautoregressive"></d-cite>, the coefficients are typically fixed with $\alpha_t = 1$ and $\beta_t = 1$. RetNet <d-cite key="sun2023retentivenetworksuccessortransformer"></d-cite> introduces a learned decay parameter $\gamma$ to modulate the hidden state updates, using $\alpha_t = \gamma$ and $\beta_t = 1$.
+
+Mamba-2 extends this approach by making both coefficients data-dependent through a selectivity matrix $\delta = g_\delta(Z) \in \mathbb{R}^T$, allowing the model to dynamically control the flow of information. Specifically, the coefficients are defined as $\alpha_t = \exp(-\delta_t)$ and $\beta_t = \delta_t$, enabling context-aware adaptation of the update and retention behavior for each token. This gating mechanism dynamically adjusts the balance between information retention and update based on context, enabling the model to prioritize important tokens and effectively capture long-range dependencies.
+
+### Selection as a means of Gating
+
+The most important connection is that the classical gating mechanism of RNNs is an instance of the selection mechanism used in SSMs. Originally, gating mechanisms were introduced in recurrent neural networks (RNNs), such as LSTMs and GRUs <d-cite key="chung2014empiricalevaluationgatedrecurrent"></d-cite>, to regulate the flow of information into the hidden state. These mechanisms controlled how signals propagated over time, enabling the model to capture sequential dependencies.
+
+However, the modern interpretation of gating has broadened to encompass any multiplicative interaction, often modulated by an activation function. Formally, the gating function is defined as
+
+$$
+g_t = \sigma(\mathrm{Linear}(x_t)),
+$$
+
+which governs the hidden state update:
+
+$$
+h_t = (1 - g_t) h_{t-1} + g_t x_t.
+$$
+
+This formulation enables the input $x_t$ to dynamically control the trade-off between integrating new information and preserving past context through the gating parameter $g_t$. Because $g_t$ is constrained between 0 and 1, the model can suppress irrelevant context when necessary, improving the efficiency of information propagation. This selective updating enhances the model’s ability to extract meaningful dependencies over long sequences while reducing the impact of extraneous information. As a result, gating provides a context-aware alternative to sparsified graph attention, retaining only the most essential dependencies across long-range contexts.
+
+The selection mechanism introduced in Mamba SSMs <d-cite key="gu2024mambalineartimesequencemodeling"></d-cite> functions similarly to the update gate in GRUs, blending the previous hidden state with the current input $x_t$. This allows the model to reset its hidden state and discard outdated information when necessary—akin to the forget gate in LSTMs—while maintaining computational efficiency and long-range modeling capability.
+
+<div class="theorem-box">
+However, <span class="theorem-title">Theorem 3.1</span> from <d-cite key="wang2025understandingmitigatingbottlenecksstate"></d-cite> shows that despite incorporating advanced selection mechanisms, SSMs such as Mamba still suffer from a strong recency bias. Moreover, <span class="theorem-title">Theorem 4.2</span> in the same work extends directly to Mamba, indicating that its “selective” state-space updates do not make it more expressive at signal filtering than the classical linear S4 model. In practice, both architectures behave predominantly as low-pass filters. We will examine both theorems in detail in a later section.
 </div>
 
-## Citations
 
-Citations are then used in the article body with the `<d-cite>` tag.
-The key attribute is a reference to the id provided in the bibliography.
-The key attribute can take multiple ids, separated by commas.
+### Hippo:Long-Range Modeling Claims
 
-The citation is presented inline like this: <d-cite key="gregor2015draw"></d-cite> (a number that displays more information on hover).
-If you have an appendix, a bibliography is automatically created and populated in it.
+State Space Models (SSMs) were originally introduced as a principled framework for modeling long-range dependencies in sequential data. Their modern formulation is grounded in the **HiPPO (High-Order Polynomial Projection Operators)** framework introduced by Gu et al. <d-cite key="gu2020hipporecurrentmemoryoptimal"></d-cite>, which shows that a simple first-order ODE can maintain a compressed and continuously updated representation of the entire input history.
 
-Distill chose a numerical inline citation style to improve readability of citation dense articles and because many of the benefits of longer citations are obviated by displaying more information on hover.
-However, we consider it good style to mention author last names if you discuss something at length and it fits into the flow well — the authors are human and it’s nice for them to have the community associate them with their work.
+HiPPO defines a hidden state $h(t)$ evolving under the linear differential equation:
+
+$$
+\frac{d}{dt} h(t) = A\,h(t) + B\,x(t),
+$$
+
+where $x(t)$ is the incoming signal and $A$ is the HiPPO matrix that governs memory dynamics. The key insight is that $h(t)$ serves as the coefficients of an *online polynomial projection* of the past signal. Formally, HiPPO computes:
+
+$$
+h(t) \approx \arg\min_{y \in \mathrm{Poly}}
+\| x_{(-\infty,\, t]} - y \|_{L^2(\omega_t)},
+$$
+
+for a time-varying weighting measure $\omega_t$, allowing the model to maintain the best $L^2$ approximation of the input history. This enables efficient long-term memory representation.
+
+The original HiPPO matrix, such as HiPPO-LegS, is dense and upper triangular:
+
+$$
+A_{ij} =
+\begin{cases}
+2i + 1, & i = j, \\
+-(2i + 1), & i > j, \\
+0, & i < j,
+\end{cases}
+$$
+
+which is theoretically elegant but computationally expensive for deep learning applications.
+
+Subsequent works <d-cite key="gu2021combiningrecurrentconvolutionalcontinuoustime,gu2022parameterizationinitializationdiagonalstate,gupta2022diagonalstatespaceseffective"></d-cite> provided major simplifications by showing that these dense HiPPO matrices can be approximated using *diagonal* or *diagonal-plus-low-rank* structures:
+
+$$
+A \approx D + L,
+$$
+
+where $D$ is diagonal and $L$ is low rank. This dramatically improves computational efficiency while preserving the ability to model long-range dependencies.
+
+These insights directly enabled the development of modern SSM-based architectures such as **S4** <d-cite key="gu2022efficientlymodelinglongsequences"></d-cite> and **Mamba** <d-cite key="gu2024mambalineartimesequencemodeling"></d-cite>, which use HiPPO-inspired parameterizations to construct fast, expressive sequence models. By leveraging diagonal or structured versions of the HiPPO matrix, these models achieve scalable and effective context filtering, often outperforming attention-based approaches on tasks requiring long-range memory.
+
+## Reality Check: SSMs are Recency-Biased
+### Hidden Problem: SSMs are Recency-Biased
+
+In their paper *Understanding and Mitigating Bottlenecks of State Space Models Through the Lens of Recency and Over-Smoothing* <d-cite key="wang2025understandingmitigatingbottlenecksstate"></d-cite>, the authors argue that although Structured State Space Models (SSMs) have been widely promoted as strong alternatives to Transformers—especially for long-sequence modeling—their behavior is more limited than commonly assumed. They show that SSMs exhibit a pronounced *recency bias*, meaning they rely heavily on the most recent tokens and rapidly lose access to information from farther in the past. According to their experiments, this bias not only weakens long-range recall but also creates potential robustness issues, since local perturbations can disproportionately affect the output.
+
+To investigate whether this limitation can be reduced through scaling, the authors explore deeper SSM architectures. They find that increasing depth does help the model access longer contexts, but only up to a point. Beyond that, deeper SSMs begin to suffer from *over-smoothing*, where token representations become increasingly similar as they propagate through more layers. This causes the model to lose discriminative power, offsetting the benefits of added depth.
+
+Overall, the paper highlights a fundamental trade-off: shallow SSMs tend to forget long-range information due to recency bias, while deeper models become over-smoothed and struggle to maintain meaningful token distinctions.
+
+### Why SSMs forget Long-Range Context?
+
+Although transformers may appear better suited for long-range tasks, the authors show theoretically that an SSM layer is inherently biased toward recent tokens and loses long-term memory exponentially. They also provide empirical validation that SSMs struggle to retrieve information from distant context. Furthermore, they show that strong local bias can negatively impact robustness, since perturbations in recent tokens disproportionately affect the output.
+
+To analyze how information propagates through State Space Models (SSMs) and how these models capture long-range dependencies, the authors examine how the output at time step $t$ depends on an earlier input token at time $s \le t$. They quantify this via the influence score:
+
+$$
+\left|\frac{\partial y_t}{\partial x_s}\right|,
+$$
+
+which measures the impact of the $s$-th input token on the $t$-th output token. A larger value indicates stronger influence; a smaller value indicates weaker contribution.
+
+The authors present a theorem (Theorem 3.1) demonstrating that State Space Models—including S4 and Mamba—exhibit an inherent **recency bias**. The theorem assumes that the SSM parameters are continuous and differentiable, and that each state transition matrix $A_t$ has diagonal entries strictly between $0$ and $1$, a condition satisfied by many modern SSMs.
+
+Under these assumptions, the influence between two tokens in an SSM decays *exponentially* with their relative distance $(t - s)$. The decay rate is controlled by the largest diagonal entry among the state matrices:
+
+$$
+A_{\max} = \max_{t \in [T], n \in [N]} (A_t)_{n,n}.
+$$
+
+Formally, let the SSM be parameterized by the sequence
+$\{(A_t, b_t, c_t, \Delta_t)\}_{t \in [T]}$, and assume:
+
+1. the input space $X \subset \mathbb{R}^T$ is compact,  
+2. the parameters are continuous and continuously differentiable,  
+3. each $A_t \in (0,1)^{N \times N}$ is diagonal.
+
+Then for any $x \in X$ and indices $s < t$, the influence score satisfies:
+
+$$
+\left|\frac{\partial y_t}{\partial x_s}\right|
+= O\!\left(\exp(-\kappa (t - s))\right),
+\qquad
+\kappa = \Theta\!\left(\log(A_{\max}^{-1})\right).
+$$
+
+This expression implies that the influence of the input token at position $s$ on the output at $t$ decreases exponentially as the distance grows. If each transition matrix $A_t$ has diagonal entries less than $1$, then the hidden state is repeatedly multiplied by values smaller than $1$, causing the influence of early inputs to vanish exponentially.
 
 ---
 
-## Footnotes
+### Example: Exponential Decay in a Simple SSM
 
-Just wrap the text you would like to show up in a footnote in a `<d-footnote>` tag.
-The number of the footnote will be automatically generated.<d-footnote>This will become a hoverable footnote.</d-footnote>
+Consider a simple recurrence:
 
----
+$$
+h_t = 0.8\, h_{t-1} + b x_t, \qquad y_t = c h_t.
+$$
 
-## Code Blocks
+Here the transition coefficient is $0.8$. The influence of an early input $x_s$ on the output at time $t$ is:
 
-This theme implements a built-in Jekyll feature, the use of Rouge, for syntax highlighting.
-It supports more than 100 languages.
-This example is in C++.
-All you have to do is wrap your code in a liquid tag:
+$$
+\frac{\partial y_t}{\partial x_s} \approx 0.8^{\, (t - s)}.
+$$
 
-{% raw  %}
-{% highlight c++ linenos %} <br/> code code code <br/> {% endhighlight %}
-{% endraw %}
+**Example**  
+Let $s = 1$. How does $x_1$ influence $y_t$?
 
-The keyword `linenos` triggers display of line numbers. You can try toggling it on or off yourself below:
+$$
+\begin{aligned}
+t = 2: &\quad 0.8^{1} = 0.8, \\
+t = 4: &\quad 0.8^{3} = 0.512, \\
+t = 8: &\quad 0.8^{7} \approx 0.21, \\
+t = 20: &\quad 0.8^{19} \approx 0.014.
+\end{aligned}
+$$
 
-{% highlight c++ %}
+Even with a relatively large retention factor (0.8), the influence from early inputs decays to nearly zero after only a few dozen steps—illustrating the inherent recency bias of SSMs.
 
-int main(int argc, char const \*argv[])
-{
-string myString;
+**Interpretation**  
+At $t = 8$, most of the influence is already gone.  
+At $t = 20$, the influence of the earlier input is essentially zero.
 
-    cout << "input a string: ";
-    getline(cin, myString);
-    int length = myString.length();
+This matches the exponential decay form:
 
-    char charArray = new char * [length];
+$$
+\exp(-\kappa (t - s)),
+$$
 
-    charArray = myString;
-    for(int i = 0; i < length; ++i){
-        cout << charArray[i] << " ";
-    }
+where
 
-    return 0;
+$$
+\kappa = -\log(0.8) \approx 0.22.
+$$
 
-}
+<figure class="side-by-side">
 
-{% endhighlight %}
-
----
-
-## Diagrams
-
-This theme supports generating various diagrams from a text description using [mermaid.js](https://mermaid-js.github.io/mermaid/){:target="\_blank"} directly.
-Below, we generate examples of such diagrams using [mermaid](https://mermaid-js.github.io/mermaid/){:target="\_blank"} syntax.
-
-**Note:** To enable mermaid diagrams, you need to add the following to your post's front matter:
-
-```yaml
-mermaid:
-  enabled: true
-  zoomable: true # optional, for zoomable diagrams
-```
-
-The diagram below was generated by the following code:
-
-
-````
-```mermaid
-sequenceDiagram
-    participant John
-    participant Alice
-    Alice->>John: Hello John, how are you?
-    John-->>Alice: Great!
-```
-````
-
-```mermaid
-sequenceDiagram
-    participant John
-    participant Alice
-    Alice->>John: Hello John, how are you?
-    John-->>Alice: Great!
-```
-
----
-
-## Tweets
-
-An example of displaying a tweet:
-{% twitter https://twitter.com/rubygems/status/518821243320287232 %}
-
-An example of pulling from a timeline:
-{% twitter https://twitter.com/jekyllrb maxwidth=500 limit=3 %}
-
-For more details on using the plugin visit: [jekyll-twitter-plugin](https://github.com/rob-murray/jekyll-twitter-plugin)
-
----
-
-## Blockquotes
-
-<blockquote>
-    We do not grow absolutely, chronologically. We grow sometimes in one dimension, and not in another, unevenly. We grow partially. We are relative. We are mature in one realm, childish in another.
-    —Anais Nin
-</blockquote>
-
----
-
-## Layouts
-
-The main text column is referred to as the body.
-It is the assumed layout of any direct descendants of the `d-article` element.
-
-<div class="fake-img l-body">
-  <p>.l-body</p>
+<div class="image-container">
+  <img src="assets/img/2026-04-27-fixing-bottlenecks-in-state-space-models/figure1.png" alt="Logarithmic influence scores">
+  <figcaption>
+    Logarithmic influence scores plotted against relative token distance.  
+    The linear decay illustrates the inherent recency bias in SSMs  
+    <d-cite key="wang2025understandingmitigatingbottlenecksstate"></d-cite>.
+  </figcaption>
 </div>
 
-For images you want to display a little larger, try `.l-page`:
+<div class="text-container">
+  <p>
+    The authors further validate their theory by plotting the logarithm of influence scores
+    against the relative distance between tokens. Across a wide range of model sizes,
+    Mamba consistently exhibits a linear decay — both at initialization and during training.
+  </p>
 
-<div class="fake-img l-page">
-  <p>.l-page</p>
+  <p>
+    This pattern shows that the recency behavior is not merely learned from data statistics;
+    it reflects an intrinsic architectural bias predicted by the theorem above.
+  </p>
+
+  <p>
+    Moreover, commonly used initialization schemes amplify this locality bias, causing
+    distant tokens to have even less effect on the model’s outputs.
+  </p>
 </div>
 
-All of these have an outset variant if you want to poke out from the body text a little bit.
-For instance:
+</figure>
 
-<div class="fake-img l-body-outset">
-  <p>.l-body-outset</p>
-</div>
 
-<div class="fake-img l-page-outset">
-  <p>.l-page-outset</p>
-</div>
-
-Occasionally you’ll want to use the full browser width.
-For this, use `.l-screen`.
-You can also inset the element a little from the edge of the browser by using the inset variant.
-
-<div class="fake-img l-screen">
-  <p>.l-screen</p>
-</div>
-<div class="fake-img l-screen-inset">
-  <p>.l-screen-inset</p>
-</div>
-
-The final layout is for marginalia, asides, and footnotes.
-It does not interrupt the normal flow of `.l-body`-sized text except on mobile screen sizes.
-
-<div class="fake-img l-gutter">
-  <p>.l-gutter</p>
-</div>
-
----
-
-## Other Typography?
-
-Emphasis, aka italics, with _asterisks_ (`*asterisks*`) or _underscores_ (`_underscores_`).
-
-Strong emphasis, aka bold, with **asterisks** or **underscores**.
-
-Combined emphasis with **asterisks and _underscores_**.
-
-Strikethrough uses two tildes. ~~Scratch this.~~
-
-1. First ordered list item
-2. Another item
-
-- Unordered sub-list.
-
-1. Actual numbers don't matter, just that it's a number
-   1. Ordered sub-list
-2. And another item.
-
-   You can have properly indented paragraphs within list items. Notice the blank line above, and the leading spaces (at least one, but we'll use three here to also align the raw Markdown).
-
-   To have a line break without a paragraph, you will need to use two trailing spaces.
-   Note that this line is separate, but within the same paragraph.
-   (This is contrary to the typical GFM line break behavior, where trailing spaces are not required.)
-
-- Unordered lists can use asterisks
-
-* Or minuses
-
-- Or pluses
-
-[I'm an inline-style link](https://www.google.com)
-
-[I'm an inline-style link with title](https://www.google.com "Google's Homepage")
-
-[I'm a reference-style link][Arbitrary case-insensitive reference text]
-
-[I'm a relative reference to a repository file](../blob/master/LICENSE)
-
-[You can use numbers for reference-style link definitions][1]
-
-Or leave it empty and use the [link text itself].
-
-URLs and URLs in angle brackets will automatically get turned into links.
-http://www.example.com or <http://www.example.com> and sometimes
-example.com (but not on Github, for example).
-
-Some text to show that the reference links can follow later.
-
-[arbitrary case-insensitive reference text]: https://www.mozilla.org
-[1]: http://slashdot.org
-[link text itself]: http://www.reddit.com
-
-Here's our logo (hover to see the title text):
-
-Inline-style:
-![alt text](https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png "Logo Title Text 1")
-
-Reference-style:
-![alt text][logo]
-
-[logo]: https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png "Logo Title Text 2"
-
-Inline `code` has `back-ticks around` it.
-
-```javascript
-var s = "JavaScript syntax highlighting";
-alert(s);
-```
-
-```python
-s = "Python syntax highlighting"
-print(s)
-```
-
-```
-No language indicated, so no syntax highlighting.
-But let's throw in a <b>tag</b>.
-```
-
-Colons can be used to align columns.
-
-| Tables        |      Are      |  Cool |
-| ------------- | :-----------: | ----: |
-| col 3 is      | right-aligned | $1600 |
-| col 2 is      |   centered    |   $12 |
-| zebra stripes |   are neat    |    $1 |
-
-There must be at least 3 dashes separating each header cell.
-The outer pipes (|) are optional, and you don't need to make the
-raw Markdown line up prettily. You can also use inline Markdown.
-
-| Markdown | Less      | Pretty     |
-| -------- | --------- | ---------- |
-| _Still_  | `renders` | **nicely** |
-| 1        | 2         | 3          |
-
-> Blockquotes are very handy in email to emulate reply text.
-> This line is part of the same quote.
-
-Quote break.
-
-> This is a very long line that will still be quoted properly when it wraps. Oh boy let's keep writing to make sure this is long enough to actually wrap for everyone. Oh, you can _put_ **Markdown** into a blockquote.
-
-Here's a line for us to start with.
-
-This line is separated from the one above by two newlines, so it will be a _separate paragraph_.
-
-This line is also a separate paragraph, but...
-This line is only separated by a single newline, so it's a separate line in the _same paragraph_.
+## Evidence: SSMs fail on Long-Range Retrieval
