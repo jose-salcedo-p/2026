@@ -465,6 +465,6 @@ Finally, we proposed two concrete, falsifiable hypotheses for operator learning 
 
 Even with practical proxies (LCM as endpoint-anchored, TCD as DDIM-coupled two-time jump), the experiments support the central narrative: **operator-like jumps are step-robust, and two-time jumps exhibit substantially lower compositional drift than endpoint-anchored hops**. This points to a useful takeaway beyond any specific method: **“semigroup violation” can serve as a unit test for generative operators**, especially in pipelines that repeatedly jump across time (editing, multi-stage refinement, or back-and-forth schedules).
 
-### Limitations and Outlook
+### 5.1. Limitations and Outlook
 
 Our study deliberately prioritized *structure* over *full-scale training*: we did not train a complete $$f_\theta(x_t,t,s)$$ with explicit semigroup regularization. The next step is therefore clear: train true flow maps with (i) broad coverage over $(t,s)$, (ii) explicit composition constraints, and (iii) evaluation on tasks where chaining is unavoidable (e.g., iterative editing loops, guided refinement schedules, and long-horizon compositions). If successful, operator learning could offer a principled route to **fast** generation that remains **composable**, **controllable**, and **stable under changing schedules**—precisely where many endpoint-anchored distillations tend to break.
