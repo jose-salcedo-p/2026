@@ -15,7 +15,7 @@
     },
     {
       "iteration": 1,
-      "value": -10.21631575452217,
+      "value": -12.430206011045472,
       "color": "orange",
       "annotations":[
         {
@@ -28,78 +28,78 @@
           "type": "line",
           "text": "But upon deployment, a distribution shift happens...",
           "translateX": 0,
-          "translateY": 90
+          "translateY": 50
         }
       ]
     },
     {
       "iteration": 1,
-      "value": -7.6847725332702215,
+      "value": -7.76887875690342,
       "color": "blue",
       "annotations":[
         {
           "type": "point",
           "text": "...and the risk becomes the PR",
-          "translateX": 0,
-          "translateY": 100
+          "translateX": -25,
+          "translateY": 130
         }
       ]
     },
     {
       "iteration": 2,
-      "value": -8.495764856837349,
+      "value": -10.318292296089622,
       "color": "orange"
     },
     {
       "iteration": 2,
-      "value": -7.796089107179061,
+      "value": -4.65299834300039,
       "color": "blue"
     },
     {
       "iteration": 3,
-      "value": -7.982139701984523,
+      "value": -5.042007977275627,
       "color": "orange"
     },
     {
       "iteration": 3,
-      "value": -7.803046393048362,
+      "value": -3.15125498579727,
       "color": "blue"
     },
     {
       "iteration": 4,
-      "value": -7.848515448869333,
+      "value": -3.3032118741860357,
       "color": "orange"
     },
     {
       "iteration": 4,
-      "value": -7.803481223415195,
+      "value": -2.064507421366271,
       "color": "blue"
     },
     {
       "iteration": 5,
-      "value": -7.814783262815411,
+      "value": -2.1238655808931326,
       "color": "orange"
     },
     {
       "iteration": 5,
-      "value": -7.80350840031312,
+      "value": -1.3274159880582084,
       "color": "blue"
     },
     {
       "iteration": 6,
-      "value": -7.806329833628485,
+      "value": -1.3506027691233893,
       "color": "orange"
     },
     {
       "iteration": 6,
-      "value": -7.803510098869242,
+      "value": -0.8441267307021156,
       "color": "blue",
       "annotations":[
         {
           "type": "point",
           "text": "The distribution shift does not change the risk: the algorithm has converged!",
-          "translateX": -420,
-          "translateY": -40
+          "translateX": -450,
+          "translateY": 150
         }
       ]
     }

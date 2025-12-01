@@ -7,7 +7,7 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>Performative Prediction Risk Iterations</title>
-    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -87,7 +87,7 @@
 
             // Load data
             const cacheBuster = new Date().getTime();
-            const data = await d3.json(`../../json/2026-04-27-performative-prediction/risk_iterations.json?v=${cacheBuster}`);
+            const data = await d3.json(`./json/risk_iterations.json?v=${cacheBuster}`);
             const points = data.points;
 
             // Store references for progressive drawing
@@ -239,6 +239,11 @@
                     const arrowEndX = midX - unitX * 5;
                     const arrowEndY = midY - unitY * 5;
 
+                    if (point.iteration === 6) {
+                        arrowStartY = arrowStartY - 7;
+                        console.log('here');
+                    }
+
                     annotationGroup.append('path')
                         .attr('d', `M ${arrowStartX} ${arrowStartY} L ${arrowEndX} ${arrowEndY}`)
                         .attr('fill', 'none')
@@ -296,9 +301,15 @@
                     const unitY = dy / distance;
 
                     const arrowStartX = textX + unitX * 15;
-                    const arrowStartY = textY + unitY * 15;
+                    let arrowStartY = textY + unitY * 15;
                     const arrowEndX = xPos - unitX * 10;
                     const arrowEndY = yPos - unitY * 10;
+
+                    if (point.iteration === 6) {
+                        arrowStartY = arrowStartY - 7;
+                        console.log('here');
+                    }
+
 
                     annotationGroup.append('path')
                         .attr('d', `M ${arrowStartX} ${arrowStartY} L ${arrowEndX} ${arrowEndY}`)

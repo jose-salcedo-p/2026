@@ -188,7 +188,6 @@ exclude:
   - README.md
   - readme_preview/
   - vendor
-  - surface/
 keep_files:
   - CNAME
   - .nojekyll

@@ -149,7 +149,7 @@ Note that in this example, the model is the price of the products and the output
 
 Consider the case where your retailer company only sells one product, $z,\theta \in \mathbb{R}$. <span style="color:#8DA0CB">You train an initial model $\theta^{(1)}$ on the initial distribution $\mathcal{D}(\theta^{(0)})$. Your risk is then $\mathcal{DPR}(\theta^{(0)}, \theta^{(1)})$.</span> <span style="color:#E5C494">After deployment, the distribution changes to $\mathcal{D}(\theta^{(1)})$. Your risk is then $\mathcal{PR}(\theta^{(1)}) = \mathcal{DPR}(\theta^{(1)}, \theta^{(1)})$.</span> This pull towards the diagonal cross-section, i.e. the performative risk as $\mathcal{DPR}(\theta, \theta) = \mathcal{PR}(\theta)$, happens again at every step, creating a repeated cycle of updating the model and observing the induced distribution shift.
 
-<div class="l-screen" style="min-height: 90vh;">
+<div class="l-screen" style="min-height: 105vh;">
   <iframe src="{{ 'assets/html/2026-04-27-performative-prediction/decoupled_risk_landscape.html' | relative_url }}?v=3" 
           frameborder='0' 
           scrolling='no' 

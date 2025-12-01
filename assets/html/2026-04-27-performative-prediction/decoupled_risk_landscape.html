@@ -6,7 +6,7 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
-    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
     <style>
         body {
             margin: 0;
@@ -16,7 +16,6 @@
         }
         .controls {
             text-align: center;
-            margin-top: 20px;
             padding-bottom: 15px;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         }
@@ -132,10 +131,6 @@
 </head>
 <body>
     <div id="loading">Loading data...</div>
-    <div class="container">
-    <div id="plot"></div>
-        <div id="risk-chart"></div>
-    </div>
     <div class="controls" style="display: none;">
         <div class="controls-inner">
             <button id="prev-btn" disabled title="Previous step">
@@ -156,9 +151,14 @@
             </button>
         </div>
         <div class="instructions">
-            Step through the optimization — θ<sub>M</sub> updates, θ<sub>D</sub> shifts
+            Step through the optimization
         </div>
     </div>
+    <div class="container">
+        <div id="plot"></div>
+        <div id="risk-chart"></div>
+    </div>
+
     
     <script>
         // Global variables
@@ -184,7 +184,7 @@
         async function loadLandscape() {
             try {
                 const cacheBuster = new Date().getTime();
-                const response = await fetch(`../../json/2026-04-27-performative-prediction/decoupled_risk_surface.json?v=${cacheBuster}`);
+                const response = await fetch(`./json/decoupled_risk_surface.json?v=${cacheBuster}`);
                 const data = await response.json();
                 
                 const landscapeMatrix = data.landscape[0];
@@ -209,7 +209,7 @@
         async function loadTrajectory(name, filename, maxIterations = null) {
             try {
                 const cacheBuster = new Date().getTime();
-                const response = await fetch(`../../json/2026-04-27-performative-prediction/${filename}?v=${cacheBuster}`);
+                const response = await fetch(`./json/${filename}?v=${cacheBuster}`);
                 const data = await response.json();
                 
                 const limit = maxIterations !== null ? Math.min(maxIterations * 2 + 1, data.p_d.length) : data.p_d.length;
@@ -332,6 +332,7 @@
                     // Point i is source. i=0 (Blue), i=1 (Orange), i=2 (Blue)...
                     // Even indices = Blue, Odd indices = Orange
                     const lineColor = (i % 2 === 0) ? '#8DA0CB' : '#E5C494';
+                    const label = (i % 2 === 0) ? 'Training step' : 'Deployment (distribution shift)';
                     
                     traces.push({
                         type: 'scatter3d',
@@ -340,7 +341,7 @@
                         y: [traj.p_m[i], traj.p_m[i+1]],
                         z: [traj.losses[i] + zOffset, traj.losses[i+1] + zOffset],
                         line: { color: lineColor, width: 5 },
-                        hoverinfo: 'skip',
+                        hovertemplate: `<b>${label}</b><extra></extra>`,
                         showlegend: false,
                         visible: false // Start hidden
                     });
@@ -359,7 +360,7 @@
                     }
                 },
                 showlegend: false,
-                margin: { l: 0, r: 0, b: 0, t: 40 },
+                margin: { l: 0, r: 0, b: 0, t: 0 },
                 autosize: true
             };
             
@@ -447,7 +448,7 @@
             // Load risk iterations data
             const cacheBuster = new Date().getTime();
             try {
-                const response = await fetch(`../../json/2026-04-27-performative-prediction/risk_iterations.json?v=${cacheBuster}`);
+                const response = await fetch(`./json/risk_iterations.json?v=${cacheBuster}`);
                 const data = await response.json();
                 riskChartData = data.points;
             } catch (error) {
@@ -628,7 +629,7 @@
         // Initialize
         async function init() {
             await loadLandscape();
-            await loadTrajectory('PerfGDReparam', 'algorithm_trajectory.json', 6); // Limit to 6 iterations (13 points) to match 2D data
+            await loadTrajectory('PerfGDReparam', 'RGD_1d_0.25lr_10.json', 6); // Limit to 6 iterations (13 points) to match 2D data
             
             document.getElementById('loading').style.display = 'none';
             document.querySelector('.controls').style.display = 'block';
