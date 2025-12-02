@@ -1,7 +1,7 @@
 ---
 layout: distill
 title: "Understanding and Fixing Bottlenecks in State Space Models: What Recency and Over-Smoothing Tell Us"
-#description: To be added
+description: This work analyzes how recency bias and hidden-state over-smoothing emerge in modern State Space Models, revealing the bottlenecks that limit their ability to capture long-range dependencies.
 date: 2026-04-27
 future: true
 htmlwidgets: true
@@ -51,6 +51,7 @@ toc:
     subsections:
       - name: "Hidden Problem: SSMs are Recency-Biased"
       - name: "Why SSMs forget Long-Range Context?"
+      - name: "A natural question arises"
 
 # Below is an example of injecting additional post-specific styles.
 # This is used in the 'Layouts' section of this post.
@@ -68,6 +69,39 @@ _styles: >
     color: #1a4dcc;
     margin-bottom: 0.5rem;
     font-size: 1.02rem;
+  }
+  figure.side-by-side {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 2rem;
+    margin: 2rem 0;
+  }
+  figure.side-by-side .side-image {
+    flex: 0 0 45%;
+  }
+  figure.side-by-side .side-image img {
+    width: 100%;
+    border-radius: 6px;
+  }
+  figure.side-by-side figcaption {
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+    color: #555;
+  }
+  figure.side-by-side .side-text {
+    flex: 1;
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+  @media (max-width: 768px) {
+  figure.side-by-side {
+    flex-direction: column;
+  }
+  figure.side-by-side .side-image,
+    figure.side-by-side .side-text {
+      width: 100%;
+    }
   }
 ---
 ## The Promise of SSMs: Long-Range Memory & Efficiency
@@ -335,13 +369,9 @@ $$
 \kappa = \Theta\!\left(\log(A_{\max}^{-1})\right).
 $$
 
-This expression implies that the influence of the input token at position $s$ on the output at $t$ decreases exponentially as the distance grows. If each transition matrix $A_t$ has diagonal entries less than $1$, then the hidden state is repeatedly multiplied by values smaller than $1$, causing the influence of early inputs to vanish exponentially.
+The expression above implies that the influence of the input token at position $s$ on the output at position $t$ decreases exponentially as the distance between them grows. If the transition matrices $A_t$ are “small” (all entries $< 1$), then the hidden state is repeatedly multiplied by values less than 1. Consequently, the influence of early inputs decays exponentially and is rapidly forgotten.
 
----
-
-### Example: Exponential Decay in a Simple SSM
-
-Consider a simple recurrence:
+Consider a simple SSM recurrence:
 
 $$
 h_t = 0.8\, h_{t-1} + b x_t, \qquad y_t = c h_t.
@@ -385,34 +415,72 @@ $$
 
 <figure class="side-by-side">
 
-<div class="image-container">
-  <img src="assets/img/2026-04-27-fixing-bottlenecks-in-state-space-models/figure1.png" alt="Logarithmic influence scores">
-  <figcaption>
-    Logarithmic influence scores plotted against relative token distance.  
-    The linear decay illustrates the inherent recency bias in SSMs  
-    <d-cite key="wang2025understandingmitigatingbottlenecksstate"></d-cite>.
-  </figcaption>
-</div>
+  <div class="side-image">
+    {% include figure.liquid 
+      path="assets/img/2026-04-27-fixing-bottlenecks-in-state-space-models/figure1.png" 
+      alt="Logarithmic influence scores" 
+      class="img-fluid rounded"
+    %}
+    <figcaption>
+      Figure 1: Logarithmic influence scores plotted against relative token distance.
+      The linear decay illustrates the inherent recency bias in SSMs
+      <d-cite key="wang2025understandingmitigatingbottlenecksstate"></d-cite>.
+    </figcaption>
+  </div>
 
-<div class="text-container">
-  <p>
-    The authors further validate their theory by plotting the logarithm of influence scores
-    against the relative distance between tokens. Across a wide range of model sizes,
-    Mamba consistently exhibits a linear decay — both at initialization and during training.
-  </p>
+  <div class="side-text">
+    <p>
+      The authors further validate their theory by plotting the logarithm of 
+      influence scores against the relative distance between tokens. Across 
+      a wide range of model sizes, Mamba consistently exhibits a linear decay—both 
+      at initialization and during training.
+    </p>
 
-  <p>
-    This pattern shows that the recency behavior is not merely learned from data statistics;
-    it reflects an intrinsic architectural bias predicted by the theorem above.
-  </p>
+    <p>
+      This pattern shows that the recency behavior is not merely learned from 
+      data statistics; it reflects an intrinsic architectural bias predicted 
+      by the theorem above.
+    </p>
 
-  <p>
-    Moreover, commonly used initialization schemes amplify this locality bias, causing
-    distant tokens to have even less effect on the model’s outputs.
-  </p>
-</div>
+    <p>
+      Moreover, commonly used initialization schemes amplify this locality 
+      bias, causing distant tokens to have even less effect on the output.
+    </p>
+  </div>
 
 </figure>
+
+### A natural question arises
+
+**Is the built-in decay of long-range dependencies in SSMs a desirable property, or simply an artifact of the model design that may limit performance in certain settings?**
+
+A key insight from the authors’ analysis is that the way modern State Space Models (SSMs) parameterize their transition matrices $A_t$ has major consequences. By constraining each element of $A_t$ to lie in $(0,1)$, these models enforce a built-in decay of information over time: the influence of past tokens automatically weakens as their distance from the current position increases. This design choice is intentional. Many recent SSM architectures—such as Mamba and its variants—deliberately adopt this parameterization because it provides stable dynamics, efficient long-sequence processing, and controlled memory behavior. This built-in decay serves several purposes:
+
+**Why does the interval $(0,1)$ cause decay?**  
+If each entry of the transition matrix $A_t$ lies in the interval $(0,1)$, then the hidden state update
+
+$$
+h_t = A_t h_{t-1} + b_t x_t
+$$
+
+induces an exponentially vanishing influence from earlier tokens. Repeated application of the recurrence gives
+
+$$
+h_t \approx A_t A_{t-1} \cdots A_s \, h_s,
+$$
+
+and since multiplying numbers less than $1$ causes the result to shrink, the influence of earlier tokens decays exponentially with their distance.
+
+**Example**  
+Consider a simple scalar case where $A_t \approx 0.9$. Then the influence decays as follows:
+
+- After 1 step: $0.9$
+- After 5 steps: $0.9^5 = 0.59$
+- After 20 steps: $0.9^{20} \approx 0.12$
+
+Thus, as tokens become more distant, their contribution to the model’s hidden state diminishes rapidly.
+
+
 
 
 ## Evidence: SSMs fail on Long-Range Retrieval
