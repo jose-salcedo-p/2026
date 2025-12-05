@@ -1,7 +1,7 @@
 ---
 layout: distill
 title: Visualizing LLM Latent Space Geometry Through Dimensionality Reduction
-description: In this blog post, we extract, process, and visualize latent state geometries in Transformer-based language models through dimensionality reduction to build a better intuition of their internal dynamics. We capture layerwise activations at multiple points within Transformer blocks and perform systematic analysis through Principal Component Analysis and Uniform Manifold Approximation and Projection. We demonstrate experiments on GPT-2 and LLaMa models, where we uncover interesting geometric patterns in latent space. Notably, we identify a clear separation between attention and MLP component outputs across intermediate layers, a pattern not documented in prior work to our knowledge.
+description: In this blog post, we extract, process, and visualize latent state geometries in Transformer-based language models through dimensionality reduction to build a better intuition of their internal dynamics. We demonstrate experiments with GPT-2 and LLaMa models, uncovering interesting geometric patterns in their latent spaces. Notably, we identify a clear separation between attention and MLP component outputs across intermediate layers, a pattern not documented in prior work to our knowledge.
 date: 2026-04-27
 future: true
 htmlwidgets: true
