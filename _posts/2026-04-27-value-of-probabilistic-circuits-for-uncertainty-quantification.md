@@ -22,18 +22,8 @@ mermaid:
   zoomable: true
 
 # Anonymize when submitting
-# authors:
-#   - name: Anonymous
-
 authors:
-  - name: Maternus Herold
-    url: ""
-    affiliations:
-      name: BMW Group, appliedAI Institute for Europe & University of the Bundeswehr Munich
-  - name: Konstantin von Gaisberg
-    url: ""
-    affiliations:
-      name: BMW Group, Karlsruhe Institute of Technology
+  - name: Anonymous
 
 # must be the exact same name as your blogpost
 bibliography: 2026-04-27-value-of-probabilistic-circuits-for-uncertainty-quantification.bib
