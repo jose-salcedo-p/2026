@@ -1,6 +1,6 @@
 ---
 layout: distill
-title: The Value of Probabilistic Circuits for Uncertainty Quantification
+title: Probabilistic Circuits for Uncertainty Quantification
 description: Deep learning models struggle with epistemic uncertainty
   quantification, often exhibiting blind confidence on out-of-distribution data.
   This work reviews on Probabilistic Circuits (PCs) as a versatile framework for
@@ -26,7 +26,7 @@ authors:
   - name: Anonymous
 
 # must be the exact same name as your blogpost
-bibliography: 2026-04-27-value-of-probabilistic-circuits-for-uncertainty-quantification.bib
+bibliography: 2026-04-27-probabilistic-circuits-for-uncertainty-quantification.bib
 
 # Add a table of contents to your post.
 #   - make sure that TOC names match the actual section names
