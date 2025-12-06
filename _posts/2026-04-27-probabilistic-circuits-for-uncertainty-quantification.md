@@ -444,7 +444,7 @@ prevailing belief in a rigid trade-off: one could have tractability (PCs) or
 expressiveness (DNNs), but not both. However, architectural innovations and new
 computational frameworks developed in recent research (2023–2025) have largely
 dismantled this dichotomy, enabling PCs to scale massively<d-cite
-key="peharz_einsum_2020,peharz_probabilistic_2023,liu_scaling_,zhang_scaling_2025"></d-cite>.
+key="peharz_einsum_2020,peharz_probabilistic_2023,liu_scaling_2025,zhang_scaling_2025"></d-cite>.
 
 ### Scaling via Vectorization
 
@@ -465,7 +465,7 @@ libraries like PyTorch and TensorFlow.
     </div>
 </div>
 <div class="caption">
-    An illustration of grouping nodes with the same topological depth into disjoint subsets. The forward- and backward-pass can be carried out independently on nodes within the same layer / subset. Illustration obtained from<d-cite key="liu_scaling_"></d-cite>.
+    An illustration of grouping nodes with the same topological depth into disjoint subsets. The forward- and backward-pass can be carried out independently on nodes within the same layer / subset. Illustration obtained from<d-cite key="liu_scaling_2025"></d-cite>.
 </div>
 
 Instead of processing nodes individually, EiNets organize nodes into
@@ -477,7 +477,7 @@ By combining these monolithic tensor operations, EiNets allow PCs to
 utilize the massive parallelism of GPUs. This vectorization enables the training
 of PCs with millions of parameters and hundreds of layers, achieving density
 estimation performance on benchmarks like ImageNet that rivals intractable deep
-generative models<d-cite key="liu_scaling_"></d-cite>.
+generative models<d-cite key="liu_scaling_2025"></d-cite>.
 
 ### Scaling via Sparse Monarch Metrics 
 

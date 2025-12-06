@@ -1,5 +1,5 @@
 @online{bytez.com_nonasymptotic_2024,
-  title = {Non-Asymptotic Approximation Error Bounds of Parameteriz...},
+  title = {Non-Asymptotic Approximation Error Bounds of Parameterized Quantum Circuits},
   author = {Bytez.com and Yu, Zhan and Chen, Qiuhao and Jiao, Yuling and Li, Yinan and Lu, Xiliang and Wang, Xin and Yang, Jerry Zhijian},
   date = {2024-12-10T06:00:00},
   url = {https://bytez.com/docs/neurips/94787/paper},
@@ -8,10 +8,19 @@
   langid = {english}
 }
 
-@article{choi_probabilistic_,
+@article{choi_probabilistic_2020,
   title = {Probabilistic Circuits: Representation and Inference},
   author = {Choi, YooJung and Vergari, Antonio},
+  date = {2020},
   abstract = {These lecture notes accompany the AAAI 2020 tutorial on probabilistic circuits, by Antonio Vergari, Robert Peharz, YooJung Choi, and Guy Van den Broeck. They cover the first half of the tutorial, that is, the motivation of tractable models, the probabilistic circuit representation, and its inference algorithms.},
+  langid = {english}
+}
+
+@article{choi_probabilistic_2020a,
+  title = {Probabilistic Circuits: A Unifying Framework for Tractable Probabilistic Models},
+  author = {Choi, YooJung and Vergari, Antonio},
+  date = {2020},
+  url = {https://starai.cs.ucla.edu/papers/ProbCirc20.pdf},
   langid = {english}
 }
 
@@ -74,7 +83,7 @@
 }
 
 @article{liu_fast_2024,
-  title = {Fast Inverse Design of Microwave and Infrared Bi-stealth Metamaterials Based on Equivalent Circuit Model},
+  title = {Fast Inverse Design of Microwave and Infrared Bi-Stealth Metamaterials Based on Equivalent Circuit Model},
   author = {Liu, Shiju and Zhu, Fengjie and Huang, Jianguang and Zhao, Hua and Han, Mengqi and Fan, Kebin and Chen, Ping},
   date = {2024-09-20},
   journaltitle = {Journal of Applied Physics},
@@ -91,7 +100,7 @@
 
 @online{liu_image_2024,
   title = {Image Inpainting via Tractable Steering of Diffusion Models},
-  author = {Liu, Anji and Niepert, Mathias and Van den Broeck, Guy},
+  author = {Liu, Anji and Niepert, Mathias and family=Broeck, given=Guy Van, prefix=den, useprefix=false},
   date = {2024-12-11},
   eprint = {2401.03349},
   eprinttype = {arXiv},
@@ -109,6 +118,21 @@
   author = {Liu, Anji and Ahmed, Kareem},
   abstract = {Probabilistic Circuits (PCs) are a general framework for tractable deep generative models, which support exact and efficient probabilistic inference on their learned distributions. Recent modeling and training advancements have enabled their application to complex real-world tasks. However, the time and memory inefficiency of existing PC implementations hinders further scaling up. This paper proposes PyJuice, a general GPU implementation design for PCs that improves prior art in several regards. Specifically, PyJuice is 1-2 orders of magnitude faster than existing systems (including very recent ones) at training large-scale PCs. Moreover, PyJuice consumes 2-5x less GPU memory, which enables us to train larger models. At the core of our system is a compilation process that converts a PC into a compact representation amenable to efficient block-based parallelization, which significantly reduces IO and makes it possible to leverage Tensor Cores available in modern GPUs. Empirically, PyJuice can be used to improve state-of-the-art PCs trained on image (e.g., ImageNet32) and language (e.g., WikiText, CommonGen) datasets. We further establish a new set of baselines on natural image and language datasets by benchmarking existing PC structures but with much larger sizes and more training epochs, with the hope of incentivizing future research. Code is available at https: //github.com/Tractables/pyjuice.},
   langid = {english}
+}
+
+@online{liu_scaling_2025,
+  title = {Scaling Tractable Probabilistic Circuits: A Systems Perspective},
+  shorttitle = {Scaling Tractable Probabilistic Circuits},
+  author = {Liu, Anji and Ahmed, Kareem and family=Broeck, given=Guy Van, prefix=den, useprefix=false},
+  date = {2025-10-30},
+  eprint = {2406.00766},
+  eprinttype = {arXiv},
+  eprintclass = {cs},
+  doi = {10.48550/arXiv.2406.00766},
+  url = {http://arxiv.org/abs/2406.00766},
+  urldate = {2025-12-06},
+  abstract = {Probabilistic Circuits (PCs) are a general framework for tractable deep generative models, which support exact and efficient probabilistic inference on their learned distributions. Recent modeling and training advancements have enabled their application to complex real-world tasks. However, the time and memory inefficiency of existing PC implementations hinders further scaling up. This paper proposes PyJuice, a general GPU implementation design for PCs that improves prior art in several regards. Specifically, PyJuice is 1-2 orders of magnitude faster than existing systems (including very recent ones) at training large-scale PCs. Moreover, PyJuice consumes 2-5x less GPU memory, which enables us to train larger models. At the core of our system is a compilation process that converts a PC into a compact representation amenable to efficient block-based parallelization, which significantly reduces IO and makes it possible to leverage Tensor Cores available in modern GPUs. Empirically, PyJuice can be used to improve state-of-the-art PCs trained on image (e.g., ImageNet32) and language (e.g., WikiText, CommonGen) datasets. We further establish a new set of baselines on natural image and language datasets by benchmarking existing PC structures but with much larger sizes and more training epochs, with the hope of incentivizing future research. Code is available at https://github.com/Tractables/pyjuice.},
+  pubstate = {prepublished}
 }
 
 @article{ma_probabilistic_2019,
@@ -200,14 +224,15 @@
   title = {Probabilistic Circuits},
   author = {Peharz, Robert},
   date = {2023-06-29},
+  url = {https://robert-peharz.github.io/doc/GeMSS23ProbabilisticCircuits.pdf},
   eventtitle = {Generative Modeling Summer School},
   langid = {english},
   venue = {Copenhagen}
 }
 
 @online{pevny_sumproducttransform_2020,
-  title = {Sum-{{Product-Transform Networks: Exploiting Symmetries Using Invertible Transformations},
-  shorttitle = {Sum-{{Product-Transform Networks},
+  title = {Sum-Product-Transform Networks: Exploiting Symmetries Using Invertible Transformations},
+  shorttitle = {Sum-Product-Transform Networks},
   author = {Pevny, Tomas and Smidl, Vasek and Trapp, Martin and Polacek, Ondrej and Oberhuber, Tomas},
   date = {2020-05-04},
   eprint = {2005.01297},
@@ -255,7 +280,7 @@
   version = {3}
 }
 
-@inproceedings{sidheekh_probabilistic_2023a,
+@inproceedings{sidheekh_probabilistic_2023,
   title = {Probabilistic Flow Circuits: Towards Unified Deep Models for Tractable Probabilistic Inference},
   shorttitle = {Probabilistic Flow Circuits},
   author = {Sidheekh, Sahil and Kersting, Kristian and Natarajan, Sriraam},
@@ -330,7 +355,7 @@
 }
 
 @article{vadeboncoeur_fully_2023,
-  title = {Fully Probabilistic Deep Models for Forward and Inverse Problems in Parametric PDEs},
+  title = {Fully Probabilistic Deep Models for Forward and Inverse Problems in Parametric Pdes},
   author = {Vadeboncoeur, Arnaud and Akyildiz, Ömer Deniz and Kazlauskaite, Ieva and Girolami, Mark and Cirak, Fehmi},
   date = {2023-10},
   journaltitle = {Journal of Computational Physics},
@@ -362,8 +387,8 @@
 }
 
 @online{wang_relationship_2025,
-  title = {On the Relationship Between Monotone and Squared Probabilistic Circuits},
-  author = {Wang, Benjie and Van den Broeck, Guy},
+  title = {On the Relationship between Monotone and Squared Probabilistic Circuits},
+  author = {Wang, Benjie and family=Broeck, given=Guy Van, prefix=den, useprefix=false},
   date = {2025-02-24},
   eprint = {2408.00876},
   eprinttype = {arXiv},
@@ -392,7 +417,7 @@
 
 @online{zhang_restructuring_2025,
   title = {Restructuring Tractable Probabilistic Circuits},
-  author = {Zhang, Honghua and Wang, Benjie and Arenas, Marcelo and Van den Broeck, Guy},
+  author = {Zhang, Honghua and Wang, Benjie and Arenas, Marcelo and family=Broeck, given=Guy Van, prefix=den, useprefix=false},
   date = {2025-04-30},
   eprint = {2411.12256},
   eprinttype = {arXiv},
@@ -406,7 +431,7 @@
 
 @inproceedings{zhang_scaling_2025,
   title = {Scaling Probabilistic Circuits via Monarch Matrices},
-  author = {Zhang, Honghua and Dang, Meihua and Wang, Benjie and Ermon, Stefano and Peng, Nanyun and Van den Broeck, Guy},
+  author = {Zhang, Honghua and Dang, Meihua and Wang, Benjie and Ermon, Stefano and Peng, Nanyun and family=Broeck, given=Guy Van, prefix=den, useprefix=false},
   date = {2025-06-18},
   url = {https://openreview.net/forum?id=uzVShD7wHO&noteId=fRFELVgfJR},
   urldate = {2025-11-22},
