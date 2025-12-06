@@ -121,7 +121,7 @@ the data as a computational graph. Crucially, they do so while guaranteeing
 tractability. Through strict structural properties, i.e.,smoothness,
 decomposability, and determinism, PCs enable the exact computation of marginals,
 conditionals, and moments in polynomial time<d-cite
-key="choi_probabilistic_,peharz_probabilistic_2023"></d-cite>. This capability
+key="choi_probabilistic_2020a,peharz_probabilistic_2023"></d-cite>. This capability
 fundamentally alters the UQ landscape, moving from approximate guesses of
 uncertainty to rigorous, mathematically guaranteed derivations.   
 
@@ -139,7 +139,7 @@ To understand the unique value of PCs for UQ, one must first appreciate the
 probabilistic outputs; it is a Directed Acyclic Graph (DAG) that encodes a
 probability distribution function (PDF) or probability mass function (PMF)
 through a hierarchy of specific computational units<d-cite
-key="choi_probabilistic_,peharz_probabilistic_2023"></d-cite>.
+key="choi_probabilistic_2020a,peharz_probabilistic_2023"></d-cite>.
 
 ### The Computational Graph
 
@@ -153,13 +153,13 @@ continuous data, Bernoulli or Categorical distributions for discrete data, or
 even piecewise polynomials. **Sum Units** ($\oplus$) compute a
 weighted sum of their children's outputs. In the probabilistic interpretation, a
 sum node represents a mixture model<d-cite
-key="choi_probabilistic_,peharz_probabilistic_2023"></d-cite>. It introduces a
+key="choi_probabilistic_2020a,peharz_probabilistic_2023"></d-cite>. It introduces a
 latent variable $Z$ that selects which branch of the mixture is active, thereby
 allowing the circuit to model multimodality and complex dependencies. **Product
 Units** ($\otimes$) compute the product of their children's
 outputs. Probabilistically, product nodes represent factorizations, encoding
 independence assumptions between subsets of variables<d-cite
-key="choi_probabilistic_,peharz_probabilistic_2023"></d-cite>. The value
+key="choi_probabilistic_2020a,peharz_probabilistic_2023"></d-cite>. The value
 computed at the root of the PC for a given input configuration $\mathbf{x}$
 corresponds to the (possibly unnormalized) probability density $P(\mathbf{x})$.
 
@@ -169,7 +169,7 @@ corresponds to the (possibly unnormalized) probability density $P(\mathbf{x})$.
     </div>
 </div>
 <div class="caption">
-    Example of a Probabilistic Circuit that is not tractable. The variables at the leaves indicate the random variables. This PC lacks the necessary structural properties to guarantee tractable inference, as the mixture (red) does not fulfill the smoothness property. Illustration taken from<d-cite key="choi_probabilistic_"></d-cite>.
+    Example of a Probabilistic Circuit that is not tractable. The variables at the leaves indicate the random variables. This PC lacks the necessary structural properties to guarantee tractable inference, as the mixture (red) does not fulfill the smoothness property. Illustration taken from<d-cite key="choi_probabilistic_2020a"></d-cite>.
 </div>
 
 ### Structural Constraints for Tractability
@@ -181,9 +181,9 @@ worst case. PCs circumvent this by enforcing properties that ensure integrals
 and maximizations commute with the sum and product operations.
 
 However, tractability is no ''universal property'', as Choi et al.
-explain<d-cite key="choi_probabilistic_"></d-cite>. It is merely dependent on
+explain<d-cite key="choi_probabilistic_2020a"></d-cite>. It is merely dependent on
 the query and the model, adhering to structural properties. Choi et al. define
-tractability as follows<d-cite key="choi_probabilistic_"></d-cite>: _A class of
+tractability as follows<d-cite key="choi_probabilistic_2020a"></d-cite>: _A class of
 queries $\mathcal{Q}$ is tractable for a class of models $\mathcal{M}$ if any
 query $q \in \mathcal{Q}$ on model $m \in \mathcal{M}$ can be computed in time
 polynomial in the size of the model, i.e., $O(\text{poly}(|m|))$. Thus,
@@ -191,7 +191,7 @@ $\mathcal{M}$ is a tractable representation for $\mathcal{Q}$._
 
 The tractability of different probabilistic queries relies on the structural
 properties of the PC, as summarized in the table below<d-cite
-key="choi_probabilistic_,peharz_probabilistic_2023,sidheekh_building_2024,zhang_restructuring_2025"></d-cite>: 
+key="choi_probabilistic_2020a,peharz_probabilistic_2023,sidheekh_building_2024,zhang_restructuring_2025"></d-cite>: 
 
 | Structural Property | Enabled Query | Mathematical Operation | UQ Application |
 | :--- | :--- | :---: | :--- |
@@ -205,7 +205,7 @@ key="choi_probabilistic_,peharz_probabilistic_2023,sidheekh_building_2024,zhang_
 
 A sum node is defined as smooth (or complete) if all of its children define
 distributions over the exact same set of variables, known as the scope<d-cite
-key="choi_probabilistic_,peharz_probabilistic_2023,sidheekh_building_2024"></d-cite>.
+key="choi_probabilistic_2020a,peharz_probabilistic_2023,sidheekh_building_2024"></d-cite>.
 
 Smoothness ensures that the sum node represents a valid mixture distribution
 where the weights sum to unity (or a normalizing constant). If a sum node were
@@ -218,13 +218,13 @@ This property is what allows PCs to handle missing data naturally: the
 probability mass of the missing variables integrates to 1 in every branch of a
 smooth sum node, effectively vanishing from the computation without disrupting
 the validity of the distribution over the observed variables<d-cite
-key="choi_probabilistic_,peharz_probabilistic_2023"></d-cite>.
+key="choi_probabilistic_2020a,peharz_probabilistic_2023"></d-cite>.
 
 #### Decomposability
 
 A product node is decomposable if its children define distributions over
 disjoint sets of variables<d-cite
-key="choi_probabilistic_,peharz_probabilistic_2023,sidheekh_building_2024"></d-cite>.
+key="choi_probabilistic_2020a,peharz_probabilistic_2023,sidheekh_building_2024"></d-cite>.
 
 Decomposability is the structural encoding of conditional independence. It
 allows high-dimensional integrals to break down into products of
@@ -242,7 +242,7 @@ intractable<d-cite key="martires_probabilistic_2024"></d-cite>.
 
 A sum node is deterministic if, for any complete input configuration, at most
 one of its children evaluates to a non-zero value<d-cite
-key="choi_probabilistic_,peharz_probabilistic_2023"></d-cite>.
+key="choi_probabilistic_2020a,peharz_probabilistic_2023"></d-cite>.
 
 While smoothness and decomposability are sufficient for marginal inference,
 determinism unlocks tractable Maximum A Posteriori (MAP) inference. The MAP
@@ -272,7 +272,7 @@ simple inference, such as the efficient multiplication of two circuits. If two
 PCs respect the same vtree, their product (which represents the product of their
 densities) remains a structured PC. This algebra of circuits allows for
 computing KL divergences, merging expert models, and performing Bayesian updates
-in polynomial time<d-cite key="choi_probabilistic_,zhang_restructuring_2025"></d-cite>.
+in polynomial time<d-cite key="choi_probabilistic_2020a,zhang_restructuring_2025"></d-cite>.
 
 ## Connecting Probabilistic Circuits to Uncertainty Quantification
 
@@ -301,7 +301,7 @@ encounters missing inputs, it usually requires imputation, guessing the missing
 values, before processing. This imputation introduces a point estimate that
 ignores the uncertainty of the missing value. A PC, conversely, handles missing
 data by integrating out the missing variables analytically<d-cite
-key="choi_probabilistic_,peharz_probabilistic_2023,sidheekh_building_2024"></d-cite>.
+key="choi_probabilistic_2020a,peharz_probabilistic_2023,sidheekh_building_2024"></d-cite>.
 The resulting marginal distribution over the observed variables reflects the
 true uncertainty: the probability density becomes ''flatter'' or more diffuse,
 accurately capturing the loss of information. This is not an approximation but
