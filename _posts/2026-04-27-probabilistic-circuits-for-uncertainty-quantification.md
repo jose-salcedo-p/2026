@@ -99,7 +99,7 @@ sensor (aleatoric) and an object it has never been trained to recognize
 
 <div class="row mt-3">
     <div class="col-sm mt-3 mt-md-0">
-        {% include figure.liquid path="assets/img/2026-04-27-value-of-probabilistic-circuits-for-uncertainty-quantification/illustration_epistemic_vs_aleatoric_uncertainty.png" class="img-fluid rounded z-depth-1" %}
+        {% include figure.liquid path="assets/img/2026-04-27-probabilistic-circuits-for-uncertainty-quantification/illustration_epistemic_vs_aleatoric_uncertainty.png" class="img-fluid rounded z-depth-1" %}
     </div>
 </div>
 <div class="caption">
@@ -165,7 +165,7 @@ corresponds to the (possibly unnormalized) probability density $P(\mathbf{x})$.
 
 <div class="row mt-3">
     <div class="col-sm mt-3 mt-md-0">
-        {% include figure.liquid path="assets/img/2026-04-27-value-of-probabilistic-circuits-for-uncertainty-quantification/screenshot_example_pc_not_tractable.png" class="img-fluid rounded z-depth-1" %}
+        {% include figure.liquid path="assets/img/2026-04-27-probabilistic-circuits-for-uncertainty-quantification/screenshot_example_pc_not_tractable.png" class="img-fluid rounded z-depth-1" %}
     </div>
 </div>
 <div class="caption">
@@ -317,7 +317,7 @@ multiple forward passes) and yields only an empirical approximation.
 
 <div class="row mt-3">
     <div class="col-sm mt-3 mt-md-0">
-        {% include figure.liquid path="assets/img/2026-04-27-value-of-probabilistic-circuits-for-uncertainty-quantification/screenshot_tdi.png" class="img-fluid rounded z-depth-1" %}
+        {% include figure.liquid path="assets/img/2026-04-27-probabilistic-circuits-for-uncertainty-quantification/screenshot_tdi.png" class="img-fluid rounded z-depth-1" %}
     </div>
 </div>
 <div class="caption">
@@ -345,7 +345,7 @@ data<d-cite key="ventola_probabilistic_2023"></d-cite>.
 
 <div class="row mt-3">
     <div class="col-sm mt-3 mt-md-0">
-        {% include figure.liquid path="assets/img/2026-04-27-value-of-probabilistic-circuits-for-uncertainty-quantification/screenshot_tdi_id_vs_ood.png" class="img-fluid rounded z-depth-1" %}
+        {% include figure.liquid path="assets/img/2026-04-27-probabilistic-circuits-for-uncertainty-quantification/screenshot_tdi_id_vs_ood.png" class="img-fluid rounded z-depth-1" %}
     </div>
 </div>
 <div class="caption">
@@ -367,7 +367,7 @@ coefficients of the time series.
 
 <div class="row mt-3">
     <div class="col-sm mt-3 mt-md-0">
-        {% include figure.liquid path="assets/img/2026-04-27-value-of-probabilistic-circuits-for-uncertainty-quantification/screenshot_recown_architecture.png" class="img-fluid rounded z-depth-1" %}
+        {% include figure.liquid path="assets/img/2026-04-27-probabilistic-circuits-for-uncertainty-quantification/screenshot_recown_architecture.png" class="img-fluid rounded z-depth-1" %}
     </div>
 </div>
 <div class="caption">
@@ -461,7 +461,7 @@ libraries like PyTorch and TensorFlow.
 
 <div class="row mt-3">
     <div class="col-sm mt-3 mt-md-0">
-        {% include figure.liquid path="assets/img/2026-04-27-value-of-probabilistic-circuits-for-uncertainty-quantification/screenshot_pc_layering.png" class="img-fluid rounded z-depth-1" %}
+        {% include figure.liquid path="assets/img/2026-04-27-probabilistic-circuits-for-uncertainty-quantification/screenshot_pc_layering.png" class="img-fluid rounded z-depth-1" %}
     </div>
 </div>
 <div class="caption">
@@ -496,7 +496,7 @@ computation footprint of PCs significantly.
 
 <div class="row mt-3">
     <div class="col-sm mt-3 mt-md-0">
-        {% include figure.liquid path="assets/img/2026-04-27-value-of-probabilistic-circuits-for-uncertainty-quantification/screenshot_monarch_hclt.png" class="img-fluid rounded z-depth-1" %}
+        {% include figure.liquid path="assets/img/2026-04-27-probabilistic-circuits-for-uncertainty-quantification/screenshot_monarch_hclt.png" class="img-fluid rounded z-depth-1" %}
     </div>
 </div>
 <div class="caption">
@@ -555,7 +555,7 @@ approximate them.
 
 <div class="row mt-3">
     <div class="col-sm mt-3 mt-md-0">
-        {% include figure.liquid path="assets/img/2026-04-27-value-of-probabilistic-circuits-for-uncertainty-quantification/screenshot_probabilistic_flow_circuits.png" class="img-fluid rounded z-depth-1" %}
+        {% include figure.liquid path="assets/img/2026-04-27-probabilistic-circuits-for-uncertainty-quantification/screenshot_probabilistic_flow_circuits.png" class="img-fluid rounded z-depth-1" %}
     </div>
 </div>
 <div class="caption">
@@ -598,7 +598,7 @@ Language Models (LLMs), specifically in the domain of Multi-Token Prediction
 
 <div class="row mt-3">
     <div class="col-sm mt-3 mt-md-0">
-        {% include figure.liquid path="assets/img/2026-04-27-value-of-probabilistic-circuits-for-uncertainty-quantification/screenshot_mtpc_structures.png" class="img-fluid rounded z-depth-1" %}
+        {% include figure.liquid path="assets/img/2026-04-27-probabilistic-circuits-for-uncertainty-quantification/screenshot_mtpc_structures.png" class="img-fluid rounded z-depth-1" %}
     </div>
 </div>
 <div class="caption">
@@ -628,7 +628,7 @@ extreme efficiency.
 
 <div class="row mt-3">
     <div class="col-sm mt-3 mt-md-0">
-        {% include figure.liquid path="assets/img/2026-04-27-value-of-probabilistic-circuits-for-uncertainty-quantification/screenshot_mtpc.png" class="img-fluid rounded z-depth-1" %}
+        {% include figure.liquid path="assets/img/2026-04-27-probabilistic-circuits-for-uncertainty-quantification/screenshot_mtpc.png" class="img-fluid rounded z-depth-1" %}
     </div>
 </div>
 <div class="caption">
@@ -672,7 +672,7 @@ key="siekiera_counterfactual_2025"></d-cite>.
 
 <div class="row mt-3">
     <div class="col-sm mt-3 mt-md-0">
-        {% include figure.liquid path="assets/img/2026-04-27-value-of-probabilistic-circuits-for-uncertainty-quantification/screenshot_spn_latent_vae.png" class="img-fluid rounded z-depth-1" %}
+        {% include figure.liquid path="assets/img/2026-04-27-probabilistic-circuits-for-uncertainty-quantification/screenshot_spn_latent_vae.png" class="img-fluid rounded z-depth-1" %}
     </div>
 </div>
 <div class="caption">
