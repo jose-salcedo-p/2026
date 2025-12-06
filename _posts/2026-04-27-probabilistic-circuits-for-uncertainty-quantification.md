@@ -543,7 +543,7 @@ reasoning of circuits<d-cite key="martires_probabilistic_2024"></d-cite>.
 ### Probabilistic Flow Circuits 
 
 A promising hybrid architecture involves integrating Probabilistic Circuits with
-Normalizing Flows (NFs)<d-cite key="sidheekh_probabilistic_2023a"></d-cite>.
+Normalizing Flows (NFs)<d-cite key="sidheekh_probabilistic_2023"></d-cite>.
 This synergy addresses the complementary limitations of both architectures:
 Normalizing Flows are highly effective at modeling continuous, local
 correlations through diffeomorphic transformations but lack mechanisms for
@@ -559,7 +559,7 @@ approximate them.
     </div>
 </div>
 <div class="caption">
-    The illustraion shows a comparisson between a PC and a PFC on a donut-shaped task. The blue and red colors depict the distributions captured by the leaf nodes while the green dots illustrated the joint distribution. The PFC is able to capture the target data better, due to its multi-modal leaf densities. Illustration obtained from<d-cite key="sidheekh_probabilistic_2023a"></d-cite>.
+    The illustraion shows a comparisson between a PC and a PFC on a donut-shaped task. The blue and red colors depict the distributions captured by the leaf nodes while the green dots illustrated the joint distribution. The PFC is able to capture the target data better, due to its multi-modal leaf densities. Illustration obtained from<d-cite key="sidheekh_probabilistic_2023"></d-cite>.
 </div>
 
 Probabilistic Flow Circuits (PFCs) bridge this gap by replacing the standard
