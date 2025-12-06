@@ -41,7 +41,6 @@ toc:
     subsections:
       - name: Probabilistic Flow Circuits
       - name: Multi-Token Prediction with Probabilistic Circuits
-      - name: Physics-Driven Deep Latent Variable Models
       - name: SPN-Guided Latent Space Manipulation
   - name: A Personal Note
 
