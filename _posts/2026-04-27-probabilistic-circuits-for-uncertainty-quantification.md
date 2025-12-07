@@ -434,6 +434,17 @@ and the ideal uniform CDF. This calibration error, $E\_{\text{cal}} =
 d(\hat{F}\_{\text{cal}}(z),\mathcal{U}(0,1))$, can serve as the objective
 function for optimization in PCCs.
 
+#### Post-hoc Input Recalibration
+
+Leveraging the calibration error metric, an input recalibration function $g$ can be applied to the PIT values $F_{\text{PC}}(g(x_i) \mid y_i)$. This leads to the new recalibrated density $p_{\text{cal}}$, derived using the change of variables formula
+Leveraging the calibration error metric, we apply an input recalibration function $g$ to the variable $x$, ensuring that the PIT values of the transformed input are uniformly distributed. The resulting recalibrated density, $p_{\text{cal}}$, is derived via the change of variables formula
+
+$$
+p_{\text{cal}}(x, y) = P_{\text{PC}}(g(x), y) \cdot |g'(x)|
+$$
+
+It can be proven that, provided $g$ satisfies specific properties, this recalibrated density $p_{\text{cal}}$ can be exactly represented by a new, valid Probabilistic Circuit.
+
 ## Scaling Circuit Architectures to High Dimensions
 
 For years, a major criticism of Probabilistic Circuits (PCs) was their lack of
