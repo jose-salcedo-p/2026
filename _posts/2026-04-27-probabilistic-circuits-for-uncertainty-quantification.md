@@ -408,7 +408,7 @@ will be presented in an upcoming publication.
 #### Quantifying the Miscalibration
 
 To diagnose the extent of miscalibration, Probability Integral Transform (PIT)
-can be utilized <d-cite key="diebold_evaluating_1997"></d-cite>. For a continuous random variable $X$ and its cumulative
+can be utilized<d-cite key="diebold_evaluating_1997"></d-cite>. For a continuous random variable $X$ and its cumulative
 distribution function (CDF) $F_X$, the random variable $Z = F_X(X)$ is uniformly
 distributed $Z \sim \mathcal{U}(0, 1)$.
 
@@ -422,7 +422,7 @@ z_i = F_{\text{PC}}(x_i \mid y_i) = \int_{-\infty}^{x_i} p_{\text{PC}}(x'
 $$
 
 Thanks to the properties of PCs (marginalization and integration), the calculation of $F_{PC}$ is exact and efficient.
-The resulting histogram of PIT values reveals the nature of the error <d-cite key="talts_validating_2018"></d-cite>:
+The resulting histogram of PIT values reveals the nature of the error<d-cite key="talts_validating_2018"></d-cite>:
 - Uniform Distribution: The model is **perfectly calibrated**.
 - U-Shape: The model is **under-dispersed** (distribution too narrow, uncertainty underestimated).
 - Inverted U-Shape: The model is **over-dispersed** (distribution too broad, uncertainty overestimated).
