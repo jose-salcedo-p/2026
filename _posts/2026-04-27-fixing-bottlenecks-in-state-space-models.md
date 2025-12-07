@@ -16,20 +16,6 @@ mermaid:
 authors:
   - name: Anonymous
 
-# authors:
-#   - name: Albert Einstein
-#     url: "https://en.wikipedia.org/wiki/Albert_Einstein"
-#     affiliations:
-#       name: IAS, Princeton
-#   - name: Boris Podolsky
-#     url: "https://en.wikipedia.org/wiki/Boris_Podolsky"
-#     affiliations:
-#       name: IAS, Princeton
-#   - name: Nathan Rosen
-#     url: "https://en.wikipedia.org/wiki/Nathan_Rosen"
-#     affiliations:
-#       name: IAS, Princeton
-
 # must be the exact same name as your blogpost
 bibliography: 2026-04-27-fixing-bottlenecks-in-state-space-models.bib
 
@@ -52,13 +38,17 @@ toc:
       - name: "Hidden Problem: SSMs are Recency-Biased"
       - name: "Why SSMs forget Long-Range Context?"
       - name: "A natural question arises"
+  - name: "Evidence: SSMs fail on Long-Range Retrieval"
+  - name: "Challenges to Model Robustness"
+  - name: "Depth Scaling and its Limits"
+  - name: "Why Deep SSMs Start to Fail: Over-Smoothing"
 
 # Below is an example of injecting additional post-specific styles.
 # This is used in the 'Layouts' section of this post.
 # If you use this post as a template, delete this _styles block.
 _styles: >
   .theorem-box {
-    border-left: 4px solid #3b75ff;
+    border-right: 4px solid #3b75ff;
     background: rgba(59, 117, 255, 0.08);
     padding: 1rem 1.25rem;
     margin: 1.5rem 0;
@@ -102,6 +92,38 @@ _styles: >
     figure.side-by-side .side-text {
       width: 100%;
     }
+  }
+  .highlight-block-1 {
+    background: linear-gradient(90deg, #fff9d9 0%, #fff 100%);
+    padding: 14px 18px;
+    border-left: 4px solid #e4c000;
+    border-radius: 5px;
+    margin: 18px 0;
+    font-weight: 500;
+  }
+  .box-important-yellow {
+    background: #fff7c2;
+  padding: 14px 18px;
+  border-left: 5px solid #f1c40f;
+  border-radius: 6px;
+  margin: 20px 0;
+  font-weight: 500;
+  }
+  .box-important-purple {
+  background: #f7e8ff;          
+  padding: 14px 18px;
+  border-right: 5px solid #b37bd6; 
+  border-radius: 6px;
+  margin: 20px 0;
+  font-weight: 500;
+  }
+  .box-important-green {
+  background: #e8f7e8;
+  padding: 14px 18px;
+  border-left: 5px solid #27ae60;
+  border-radius: 6px;
+  margin: 20px 0;
+  font-weight: 500;
   }
 ---
 ## The Promise of SSMs: Long-Range Memory & Efficiency
@@ -480,7 +502,72 @@ Consider a simple scalar case where $A_t \approx 0.9$. Then the influence decays
 
 Thus, as tokens become more distant, their contribution to the model’s hidden state diminishes rapidly.
 
-
-
-
 ## Evidence: SSMs fail on Long-Range Retrieval
+To assess the ability of SSMs to capture long-context information, the authors evaluate open-source SSM models using the **Needle in a Haystack** benchmark and compare their performance to transformer-based variants.
+
+**Goal** 
+
+Measure how strongly large language models (LLMs) rely on positional cues in context and whether they truly use information presented in the context window (rather than memorized facts). The benchmark embeds a short, intentionally false factual statement into a long document at different positions and tests whether an LLM can retrieve that statement when asked. In simple words: in this benchmark, a short statement is hidden inside the middle of a long document, and the AI model is asked to find and use that information. 
+
+The goal is to test whether the model actually reads and understands the text, rather than relying on information it memorized during training. The hidden statement is designed to look natural but contains a deliberate factual error. This forces the model to depend only on what appears in the document itself. If the model answers correctly, it shows that it truly located and used the information from the text.
+
+To better understand how the model handles long content, the position of the hidden sentence is changed across different experiments. Sometimes it appears near the beginning of the document, sometimes in the middle, and sometimes toward the end. The model’s accuracy at each position is then measured. This process reveals whether the model has a positional bias — for example, whether it pays more attention to the start of a document than to the end. 
+
+Strong performance across all positions indicates that the model can effectively use long-range context. Authors show that **Mistral-7B** (Transformer-based), performs consistently no matter where the hidden sentence appears in the document. This means it can pay attention to information at the beginning, middle, or end equally well. Further, authors point out that **Mamba-Codestral-7B** (based on State Space Models / SSMs) behaves differently. It performs better when the hidden sentence is closer to the end of the document and worse when the sentence appears near the beginning. 
+
+**This pattern shows that the SSM-based model has a positional bias, meaning it naturally focuses more on recent or nearby tokens rather than information that appeared far earlier in the text. In other words, it *remembers* newer information more strongly than older information.** 
+
+The figure <d-fig key="figure2">2</d-fig> below compares how two different types of language models retrieve information from very long documents.
+
+{% include figure.liquid 
+    path="assets/img/2026-04-27-fixing-bottlenecks-in-state-space-models/figure2.png"
+    alt="Influence heatmaps"
+    caption="Figure 2: Results from Needle in a Haystack Experiment <d-cite key='wang2025understandingmitigatingbottlenecksstate'></d-cite>."
+    key="figure2"
+%}
+
+The left heatmap represents an SSM-based model (Mamba-Codestral-7B). Warmer colors (red/orange) indicate lower accuracy, while greener colors indicate higher accuracy. A clear pattern appears: when the hidden sentence is placed near the beginning of the document, the model performs poorly. As the sentence moves closer to the end of the document, the model becomes much more accurate. This shows that the SSM model is biased toward recent information and struggles to recall content from far earlier in the text.
+
+The right heatmap represents a Transformer-based model (Mistral-7B). Unlike the SSM model, the colors remain mostly uniform across the entire heatmap. This means the model’s accuracy stays consistent no matter where the hidden sentence is placed. In other words, the Transformer does not show a strong positional bias and can retrieve information equally well from the beginning, middle, or end of the document.
+
+## Challenges to Model Robustness
+
+The authors also investigated potential robustness issues arising from recency bias in State Space Models (SSMs) by evaluating them on an image classification task designed in an unconventional sequence-based setting. Instead of treating images like 2D grids, they flattened each image into a long sequence of pixel values—like turning a picture into a long list of numbers. This allows them to use sequence models (which are usually used for text or time-series data) to process images. They tested several popular SSM-based models such as H3, RWKV, and Mamba, and compared their performance with a Transformer model (the standard architecture used in models like GPT). To make these models work for classification, they added a special learnable *class token* at the very end of the pixel sequence. This token acts like a summary of everything the model has seen. After the model processes the full sequence, it looks at the final state of this class token and passes it through a classifier head to produce the final prediction (for example, deciding which CIFAR-10 class the image belongs to).
+
+The goal of this experiment is to check whether State Space Models (SSMs) are more sensitive to noise at the end of a sequence than at the beginning. The authors took images from the CIFAR-10 dataset and converted each image into a sequence of 1,024 tokens (by flattening the pixels). Then, they deliberately added random noise to different parts of the sequence to see how much the model’s accuracy dropped. The authors evaluate positional sensitivity by introducing controlled corruption to different regions of the input sequence.
+
+**Trailing corruption** involves adding random noise to the last segment of the sequence, located near the appended class token, while **leading corruption** involves perturbing the initial segment of the sequence.
+
+The experimental setup is summarized as follows:
+
+- Two corruption levels are evaluated: a mild setting with 32 out of 1024 tokens corrupted, and a more aggressive setting with 96 out of 1024 tokens corrupted.
+- Random noise is injected into either the leading (beginning) or trailing (end) segments of the input sequence.
+- These experiments are designed to measure whether the models depend more strongly on information located near the end of the sequence than at the beginning.
+
+<div class="box-important-yellow">
+These results demonstrate that state space models (SSMs) such as H3, RWKV, and Mamba exhibit a strong recency bias, relying heavily on the most recent tokens in the input sequence. In contrast, transformer-based models show more balanced sensitivity to perturbations across the full sequence.
+</div>
+<div class="box-important-purple">
+The experiments show that corrupting the trailing tokens harms State Space Models (SSMs) much more than corrupting the leading tokens, revealing a strong recency bias. Mamba exhibits the most extreme behavior: corrupting the last 32 of 1024 tokens causes an 81.24% accuracy drop, while corrupting the first 32 tokens reduces accuracy by only 2.30%. In contrast, Transformers are less sensitive to trailing corruption and appear to rely more on early-sequence information, consistent with prior findings.
+</div>
+
+<div class="box-important-green">
+Targeted attacks reveal a serious weakness in State Space Models (SSMs). When the last part of an input sequence is replaced with tokens from a target class, SSMs are easily fooled into misclassifying the input. This happens because these models rely heavily on recent tokens. In contrast, Transformer models are more robust and are not disproportionately affected by attacks on the end of the sequence.
+</div>
+
+
+## Depth Scaling and its Limits
+
+State Space Models (SSMs), including Mamba, exhibit exponentially decaying dependencies with respect to token distance, effectively behaving as localized operators with finite receptive fields, analogous to convolutional and graph-based architectures. To study whether architectural depth compensates for this locality, models were pretrained under varying context lengths (2048 and 8192 tokens) and depths (16–72 layers). The results indicate that increasing depth improves performance under longer context settings, suggesting an expansion of the effective receptive field. 
+
+However, these gains saturate beyond intermediate depths (approximately 32–48 layers), after which further increases lead to deteriorating performance, as evidenced by rising validation perplexity. Short-context models exhibit sharper degradation at high depth, whereas long-context models demonstrate greater tolerance to deeper architectures. Overall, these findings suggest that increased depth partially alleviates, but does not eliminate, the limitations imposed by the inherently local dynamics of SSMs.
+
+## Why Deep SSMs Start to Fail: Over-Smoothing
+
+The paper further investigates the depth-scaling limitations of State Space Models (SSMs) by analyzing the evolution of hidden states and token features across layers. A central finding is that deep SSMs exhibit over-smoothing, a phenomenon where token embeddings become increasingly similar and lose discriminative power. The analysis begins with the continuous-time S4 model, which is formulated as a linear dynamical system governed by ordinary differential equations. Using the known equivalence between S4 and convolutional operators <d-cite key="gu2021combiningrecurrentconvolutionalcontinuoustime"></d-cite>, the authors show that S4 behaves as a low-pass filter in the frequency domain when the system matrix has negative diagonal entries. This implies that high-frequency (sharp, local) signal components are systematically attenuated at each layer, independent of how the parameters are trained.
+
+The degree of over-smoothing is shown to depend on both context length and the smallest state transition coefficients. Longer contexts require more steps for information to mix across positions, while transition parameters approaching one cause the model to behave like a uniform averaging operator over the sequence. This aligns with an intuitive interpretation of SSMs as performing a form of running average over token embeddings.
+
+**The authors provide empirical validation using a 1.4B-parameter Mamba model. They quantify representation sharpness via pairwise distances between token embeddings and observe that sharpness consistently decreases across layers. Compared with Transformers of comparable size, SSMs exhibit a much faster decay of feature diversity, although Transformers are also theoretically susceptible to over-smoothing.**
+
+**Intuition Behind Theorem 4.2 (Over-Smoothing in SSMs): A simple way to understand the over-smoothing effect in SSMs is to view each layer as a contractive update. If the recurrent coefficient satisfies $A_t \leq 1$, then differences between hidden states shrink over time. For example, when $A_t = 0.9$ and the input sequence is short, even inputs that differ significantly (e.g., by 2 units) produce hidden states whose differences are tightly bounded (e.g., $\approx 0.54$). As the sequence length increases, this contraction becomes stronger, forcing token representations to become increasingly similar. This explains why stacking many SSM layers causes the model to behave like a running low-pass filter, progressively removing high-frequency (sharp) features and leading to over-smoothing.**
