@@ -436,7 +436,6 @@ function for optimization in PCCs.
 
 #### Post-hoc Input Recalibration
 
-Leveraging the calibration error metric, an input recalibration function $g$ can be applied to the PIT values $F_{\text{PC}}(g(x_i) \mid y_i)$. This leads to the new recalibrated density $p_{\text{cal}}$, derived using the change of variables formula
 Leveraging the calibration error metric, we apply an input recalibration function $g$ to the variable $x$, ensuring that the PIT values of the transformed input are uniformly distributed. The resulting recalibrated density, $p_{\text{cal}}$, is derived via the change of variables formula
 
 $$
