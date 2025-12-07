@@ -439,7 +439,7 @@ function for optimization in PCCs.
 Leveraging the calibration error metric, we apply an input recalibration function $g$ to the variable $x$, ensuring that the PIT values of the transformed input are uniformly distributed. The resulting recalibrated density is derived via the change of variables formula
 
 $$
-p_{\text{cal}}(x, y) = P_{\text{PC}}(g(x), y) \cdot |g'(x)|
+p_{\text{cal}}(x, y) = P_{\text{PC}}(g(x), y) \cdot|g'(x)|
 $$
 
 It can be proven that, provided $g$ satisfies specific properties, this recalibrated density $p_{\text{cal}}$ can be exactly represented by a new, valid Probabilistic Circuit.
