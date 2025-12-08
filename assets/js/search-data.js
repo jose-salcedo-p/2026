@@ -633,6 +633,17 @@ ninja.data = [{
             window.location.href = "/2026/blog/2026/neurofeedback/";
           
         },
+      },{id: "post-beyond-black-box-predictions-neural-operators-as-a-bridge-to-interpretable-governing-equations-in-biology",
+        
+          title: "Beyond Black-Box Predictions: Neural Operators as a Bridge to Interpretable Governing Equations in...",
+        
+        description: "This study introduces a hybrid computational framework that integrates Neural Operators with Sparse Identification of Nonlinear Dynamics (SINDy) to recover interpretable governing equations from sparse, partially observed biological data. Using an NF-κB signaling model, we demonstrate that Fourier Neural Operators effectively reconstruct hidden state trajectories from limited measurements, serving as a resolution-independent surrogate that enables the discovery of parsimonious dynamical laws. This operator-plus-symbolic paradigm offers a scalable workflow for extracting mechanistic insights from experimental readouts where classical inference methods typically fail.",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/2026/blog/2026/neural-ops-in-biology/";
+          
+        },
       },{id: "post-neural-audio-codecs-how-to-get-audio-into-llms",
         
           title: "Neural audio codecs: how to get audio into LLMs",
