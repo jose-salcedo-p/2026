@@ -116,17 +116,6 @@ ninja.data = [{
             window.location.href = "/2026/blog/2026/why-vlms-waste-their-vision/";
           
         },
-      },{id: "post-computer-use-survey-a-visual-survey-of-computer-use-agents",
-        
-          title: "Computer Use Survey - A Visual Survey of Computer Use Agents",
-        
-        description: "In recent years, AI systems operating on the web and in computer environments have become a major topic of interest for both academia and industry. The goal of this blog is to provide an interesting and interactive survey of historical and recent works on computer use agents. We define key terms used in the literature, catalogue the expansive list of environments and datasets, discuss the evolution of the methodologies, and assess both today’s landscape and possible paths forward.",
-        section: "Posts",
-        handler: () => {
-          
-            window.location.href = "/2026/blog/2026/web-agent/";
-          
-        },
       },{id: "post-wait-do-we-need-to-wait-revisiting-budget-forcing-for-sequential-test-time-scaling",
         
           title: "Wait, Do We Need to Wait? Revisiting Budget Forcing for Sequential Test-Time Scaling...",
@@ -268,6 +257,17 @@ ninja.data = [{
         handler: () => {
           
             window.location.href = "/2026/blog/2026/the-bottlenecks-to-scaling-foundation-models-for-robotics/";
+          
+        },
+      },{id: "post-task-complexity-analysis",
+        
+          title: "Task Complexity Analysis",
+        
+        description: "We analyzed and compared 3 different sampling strategies to sample 100 questions from MATH 500 and Hendrycks&#39; 4500 (the remaining questions from Hendrycks&#39; math dataset that wasn&#39;t selected for MATH500). We ran the subsets on 13 different small (apparent difficulty (the levels assigned by Hendrycks&#39; creators) than MATH 500 results in a more stable ranking for the low performing models, but the baseline apparent difficulty split is the most stable for the top performing models.",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/2026/blog/2026/task-complexity-analysis/";
           
         },
       },{id: "post-from-dense-monoliths-to-modular-minds-the-rise-of-symbolic-routing-in-llms",
