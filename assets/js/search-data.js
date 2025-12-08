@@ -479,6 +479,17 @@ ninja.data = [{
             window.location.href = "/2026/blog/2026/recur-refine-reason/";
           
         },
+      },{id: "post-looking-for-tractable-definitions-to-satisfy-on-the-path-to-open-endedness",
+        
+          title: "Looking for Tractable Definitions to Satisfy on the Path to Open-Endedness",
+        
+        description: "Understanding and designing systems with open-endedness has been called the “last grand challenge of AI research” and ties to problems like accelerating scientific discovery, continual learning, and exploration. Over the past few years there has been fast progress engineering bigger interactive worlds with capacity for open-endedness and designing systems that can improve autonomously on narrow task distributions, but finding a way to quantify the gap between these and true open-ended systems remains an active challenge. In this blog post, we look at some existing open-endedness definitions and discuss what it would mean to satisfy them and construct attempts at open-endedness that do. By adjusting definitions, we get insights into different forms of partial progress towards constructing open-ended systems.",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/2026/blog/2026/qoe/";
+          
+        },
       },{id: "post-pushing-meta-continual-learning-algorithms-to-the-limit",
         
           title: "Pushing Meta-Continual Learning Algorithms to the Limit",
