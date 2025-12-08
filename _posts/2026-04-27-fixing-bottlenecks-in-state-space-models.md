@@ -42,6 +42,10 @@ toc:
   - name: "Challenges to Model Robustness"
   - name: "Depth Scaling and its Limits"
   - name: "Why Deep SSMs Start to Fail: Over-Smoothing"
+  - name: "Fixing Recency and Over-Smoothing in Mamba with State Space Polarization"
+    subsections:
+    - name: "State Space Polarization"
+    - name: "Implementation" 
 
 # Below is an example of injecting additional post-specific styles.
 # This is used in the 'Layouts' section of this post.
@@ -103,31 +107,30 @@ _styles: >
   }
   .box-important-yellow {
     background: #fff7c2;
-  padding: 14px 18px;
-  border-left: 5px solid #f1c40f;
-  border-radius: 6px;
-  margin: 20px 0;
-  font-weight: 500;
+    padding: 14px 18px;
+    border-left: 5px solid #f1c40f;
+    border-radius: 6px;
+    margin: 20px 0;
+    font-weight: 400;
   }
   .box-important-purple {
-  background: #f7e8ff;          
-  padding: 14px 18px;
-  border-right: 5px solid #b37bd6; 
-  border-radius: 6px;
-  margin: 20px 0;
-  font-weight: 500;
+    background: #f7e8ff;          
+    padding: 14px 18px;
+    border-right: 5px solid #b37bd6; 
+    border-radius: 6px;
+    margin: 20px 0;
+    font-weight: 400;
   }
   .box-important-green {
-  background: #e8f7e8;
-  padding: 14px 18px;
-  border-left: 5px solid #27ae60;
-  border-radius: 6px;
-  margin: 20px 0;
-  font-weight: 500;
+    background: #e8f7e8;
+    padding: 14px 18px;
+    border-left: 5px solid #27ae60;
+    border-radius: 6px;
+    margin: 20px 0;
+    font-weight: 400;
   }
 ---
 ## The Promise of SSMs: Long-Range Memory & Efficiency
-
 **Structured State Space Sequence Models (S4, DSS, S4D)** represent a modern class of deep learning sequence models that share conceptual similarities with RNNs, CNNs, and classical state space models. In control systems, state-space models (SSMs) represent a system where the relationship between inputs and outputs is defined through state variables (or simply states), with the system's behavior described by first-order differential equations governing these states <d-cite key="xiao2023introductiontransformersnlpperspective"></d-cite>.
 
 These models are motivated by a continuous-time system that maps a one-dimensional input sequence $x(t) \in \mathbb{R}$ to an output sequence $y(t) \in \mathbb{R}$ through an implicit latent state $h(t) \in \mathbb{R}^N$. S4 models are defined by four primary parameters $(\Delta, A, B, C)$, which govern the sequence-to-sequence transformation through two stages.
@@ -571,3 +574,98 @@ The degree of over-smoothing is shown to depend on both context length and the s
 **The authors provide empirical validation using a 1.4B-parameter Mamba model. They quantify representation sharpness via pairwise distances between token embeddings and observe that sharpness consistently decreases across layers. Compared with Transformers of comparable size, SSMs exhibit a much faster decay of feature diversity, although Transformers are also theoretically susceptible to over-smoothing.**
 
 **Intuition Behind Theorem 4.2 (Over-Smoothing in SSMs): A simple way to understand the over-smoothing effect in SSMs is to view each layer as a contractive update. If the recurrent coefficient satisfies $A_t \leq 1$, then differences between hidden states shrink over time. For example, when $A_t = 0.9$ and the input sequence is short, even inputs that differ significantly (e.g., by 2 units) produce hidden states whose differences are tightly bounded (e.g., $\approx 0.54$). As the sequence length increases, this contraction becomes stronger, forcing token representations to become increasingly similar. This explains why stacking many SSM layers causes the model to behave like a running low-pass filter, progressively removing high-frequency (sharp) features and leading to over-smoothing.**
+
+<figure class="side-by-side">
+
+  <div class="side-image">
+    {% include figure.liquid 
+      path="assets/img/2026-04-27-fixing-bottlenecks-in-state-space-models/figure3.png" 
+      alt="Cumulative distribution" 
+      class="img-fluid rounded"
+    %}
+    <figcaption>
+      Figure 3: Cumulative distribution of $(A_{\max} - A_{\min})$ across channels.  
+      More than 60\% of channels lie below $0.5$, indicating limited diversity in memory decay rates <d-cite key="wang2025understandingmitigatingbottlenecksstate"></d-cite>.
+    </figcaption>
+  </div>
+
+  <div class="side-text">
+    <p>When examining how each channel in Mamba’s state transition behaves, the authors study the two
+extremal values $A_{\max}$ and $A_{\min}$ that characterize the strongest and weakest memory
+retention for each channel. Ideally, a healthy state space model should display a wide spread of
+behaviors: some channels with $A_{\max} \approx 1$ for preserving long-range information, others
+with $A_{\min} \approx 0$ for reacting sharply to new inputs, and many intermediate channels
+forming a rich spectrum in between.</p> 
+    <p>However, the cumulative histogram in Figure 3
+reveals the opposite. More than <strong>60% of channels satisfy $\boldsymbol{A_{\max} - A_{\min} < 0.5}$</strong>,
+meaning their effective memory range is highly compressed. This narrow distribution indicates that
+most channels behave similarly, rather than specializing into long-memory and short-memory roles.
+As a consequence, if $A_t$ drifts toward small values, the model exhibits rapid forgetting and
+strong recency bias; if $A_t$ stays large, the hidden state barely updates, leading to
+over-smoothing. The model therefore struggles to naturally produce the desired mix of ``fast''
+and ``slow'' memory channels, explaining why these failure modes arise so consistently in practice.
+    </p>
+  </div>
+
+</figure>
+
+## Fixing Recency and Over-Smoothing in Mamba with State Space Polarization
+### State Space Polarization
+To improve the memory behavior of Mamba, the authors introduce *polarization*, where one
+dimension of $A_t$ is fixed to $1$ and another to $0$, with the remaining channels learned normally.
+The zero-polarized channel resets at every step and therefore focuses purely on the current token,
+helping prevent over-smoothing in deeper stacks. The one-polarized channel never decays and thus
+retains the full sequence history, ensuring a stable long-term memory path. In implementation, the first state channel is set to $(A_t)_{1,1}=1$ and the last to
+$(A_t)_{N,N}=0$. This guarantees that the model always has both a global and local memory pathway,
+regardless of training dynamics.
+
+The associative recall experiments show that the default $A_t$ struggles with long
+contexts and even degrades with depth. Adding a 1-polarized channel significantly boosts recall
+accuracy, while a 0-polarized channel helps deeper models avoid over-smoothing.
+Using both polarized channels together, especially in deeper configurations, yields the strongest
+overall performance.
+
+### Implementation
+This section describes how the proposed *State Space Polarization* mechanism is implemented
+inside a Mamba layer. Mamba parameterizes its state-transition coefficient using
+
+$$
+A_t = \exp(\Delta t\, A),
+$$
+
+where $A$ is a learnable vector. Therefore, enforcing a channel of $A_t$ to be exactly $1$ or
+exactly $0$ requires modifying the *pre-exponential* entries of $A$.
+
+To achieve this, the implementation modifies the forward pass by inserting fixed constants into the
+learned vector $A$. A zero is prepended, and a large negative value (e.g., $-1000$) is appended
+before the exponential is applied. After exponentiation, these values become:
+
+$$
+A \leftarrow
+\begin{bmatrix}
+0 \\[2pt]
+A \\[2pt]
+-1000
+\end{bmatrix},
+\qquad
+A_t \approx
+\begin{bmatrix}
+1 \\[2pt]
+\exp(\Delta t A) \\[2pt]
+0
+\end{bmatrix}.
+$$
+
+The prepended $0$ corresponds to $\exp(0) = 1$, which creates a channel with **no decay** and
+thus guarantees a perfect long-term memory path. Conversely, the appended $-1000$ corresponds to
+$\exp(-1000) \approx 0$, yielding a **fully resetting** channel that behaves as short-term
+memory. This construction ensures that the model always retains both a global and a local memory
+pathway, regardless of the learned dynamics of the remaining channels.
+
+Two ablations are also considered to isolate the contribution of each polarized channel:
+
+- **0-polarized Mamba:** only the zero-valued (short-memory) channel is added.
+- **1-polarized Mamba:** only the one-valued (long-memory) channel is added.
+
+These variants allow examination of how constant-zero and constant-one gating individually affect
+the model's memory behavior.
