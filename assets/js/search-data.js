@@ -292,6 +292,17 @@ ninja.data = [{
             window.location.href = "/2026/blog/2026/unigramlm-manual/";
           
         },
+      },{id: "post-uncertainty-lifecycle-in-deep-learning",
+        
+          title: "Uncertainty Lifecycle in Deep Learning",
+        
+        description: "Uncertainty modeling in deep learning has different attributes such as uncertainty propagation, uncertainty estimation, uncertainty decomposition, uncertainty attribution and uncertainty sensitivity, that are extensively discussed in literature. However, there is no proper structure explaining how these different components interact with each other at different stages of Deep Learning pipeline. We propose to structure the flow and transformation of uncertainty from input to prediction through the model, by appropriately positioning them. And we call this structure as “Uncertainty Lifecycle”. The “Uncertainty lifecycle” can be represented as a structured process for handling, quantifying, analyzing, and interpreting uncertainties at different stages of Deep Learning pipeline.",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/2026/blog/2026/uncertainty-lifecycle-in-deep-learning/";
+          
+        },
       },{id: "post-tracing-the-principles-behind-modern-diffusion-models",
         
           title: "Tracing the Principles Behind Modern Diffusion Models",
@@ -367,17 +378,6 @@ ninja.data = [{
         handler: () => {
           
             window.location.href = "/2026/blog/2026/subject-invariant-eeg/";
-          
-        },
-      },{id: "post-artistic-style-and-the-play-of-neural-style-representations",
-        
-          title: "Artistic Style and the Play of Neural Style Representations",
-        
-        description: "How do neural networks percieve the complex human construct of artistic style? We explore the dynamic interplay between diverse machine representations of style and style definitions. We reveal a profound divergence where models often reject established historical narratives in favour of their own perceptual truths.",
-        section: "Posts",
-        handler: () => {
-          
-            window.location.href = "/2026/blog/2026/style-representations/";
           
         },
       },{id: "post-speeding-up-training-of-model-free-reinforcement-learning-a-comparative-evaluation-for-fast-and-accurate-learning",
@@ -532,17 +532,6 @@ ninja.data = [{
         handler: () => {
           
             window.location.href = "/2026/blog/2026/precision-extraction/";
-          
-        },
-      },{id: "post-faster-svd-via-accelerated-newton-schulz-iteration",
-        
-          title: "Faster SVD via Accelerated Newton-Schulz Iteration",
-        
-        description: "Traditional SVD algorithms rely heavily on QR factorizations, which scale poorly on GPUs. We show how the recently proposed Chebyshev-Accelerated Newton-Schulz (CANS) iteration can replace them and produce an SVD routine that is faster across a range of matrix types and precisions.",
-        section: "Posts",
-        handler: () => {
-          
-            window.location.href = "/2026/blog/2026/polar-svd/";
           
         },
       },{id: "post-a-philosophy-of-model-editing-what-does-it-mean-to-change-knowledge-in-a-neural-network",
@@ -840,6 +829,17 @@ ninja.data = [{
         handler: () => {
           
             window.location.href = "/2026/blog/2026/healthcare-nlp/";
+          
+        },
+      },{id: "post-ready-for-general-agents-let-39-s-test-it",
+        
+          title: "Ready For General Agents? Let&#39;s Test It.",
+        
+        description: "General-purpose agents are emerging, promising seamless deployment across environments. Yet current evaluation methods cannot measure their adaptability to unseen environments-the very core of their generality. We outline key challenges and propose a path toward an evaluation framework designed to progress general agents, one that enables robust, cross-environment testing without limiting innovation.",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/2026/blog/2026/general-agent-evaluation/";
           
         },
       },{id: "post-generative-ai-archaeology",
