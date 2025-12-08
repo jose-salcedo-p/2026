@@ -259,6 +259,17 @@ ninja.data = [{
             window.location.href = "/2026/blog/2026/uncertainty-lifecycle-in-deep-learning/";
           
         },
+      },{id: "post-trade-offs-in-llm-compute-for-reasoning-intensive-information-retrieval",
+        
+          title: "Trade-offs in LLM Compute for Reasoning-Intensive Information Retrieval",
+        
+        description: "Large Language Models have become essential for reasoning-intensive information retrieval, but their computational cost raises a critical question: where should compute be allocated for maximum effectiveness? Using the BRIGHT benchmark and the Gemini 2.5 model family, we systematically evaluate trade-offs across model strength, inference-time thinking depth, and reranking depth. Our controlled experiments reveal the marginal gains of investing compute in query expansion versus reranking, providing practical guidance for optimizing cost-performance in LLM-augmented retrieval pipelines.",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/2026/blog/2026/trade-offs-in-llm-compute-for-reasoning-intensive-information-retrieval/";
+          
+        },
       },{id: "post-tracing-the-principles-behind-modern-diffusion-models",
         
           title: "Tracing the Principles Behind Modern Diffusion Models",
@@ -433,17 +444,6 @@ ninja.data = [{
         handler: () => {
           
             window.location.href = "/2026/blog/2026/rethinking-mmicl/";
-          
-        },
-      },{id: "post-rethinking-the-diffusion-model-from-a-langevin-perspective",
-        
-          title: "Rethinking the Diffusion Model from a Langevin Perspective",
-        
-        description: "Diffusion models are often introduced from multiple perspectives—such as VAEs, score matching, or flow matching—accompanied by dense and technically demanding mathematics that can be difficult for beginners to grasp. This article offers a fresh Langevin perspective on diffusion models to lower the technical barrier, aiming to present diffusion models in a simpler, clearer, and more intuitive way while addressing the following questions 1. How does the reverse process invert the forward process to generate data from pure noise? 2. How can ODE-based and SDE-based diffusion models be unified under a single framework? 3. Why are diffusion models theoretically superior to ordinary VAEs? 4. How can Denoising, Score Matching, and Flow Matching training objectives be unified and derived from first principles? We demonstrate that the Langevin perspective offers clear and straightforward answers to these questions, providing pedagogical value for both learners and experienced researchers seeking deeper intuition.",
-        section: "Posts",
-        handler: () => {
-          
-            window.location.href = "/2026/blog/2026/rethinking-diffusion-langevin/";
           
         },
       },{id: "post-dynamic-parameter-reuse-augments-reasoning-via-latent-chain-of-thought",
@@ -741,6 +741,17 @@ ninja.data = [{
         handler: () => {
           
             window.location.href = "/2026/blog/2026/industrial-agent-benchmarking/";
+          
+        },
+      },{id: "post-the-illusion-of-mastery-breaking-the-cycle-of-benchmark-memorization-with-generative-evaluation",
+        
+          title: "The Illusion of Mastery: Breaking the Cycle of Benchmark Memorization with Generative Evaluation...",
+        
+        description: "Modern AI models that score perfectly on standardized benchmarks often fail in real-world applications. In this post, we first examine why current evaluation paradigms increasingly fail to capture how models perform in real-world scenarios, leading to an illusion of competence. Then, we introduce generative evaluation that automatically creates novel, diverse tasks every time a model is tested, and explain how it offers a more realistic way to measure what AI systems can actually do.",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/2026/blog/2026/illusion-of-mastery/";
           
         },
       },{id: "post-heuristic-based-ideation-for-guiding-llms-toward-structured-creativity",
