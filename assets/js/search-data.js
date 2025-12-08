@@ -281,17 +281,6 @@ ninja.data = [{
             window.location.href = "/2026/blog/2026/subject-invariant-eeg/";
           
         },
-      },{id: "post-artistic-style-and-the-play-of-neural-style-representations",
-        
-          title: "Artistic Style and the Play of Neural Style Representations",
-        
-        description: "How do neural networks percieve the complex human construct of artistic style? We explore the dynamic interplay between diverse machine representations of style and style definitions. We reveal a profound divergence where models often reject established historical narratives in favour of their own perceptual truths.",
-        section: "Posts",
-        handler: () => {
-          
-            window.location.href = "/2026/blog/2026/style-representations/";
-          
-        },
       },{id: "post-speeding-up-training-of-model-free-reinforcement-learning-a-comparative-evaluation-for-fast-and-accurate-learning",
         
           title: "Speeding up Training of Model-Free Reinforcement Learning :A Comparative Evaluation for Fast and...",
