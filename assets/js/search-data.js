@@ -890,7 +890,7 @@ ninja.data = [{
         
           title: "Ready For General Agents? Let&#39;s Test It.",
         
-        description: "General-purpose agents are emerging and can potentially scale to many environments. However, current evaluation solutions do not measure performance across environments—a core requirement for true generality.We outline the key challenges for cross-environment testing and lay out a path toward an evaluation framework to guide the development of general agents.",
+        description: "General-purpose agents are emerging, promising seamless deployment across domains. However, we currently do not measure their adaptability to diverse, unseen settings—a core requirement for true generality. We outline the key challenges and chart a path toward a unified evaluation framework designed to guide the development of general agents.",
         section: "Posts",
         handler: () => {
           
