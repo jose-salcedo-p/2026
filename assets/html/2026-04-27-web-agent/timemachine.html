@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pre-LLM Evolution Timeline</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: #ffffff;
+            color: #212529;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .time-machine-container {
+            padding: 1rem;
+        }
+
+        .time-machine-header {
+            text-align: center;
+            margin-bottom: 0.8rem;
+        }
+
+        .time-machine-title {
+            color: #212529;
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 0.2rem;
+        }
+
+        .time-machine-subtitle {
+            color: #6c757d;
+            font-size: 0.85rem;
+        }
+
+        .timeline-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.8rem;
+            margin-bottom: 1rem;
+        }
+
+        .timeline-btn {
+            background: #ffffff;
+            border: 1px solid #2698ba;
+            color: #2698ba;
+            padding: 0.4rem 0.8rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 36px;
+        }
+
+        .timeline-btn:hover:not(:disabled) {
+            background: #2698ba;
+            color: #ffffff;
+        }
+
+        .timeline-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .timeline-year-display {
+            background: #f8f9fa;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            color: #212529;
+            padding: 0.4rem 1rem;
+            border-radius: 4px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            min-width: 100px;
+            text-align: center;
+        }
+
+        .timeline-visualization {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 1rem;
+            gap: 0.5rem;
+        }
+
+        .era-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #e9ecef;
+            border: 2px solid #dee2e6;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .era-dot:hover {
+            transform: scale(1.2);
+            border-color: #2698ba;
+        }
+
+        .era-dot.active {
+            background: #2698ba;
+            border-color: #2698ba;
+            transform: scale(1.2);
+        }
+
+        .era-dot.passed {
+            background: #b8e0ec;
+            border-color: #2698ba;
+        }
+
+        .timeline-era {
+            background: #f8f9fa;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            padding: 1rem;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .era-title {
+            color: #212529;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.4rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .era-badge {
+            background: #e3f2fd;
+            color: #2698ba;
+            padding: 0.25rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            flex-shrink: 0;
+            white-space: nowrap;
+        }
+
+        .era-description {
+            color: #495057;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin-bottom: 0.8rem;
+        }
+
+        .era-papers {
+            margin-bottom: 0.8rem;
+        }
+
+        .era-papers h4 {
+            color: #2698ba;
+            font-size: 0.95rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .era-paper {
+            display: flex;
+            align-items: baseline;
+            gap: 0.5rem;
+            padding: 0.4rem 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .era-paper:last-child {
+            border-bottom: none;
+        }
+
+        .paper-year {
+            color: #2698ba;
+            font-weight: 600;
+            min-width: 50px;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+        }
+
+        .paper-title {
+            color: #495057;
+            font-size: 0.85rem;
+            flex: 1;
+            white-space: normal;
+        }
+
+        /* Force d-cite to be inline */
+        d-cite {
+            display: inline !important;
+            white-space: nowrap !important;
+            vertical-align: baseline !important;
+            line-height: inherit !important;
+        }
+        
+        .paper-title d-cite {
+            display: inline !important;
+            white-space: nowrap !important;
+            vertical-align: baseline !important;
+            line-height: inherit !important;
+        }
+
+        .era-technologies {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+        }
+
+        .tech-tag {
+            background: #e3f2fd;
+            color: #2698ba;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+            .timeline-btn {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.8rem;
+            }
+            
+            .timeline-year-display {
+                min-width: 100px;
+                padding: 0.4rem 0.8rem;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: #1c1c1d;
+                color: #c4c4c4;
+            }
+            
+            .time-machine-title {
+                color: #e9ecef;
+            }
+            
+            .time-machine-subtitle {
+                color: #adb5bd;
+            }
+            
+            .timeline-btn {
+                background: #2c3237;
+                border-color: #2698ba;
+            }
+            
+            .timeline-btn:hover:not(:disabled) {
+                background: #2698ba;
+            }
+            
+            .timeline-year-display {
+                background: #2c3237;
+                border-color: #424246;
+                color: #e9ecef;
+            }
+            
+            .era-dot {
+                background: #424246;
+                border-color: #6c757d;
+            }
+            
+            .era-dot.passed {
+                background: #1e4a5a;
+            }
+            
+            .timeline-era {
+                background: #212529;
+                border-color: #424246;
+            }
+            
+            .era-title {
+                color: #e9ecef;
+            }
+            
+            .era-badge {
+                background: #1e4a5a;
+            }
+            
+            .era-description, .paper-title {
+                color: #adb5bd;
+            }
+            
+            .era-paper {
+                border-bottom-color: #424246;
+            }
+            
+            .tech-tag {
+                background: #1e4a5a;
+            }
+            
+        }
+    </style>
+    <script src="/2026/assets/js/distillpub/template.v2.js"></script>
+    <script src="/2026/assets/js/distillpub/transforms.v2.js"></script>
+</head>
+<body>
+    <d-bibliography src="/2026/assets/bibliography/2026-04-27-web-agent.bib"></d-bibliography>
+
+    <div class="time-machine-container">
+        <div class="time-machine-header">
+            <h2 class="time-machine-title">Computer Use Time Machine ⏰</h2>
+            <p class="time-machine-subtitle">Journey through the history of computer use research</p>
+        </div>
+
+        <div class="timeline-controls">
+            <button class="timeline-btn" id="prevBtn">←</button>
+            <div class="timeline-year-display" id="yearDisplay">2000s</div>
+            <button class="timeline-btn" id="nextBtn">→</button>
+        </div>
+
+        <div class="timeline-visualization" id="timelineViz"></div>
+
+        <div class="timeline-era" id="eraContent"></div>
+    </div>
+
+    <!-- Hidden container with all d-cite elements pre-created for proper numbering -->
+    <div id="citationCache" style="display: none;">
+        <d-cite key="nogueira2016end" data-cite-key="nogueira2016end"></d-cite>
+        <d-cite key="pmlr-v70-shi17a" data-cite-key="pmlr-v70-shi17a"></d-cite>
+        <d-cite key="toyama2021androidenv" data-cite-key="toyama2021androidenv"></d-cite>
+        <d-cite key="liu2018reinforcement" data-cite-key="liu2018reinforcement"></d-cite>
+        <d-cite key="jiadom" data-cite-key="jiadom"></d-cite>
+        <d-cite key="gurlearning" data-cite-key="gurlearning"></d-cite>
+        <d-cite key="nakano2021webgpt" data-cite-key="nakano2021webgpt"></d-cite>
+        <d-cite key="zaheer2022learning" data-cite-key="zaheer2022learning"></d-cite>
+        <d-cite key="pmlr-v162-humphreys22a" data-cite-key="pmlr-v162-humphreys22a"></d-cite>
+    </div>
+
+    <script>
+        const eras = [
+            {
+                years: "2000s",
+                title: "Classical Planning Era",
+                description: "The earliest works in computer use research employed classical planning techniques and cognitive architectures. Even from this early stage, the problem was framed under an agent-environment paradigm. Researchers focused on symbolic AI approaches where agents could reason about actions and their effects in computer environments.",
+                papers: [
+                    { year: "2000s", title: "STRIPS-based planning for web navigation" },
+                    { year: "2000s", title: "Cognitive architecture approaches to UI automation" },
+                    { year: "2000s", title: "Symbolic AI for desktop task automation" }
+                ],
+                technologies: ["STRIPS", "Classical Planning", "Cognitive Architectures", "Symbolic AI"]
+            },
+            {
+                years: "2010-2017",
+                title: "Early RL Revolution",
+                description: "Reinforcement Learning became the dominant paradigm for computer use research. This line of work took automatic, self-contained reward environments and trained models from scratch to predict optimal actions. Deep learning began to transform the field with neural network-based agents.",
+                papers: [
+                    { year: "2016", title: "End-to-End Goal-Driven Web Navigation", citeKey: "nogueira2016end" },
+                    { year: "2017", title: "World of Bits: An Open-Domain Platform for Web-Based Agents", citeKey: "pmlr-v70-shi17a" },
+                    { year: "2021", title: "AndroidEnv: A Reinforcement Learning Platform for Android", citeKey: "toyama2021androidenv" }
+                ],
+                technologies: ["Deep Q-Networks", "Policy Gradients", "OpenAI Universe", "MiniWoB"]
+            },
+            {
+                years: "2018-2019",
+                title: "Advanced RL Techniques",
+                description: "Sophisticated approaches emerged including curriculum learning, curiosity-driven exploration, and hierarchical reinforcement learning. Behavior cloning from human demonstrations became more common, bridging the gap between pure RL and supervised learning approaches.",
+                papers: [
+                    { year: "2018", title: "Reinforcement Learning on Web Interfaces using Workflow-Guided Exploration", citeKey: "liu2018reinforcement" },
+                    { year: "2019", title: "DOM-Q-NET: Grounded RL on Structured Language", citeKey: "jiadom" },
+                    { year: "2019", title: "Learning to Navigate the Web", citeKey: "gurlearning" }
+                ],
+                technologies: ["Workflow-Guided Exploration", "Curriculum Learning", "Hierarchical RL", "DOM Understanding"]
+            },
+            {
+                years: "2020-2022",
+                title: "Behavior Cloning & Scale",
+                description: "Focus shifted to collecting human traces and using behavior cloning at scale. Large-scale datasets emerged as the field prepared for the LLM revolution. Text-only web environments gained popularity as a simpler testbed for developing reasoning capabilities.",
+                papers: [
+                    { year: "2021", title: "WebGPT: Browser-assisted question-answering with human feedback", citeKey: "nakano2021webgpt" },
+                    { year: "2022", title: "Learning to Navigate Wikipedia by Taking Random Walks", citeKey: "zaheer2022learning" },
+                    { year: "2022", title: "A Data-Driven Approach for Learning to Control Computers", citeKey: "pmlr-v162-humphreys22a" }
+                ],
+                technologies: ["Human Feedback", "Behavior Cloning", "Large-Scale Datasets", "Text-only Environments"]
+            }
+        ];
+
+        let currentEra = 0;
+
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const yearDisplay = document.getElementById('yearDisplay');
+        const timelineViz = document.getElementById('timelineViz');
+        const eraContent = document.getElementById('eraContent');
+
+        function createTimelineViz() {
+            timelineViz.innerHTML = '';
+            eras.forEach((era, index) => {
+                const dot = document.createElement('div');
+                dot.className = 'era-dot';
+                dot.title = era.years;
+                dot.addEventListener('click', () => goToEra(index));
+                timelineViz.appendChild(dot);
+            });
+            updateTimelineViz();
+        }
+
+        function updateTimelineViz() {
+            const dots = timelineViz.querySelectorAll('.era-dot');
+            dots.forEach((dot, index) => {
+                dot.classList.remove('active', 'passed');
+                if (index === currentEra) {
+                    dot.classList.add('active');
+                } else if (index < currentEra) {
+                    dot.classList.add('passed');
+                }
+            });
+        }
+
+        function renderEra() {
+            const era = eras[currentEra];
+            yearDisplay.textContent = era.years;
+            
+            eraContent.innerHTML = `
+                <h3 class="era-title">
+                    ${era.title}
+                    <span class="era-badge">${era.years}</span>
+                </h3>
+                <p class="era-description">${era.description}</p>
+                <div class="era-papers">
+                    <h4>Key Works</h4>
+                    ${era.papers.map((paper, idx) => `
+                        <div class="era-paper">
+                            <span class="paper-year">${paper.year}</span>
+                            <span class="paper-title" ${paper.citeKey ? `data-cite-key="${paper.citeKey}"` : ''}>${paper.title}${paper.citeKey ? ' <span class="citation-slot"></span>' : ''}</span>
+                        </div>
+                    `).join('')}
+                </div>
+                <div class="era-technologies">
+                    ${era.technologies.map(tech => `<span class="tech-tag">${tech}</span>`).join('')}
+                </div>
+            `;
+
+            // Clone pre-initialized d-cite elements from cache
+            document.querySelectorAll('.paper-title[data-cite-key]').forEach(titleEl => {
+                const citeKey = titleEl.dataset.citeKey;
+                const cachedCite = document.querySelector(`#citationCache d-cite[data-cite-key="${citeKey}"]`);
+                if (cachedCite) {
+                    const slot = titleEl.querySelector('.citation-slot');
+                    if (slot) {
+                        const clonedCite = cachedCite.cloneNode(true);
+                        // Force inline before inserting
+                        clonedCite.style.cssText = 'display: inline !important; white-space: nowrap !important; vertical-align: baseline !important; line-height: inherit !important;';
+                        // Insert a space before the citation
+                        titleEl.insertBefore(document.createTextNode(' '), slot);
+                        slot.replaceWith(clonedCite);
+                    }
+                }
+            });
+
+            updateTimelineViz();
+            updateButtons();
+        }
+
+        function updateButtons() {
+            prevBtn.disabled = currentEra === 0;
+            nextBtn.disabled = currentEra === eras.length - 1;
+        }
+
+        function goToEra(index) {
+            currentEra = index;
+            renderEra();
+        }
+
+        function nextEra() {
+            if (currentEra < eras.length - 1) {
+                currentEra++;
+                renderEra();
+            }
+        }
+
+        function prevEra() {
+            if (currentEra > 0) {
+                currentEra--;
+                renderEra();
+            }
+        }
+
+        prevBtn.addEventListener('click', prevEra);
+        nextBtn.addEventListener('click', nextEra);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') prevEra();
+            if (e.key === 'ArrowRight') nextEra();
+        });
+
+        createTimelineViz();
+        renderEra();
+
+        // Author names mapping for citations
+        const authorNames = {
+            'nogueira2016end': 'Nogueira & Cho',
+            'pmlr-v70-shi17a': 'Shi et al.',
+            'toyama2021androidenv': 'Toyama et al.',
+            'liu2018reinforcement': 'Liu et al.',
+            'jiadom': 'Jia et al.',
+            'gurlearning': 'Gur et al.',
+            'nakano2021webgpt': 'Nakano et al.',
+            'zaheer2022learning': 'Zaheer et al.',
+            'pmlr-v162-humphreys22a': 'Humphreys et al.'
+        };
+        const citeLinks = {
+            'nogueira2016end': 'https://arxiv.org/abs/1602.02261',
+            'pmlr-v70-shi17a': 'https://proceedings.mlr.press/v70/shi17a.html',
+            'toyama2021androidenv': 'https://arxiv.org/abs/2105.13231',
+            'liu2018reinforcement': 'https://arxiv.org/abs/1802.08802',
+            'jiadom': 'https://arxiv.org/abs/1902.07257',
+            'gurlearning': 'https://arxiv.org/abs/1812.09195',
+            'nakano2021webgpt': 'https://arxiv.org/abs/2112.09332',
+            'zaheer2022learning': 'https://arxiv.org/abs/2211.00177',
+            'pmlr-v162-humphreys22a': 'https://proceedings.mlr.press/v162/humphreys22a.html'
+        };
+
+        // Style d-cite to display inline with author names
+        function styleCitations() {
+            const applyStyles = () => {
+                document.querySelectorAll('d-cite').forEach(cite => {
+                    const keys = (cite.getAttribute('key') || cite.getAttribute('data-cite-key') || '')
+                        .split(',')
+                        .map(k => k.trim())
+                        .filter(Boolean);
+                    const authorLabel = keys.map(k => authorNames[k] || k || 'Citation').join('; ') || 'Citation';
+                    
+                    // Force inline display on the element itself
+                    cite.style.cssText = 'display: inline !important; white-space: nowrap !important; vertical-align: baseline !important; line-height: inherit !important; position: relative !important;';
+                    
+                    const styleShadowDOM = () => {
+                        if (!cite.shadowRoot) {
+                            setTimeout(styleShadowDOM, 10);
+                            return;
+                        }
+
+                        // Inject style to force :host to be inline
+                        let hostStyle = cite.shadowRoot.querySelector('style[data-inline-host]');
+                        if (!hostStyle) {
+                            hostStyle = document.createElement('style');
+                            hostStyle.setAttribute('data-inline-host', '');
+                            hostStyle.textContent = ':host { display: inline !important; white-space: nowrap !important; }';
+                            cite.shadowRoot.insertBefore(hostStyle, cite.shadowRoot.firstChild);
+                        }
+
+                        // Hide hover cards for time machine citations
+                        let hideHoverStyle = cite.shadowRoot.querySelector('style[data-hide-hover]');
+                        if (!hideHoverStyle) {
+                            hideHoverStyle = document.createElement('style');
+                            hideHoverStyle.setAttribute('data-hide-hover', '');
+                            hideHoverStyle.textContent = 'd-hover-box { display: none !important; visibility: hidden !important; pointer-events: none !important; }';
+                            cite.shadowRoot.insertBefore(hideHoverStyle, cite.shadowRoot.firstChild);
+                        }
+                        
+                        const wrapper = cite.shadowRoot.querySelector('#citation-') || cite.shadowRoot.querySelector('.citation');
+                        if (wrapper) {
+                            wrapper.style.cssText = 'display: inline !important; margin: 0 !important; padding: 0 !important;';
+                        }
+
+                        const span = cite.shadowRoot.querySelector('.citation-number') || cite.shadowRoot.querySelector('span');
+                        if (span) {
+                            span.textContent = `(${authorLabel})`;
+                            span.style.cssText = 'display: inline !important; white-space: nowrap !important; color: #2698ba !important; cursor: pointer !important; text-decoration: underline !important; font-size: 1em !important; vertical-align: baseline !important; line-height: inherit !important;';
+
+                            const primaryKey = keys[0];
+                            const entry = (cite.entries && cite.entries[0]) || {};
+                            const arxivMatch = typeof entry.journal === 'string' ? entry.journal.match(/arXiv[:\s]*([0-9\.v]+)\b/i) : null;
+                            const href = citeLinks[primaryKey] || entry.url || entry.pdf || (arxivMatch ? `https://arxiv.org/abs/${arxivMatch[1]}` : null);
+                            if (href) {
+                                span.onclick = () => window.open(href, '_blank', 'noopener');
+                                span.setAttribute('role', 'link');
+                                span.setAttribute('aria-label', `${authorLabel} reference`);
+                            } else {
+                                span.onclick = null;
+                                span.removeAttribute('role');
+                                span.removeAttribute('aria-label');
+                            }
+                        }
+                    };
+
+                    // Override default displayNumbers so future updates stay author-based
+                    cite.displayNumbers = () => {
+                        styleShadowDOM();
+                    };
+                    
+                    styleShadowDOM();
+                });
+            };
+
+            customElements.whenDefined('d-cite').then(applyStyles);
+        }
+
+        // Run after a short delay to ensure d-cite elements are fully rendered
+        setTimeout(styleCitations, 500);
+        
+        // Also run after each era change
+        const originalRenderEra = renderEra;
+        renderEra = function() {
+            originalRenderEra();
+            setTimeout(styleCitations, 100);
+        };
+    </script>
+</body>
+</html>

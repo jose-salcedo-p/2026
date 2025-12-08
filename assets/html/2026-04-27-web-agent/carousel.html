@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Related Surveys Carousel</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: #ffffff;
+            color: #212529;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1.6;
+        }
+
+        .papers-carousel {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin: 1rem;
+            background: #f8f9fa;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .carousel-header {
+            text-align: center;
+            padding: 1.5rem 1.5rem 0;
+        }
+
+        .carousel-title {
+            color: #212529;
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+        }
+
+        .carousel-subtitle {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        .carousel-container {
+            position: relative;
+            height: 400px;
+            overflow-x: hidden;
+            overflow-y: visible;
+            padding-top: 80px;
+            margin-top: -80px;
+        }
+
+        .papers-track {
+            display: flex;
+            transition: transform 0.4s ease;
+            height: 100%;
+        }
+
+        .paper-card {
+            flex: 0 0 100%;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .paper-card-title {
+            color: #212529;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            line-height: 1.4;
+            max-width: 90%;
+            overflow: visible;
+            white-space: normal;
+        }
+        
+        /* Force d-cite to be inline */
+        d-cite {
+            display: inline !important;
+            white-space: nowrap !important;
+            vertical-align: baseline !important;
+            line-height: inherit !important;
+        }
+        
+        .paper-card-title d-cite {
+            display: inline !important;
+            white-space: nowrap !important;
+            vertical-align: baseline !important;
+            line-height: inherit !important;
+        }
+
+        .paper-card-image {
+            width: 100%;
+            max-width: 360px;
+            height: 210px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
+        }
+
+        .carousel-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #ffffff;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            color: #2698ba;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.2rem;
+            font-weight: bold;
+            transition: all 0.2s ease;
+            z-index: 10;
+        }
+
+        .carousel-nav:hover:not(.disabled) {
+            background: #2698ba;
+            color: #ffffff;
+            border-color: #2698ba;
+        }
+
+        .carousel-nav.disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .carousel-nav.prev {
+            left: 15px;
+        }
+
+        .carousel-nav.next {
+            right: 15px;
+        }
+
+        .carousel-indicators {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            padding: 1rem;
+        }
+
+        .indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .indicator.active {
+            background: #2698ba;
+        }
+
+        .indicator:hover:not(.active) {
+            background: rgba(38, 152, 186, 0.5);
+        }
+
+        @media (max-width: 600px) {
+            .carousel-container {
+                height: 450px;
+            }
+
+            .paper-card {
+                padding: 1.5rem;
+            }
+
+            .paper-card-title {
+                font-size: 1rem;
+            }
+
+            .paper-card-image {
+                max-width: 280px;
+                height: 170px;
+            }
+
+            .carousel-nav {
+                width: 35px;
+                height: 35px;
+            }
+        }
+
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: #1c1c1d;
+                color: #c4c4c4;
+            }
+            
+            .papers-carousel {
+                background: #212529;
+                border-color: #424246;
+            }
+            
+            .carousel-title {
+                color: #e9ecef;
+            }
+            
+            .carousel-subtitle {
+                color: #adb5bd;
+            }
+            
+            .paper-card-title {
+                color: #e9ecef;
+            }
+            
+            .paper-card-image {
+                border-color: #424246;
+            }
+            
+            .carousel-nav {
+                background: #2c3237;
+                border-color: #424246;
+            }
+            
+            .carousel-nav:hover:not(.disabled) {
+                background: #2698ba;
+                border-color: #2698ba;
+            }
+            
+            .indicator {
+                background: rgba(255, 255, 255, 0.2);
+            }
+        }
+    </style>
+    <script src="/2026/assets/js/distillpub/template.v2.js"></script>
+    <script src="/2026/assets/js/distillpub/transforms.v2.js"></script>
+</head>
+<body>
+    <d-bibliography src="/2026/assets/bibliography/2026-04-27-web-agent.bib"></d-bibliography>
+    
+    <div class="papers-carousel">
+        <div class="carousel-header">
+            <h2 class="carousel-title">Related Surveys</h2>
+            <p class="carousel-subtitle">Comprehensive surveys on Computer Use Agents</p>
+        </div>
+        
+        <div class="carousel-container">
+            <div class="papers-track" id="papersTrack">
+                <div class="paper-card">
+                    <div class="paper-card-title">A Comprehensive Survey of Agents for Computer Use: Foundations, Challenges, and Future Directions <d-cite key="sager2025comprehensive"></d-cite></div>
+                    <img class="paper-card-image" src="/2026/assets/img/2026-04-27-web-agent/comprehensive.png" alt="Comprehensive Survey" onerror="this.style.display='none'">
+                </div>
+                
+                <div class="paper-card">
+                    <div class="paper-card-title">A Survey on Large Language Model based Autonomous Agents <d-cite key="wang2024survey"></d-cite></div>
+                    <img class="paper-card-image" src="/2026/assets/img/2026-04-27-web-agent/llmagent.png" alt="LLM Agents Survey" onerror="this.style.display='none'">
+                </div>
+
+                <div class="paper-card">
+                    <div class="paper-card-title">OS Agents: A Survey on MLLM-based Agents for Computer, Phone and Browser Use <d-cite key="hu2025agents"></d-cite></div>
+                    <img class="paper-card-image" src="/2026/assets/img/2026-04-27-web-agent/treeagents.png" alt="OS Agents Survey" onerror="this.style.display='none'">
+                </div>
+
+                <div class="paper-card">
+                    <div class="paper-card-title">Survey on Evaluation of LLM-based Agents <d-cite key="yehudai2025survey"></d-cite></div>
+                    <img class="paper-card-image" src="/2026/assets/img/2026-04-27-web-agent/eval.png" alt="Evaluation Survey" onerror="this.style.display='none'">
+                </div>
+            </div>
+            
+            <button class="carousel-nav prev" id="prevBtn">‹</button>
+            <button class="carousel-nav next" id="nextBtn">›</button>
+        </div>
+        
+        <div class="carousel-indicators" id="indicators">
+            <div class="indicator active" data-index="0"></div>
+            <div class="indicator" data-index="1"></div>
+            <div class="indicator" data-index="2"></div>
+            <div class="indicator" data-index="3"></div>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const totalSlides = 4;
+        
+        const track = document.getElementById('papersTrack');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const indicators = document.querySelectorAll('.indicator');
+
+        function updateCarousel() {
+            const translateX = -currentSlide * 100;
+            track.style.transform = `translateX(${translateX}%)`;
+            
+            indicators.forEach((indicator, index) => {
+                indicator.classList.toggle('active', index === currentSlide);
+            });
+            
+            prevBtn.classList.toggle('disabled', currentSlide === 0);
+            nextBtn.classList.toggle('disabled', currentSlide === totalSlides - 1);
+        }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides - 1) {
+                currentSlide++;
+                updateCarousel();
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                currentSlide--;
+                updateCarousel();
+            }
+        }
+
+        function goToSlide(index) {
+            currentSlide = index;
+            updateCarousel();
+        }
+
+        prevBtn.addEventListener('click', prevSlide);
+        nextBtn.addEventListener('click', nextSlide);
+
+        indicators.forEach((indicator, index) => {
+            indicator.addEventListener('click', () => goToSlide(index));
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') prevSlide();
+            if (e.key === 'ArrowRight') nextSlide();
+        });
+
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        track.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+
+        track.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            const diff = touchStartX - touchEndX;
+            if (diff > 50) nextSlide();
+            else if (diff < -50) prevSlide();
+        });
+
+        updateCarousel();
+
+        // Author names mapping for citations
+        const authorNames = {
+            'sager2025comprehensive': 'Sager et al.',
+            'wang2024survey': 'Wang et al.',
+            'hu2025agents': 'Hu et al.',
+            'yehudai2025survey': 'Yehudai et al.'
+        };
+        const citeLinks = {
+            'sager2025comprehensive': 'https://arxiv.org/abs/2501.16150',
+            'wang2024survey': 'https://arxiv.org/abs/2308.11432',
+            'hu2025agents': 'https://os-agent-survey.github.io/paper.pdf',
+            'yehudai2025survey': 'https://arxiv.org/abs/2503.16416'
+        };
+
+        // Style d-cite to display inline with author names
+        function styleCitations() {
+            const applyStyles = () => {
+                document.querySelectorAll('d-cite').forEach(cite => {
+                    const keys = (cite.getAttribute('key') || cite.getAttribute('data-cite-key') || '')
+                        .split(',')
+                        .map(k => k.trim())
+                        .filter(Boolean);
+                    const authorLabel = keys.map(k => authorNames[k] || k || 'Citation').join('; ') || 'Citation';
+                    
+                    // Force inline display on the element itself
+                    cite.style.cssText = 'display: inline !important; white-space: nowrap !important; vertical-align: baseline !important; line-height: inherit !important; position: relative !important;';
+                    
+                    const styleShadowDOM = () => {
+                        if (!cite.shadowRoot) {
+                            setTimeout(styleShadowDOM, 10);
+                            return;
+                        }
+
+                        // Inject style to force :host to be inline
+                        let hostStyle = cite.shadowRoot.querySelector('style[data-inline-host]');
+                        if (!hostStyle) {
+                            hostStyle = document.createElement('style');
+                            hostStyle.setAttribute('data-inline-host', '');
+                            hostStyle.textContent = ':host { display: inline !important; white-space: nowrap !important; }';
+                            cite.shadowRoot.insertBefore(hostStyle, cite.shadowRoot.firstChild);
+                        }
+                        
+                        const wrapper = cite.shadowRoot.querySelector('#citation-') || cite.shadowRoot.querySelector('.citation');
+                        if (wrapper) {
+                            wrapper.style.cssText = 'display: inline !important; margin: 0 !important; padding: 0 !important;';
+                        }
+
+                        const span = cite.shadowRoot.querySelector('.citation-number') || cite.shadowRoot.querySelector('span');
+                        if (span) {
+                            span.textContent = `(${authorLabel})`;
+                            span.style.cssText = 'display: inline !important; white-space: nowrap !important; color: #2698ba !important; cursor: pointer !important; text-decoration: underline !important; font-size: 1em !important; vertical-align: baseline !important; line-height: inherit !important;';
+
+                            const primaryKey = keys[0];
+                            const href = citeLinks[primaryKey];
+                            if (href) {
+                                span.onclick = () => window.open(href, '_blank', 'noopener');
+                                span.setAttribute('role', 'link');
+                                span.setAttribute('aria-label', `${authorLabel} reference`);
+                            } else {
+                                span.onclick = null;
+                                span.removeAttribute('role');
+                                span.removeAttribute('aria-label');
+                            }
+                        }
+                    };
+
+                    // Override default displayNumbers so future updates stay author-based
+                    cite.displayNumbers = () => {
+                        styleShadowDOM();
+                    };
+                    
+                    styleShadowDOM();
+                });
+            };
+
+            customElements.whenDefined('d-cite').then(applyStyles);
+        }
+
+        // Run after a short delay to ensure d-cite elements are fully rendered
+        setTimeout(styleCitations, 500);
+    </script>
+</body>
+</html>
