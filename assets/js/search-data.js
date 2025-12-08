@@ -94,6 +94,17 @@ ninja.data = [{
             window.location.href = "/2026/blog/2026/fans/";
           
         },
+      },{id: "post-the-trade-off-between-parallel-environments-and-steps-in-ppo",
+        
+          title: "The Trade-off Between Parallel Environments and Steps in PPO",
+        
+        description: "This blog post explores batch size in PPO-what happens when we increase the number of parallel environments versus the number of rollout steps, while keeping the total samples per update fixed. We discuss how this affects bias and variance in gradient estimation.",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/2026/blog/2026/ppo-batch-size/";
+          
+        },
       },{id: "post-beyond-attention-as-a-graph",
         
           title: "Beyond Attention as a Graph",
@@ -620,6 +631,17 @@ ninja.data = [{
         handler: () => {
           
             window.location.href = "/2026/blog/2026/mlip-practical/";
+          
+        },
+      },{id: "post-is-the-evidence-in-39-language-models-learn-to-mislead-humans-via-rlhf-39-valid",
+        
+          title: "Is the evidence in &#39;Language Models Learn to Mislead Humans via RLHF&#39; valid?...",
+        
+        description: "Language Models Learn to Mislead Humans Via RLHF (published at ICLR 2025) argues that RLHF can unintentionally train models to mislead humans – a phenomenon termed Unintentional-SOPHISTRY. However, our review of the paper&#39;s code and experiments suggests that a significant portion of their empirical findings may be due largely to major bugs that make the RLHF setup both unrealistic and highly prone to reward hacking. In addition to high-level claims, we  correct these issues for one of their experiments, and fail to find evidence that supports the original paper&#39;s claims.",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/2026/blog/2026/mislead-lm/";
           
         },
       },{id: "post-misalignments-and-rl-failure-modes-in-the-early-stage-of-superintelligence",
