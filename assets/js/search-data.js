@@ -292,6 +292,17 @@ ninja.data = [{
             window.location.href = "/2026/blog/2026/unigramlm-manual/";
           
         },
+      },{id: "post-trade-offs-in-llm-compute-for-reasoning-intensive-information-retrieval",
+        
+          title: "Trade-offs in LLM Compute for Reasoning-Intensive Information Retrieval",
+        
+        description: "The BRIGHT benchmark (ICLR 2025 Spotlight) revealed that reasoning-intensive information retrieval requires LLM-augmented pipelines, but this raises a critical resource allocation question: where should computational budget be invested for maximum effectiveness? We conduct a systematic study on BRIGHT using the Gemini 2.5 model family, evaluating trade-offs across model strength, inference-time thinking depth, and reranking depth. Our controlled experiments quantify the marginal gains of allocating compute to query expansion versus reranking, providing practical guidance for optimizing LLM-based retrieval systems on reasoning-intensive tasks.",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/2026/blog/2026/trade-offs-in-llm-compute-for-reasoning-intensive-information-retrieval/";
+          
+        },
       },{id: "post-tracing-the-principles-behind-modern-diffusion-models",
         
           title: "Tracing the Principles Behind Modern Diffusion Models",
@@ -367,6 +378,17 @@ ninja.data = [{
         handler: () => {
           
             window.location.href = "/2026/blog/2026/subject-invariant-eeg/";
+          
+        },
+      },{id: "post-artistic-style-and-the-play-of-neural-style-representations",
+        
+          title: "Artistic Style and the Play of Neural Style Representations",
+        
+        description: "How do neural networks percieve the complex human construct of artistic style? We explore the dynamic interplay between diverse machine representations of style and style definitions. We reveal a profound divergence where models often reject established historical narratives in favour of their own perceptual truths.",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/2026/blog/2026/style-representations/";
           
         },
       },{id: "post-speeding-up-training-of-model-free-reinforcement-learning-a-comparative-evaluation-for-fast-and-accurate-learning",
@@ -873,6 +895,17 @@ ninja.data = [{
         handler: () => {
           
             window.location.href = "/2026/blog/2026/fractal-mas/";
+          
+        },
+      },{id: "post-flow-where-you-want",
+        
+          title: "Flow Where You Want",
+        
+        description: "This tutorial demonstrates how to add inference-time controls to pretrained flow-based generative models. Using an unconditional MNIST flow model, we apply classifier guidance and inpainting by adding velocity corrections during sampling. We also explore PnP-Flow, which satisfies constraints through iterative projection rather than velocity correction.",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/2026/blog/2026/flow-where-you-want/";
           
         },
       },{id: "post-from-trajectories-to-operators-a-unified-flow-map-perspective-on-generative-modeling",
