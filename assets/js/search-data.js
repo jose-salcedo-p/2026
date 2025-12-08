@@ -952,17 +952,6 @@ ninja.data = [{
             window.location.href = "/2026/blog/2026/fastermatrices/";
           
         },
-      },{id: "post-getting-to-the-bottom-of-ml-fairness-a-socratic-investigation",
-        
-          title: "Getting to the Bottom of ML Fairness: A Socratic Investigation",
-        
-        description: "In Plato&#39;s Meno, Socrates leads Meno through a whirlwind tour of intellectual concepts about virtue. Armed with hubris and recent ML fairness literature, I take you on a similar tour. I argue for a reflective equilibrium: ethical reasoning about any particular case needs to consider counterarguments, and any principle articulated should be tested against challenging counterexamples.",
-        section: "Posts",
-        handler: () => {
-          
-            window.location.href = "/2026/blog/2026/fairness/";
-          
-        },
       },{id: "post-evalcards-for-standardized-evaluation-reporting",
         
           title: "EvalCards for Standardized Evaluation Reporting",
