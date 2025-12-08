@@ -259,17 +259,6 @@ ninja.data = [{
             window.location.href = "/2026/blog/2026/uncertainty-lifecycle-in-deep-learning/";
           
         },
-      },{id: "post-trade-offs-in-llm-compute-for-reasoning-intensive-information-retrieval",
-        
-          title: "Trade-offs in LLM Compute for Reasoning-Intensive Information Retrieval",
-        
-        description: "This is some random description",
-        section: "Posts",
-        handler: () => {
-          
-            window.location.href = "/2026/blog/2026/trade-offs-in-llm-compute-for-reasoning-intensive-information-retrieval/";
-          
-        },
       },{id: "post-tracing-the-principles-behind-modern-diffusion-models",
         
           title: "Tracing the Principles Behind Modern Diffusion Models",
@@ -754,28 +743,6 @@ ninja.data = [{
             window.location.href = "/2026/blog/2026/industrial-agent-benchmarking/";
           
         },
-      },{id: "post-how-many-tokens-does-it-take-to-say-नमस्ते-a-dive-into-indic-tokenization",
-        
-          title: "How many tokens does it take to say “नमस्ते”? A Dive into Indic...",
-        
-        description: "Tokenizers trained on English-dominant data often produce unusually high token counts for Indic languages. This &#39;tokenizer fertility&#39; increases sequence lengths, raises compute costs, and can hurt downstream performance, even when the underlying model is strong. In this post, we examine how fertility varies across major Indic scripts and how it affects language modeling quality, inference efficiency, and instruction-following behavior.",
-        section: "Posts",
-        handler: () => {
-          
-            window.location.href = "/2026/blog/2026/indic-tokenization/";
-          
-        },
-      },{id: "post-the-illusion-of-mastery-breaking-the-cycle-of-benchmark-memorization-with-generative-evaluation",
-        
-          title: "The Illusion of Mastery: Breaking the Cycle of Benchmark Memorization with Generative Evaluation...",
-        
-        description: "Modern AI models that score perfectly on standardized benchmarks often fail in real-world applications. In this post, we first examine why current evaluation paradigms increasingly fail to capture how models perform in real-world scenarios, leading to an illusion of competence. Then, we introduce generative evaluation that automatically creates novel, diverse tasks every time a model is tested, and explain how it offers a more realistic way to measure what AI systems can actually do.",
-        section: "Posts",
-        handler: () => {
-          
-            window.location.href = "/2026/blog/2026/illusion-of-mastery/";
-          
-        },
       },{id: "post-heuristic-based-ideation-for-guiding-llms-toward-structured-creativity",
         
           title: "Heuristic-Based Ideation for Guiding LLMs Toward Structured Creativity",
@@ -1214,6 +1181,17 @@ ninja.data = [{
         handler: () => {
           
             window.location.href = "/2026/blog/2025/2026-04-27-sampler-eval-trilemma/";
+          
+        },
+      },{id: "post-",
+        
+          title: "",
+        
+        description: "",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/2026/blog/2025/2026-04-27-indic-tokenization/";
           
         },
       },{id: "post-",
