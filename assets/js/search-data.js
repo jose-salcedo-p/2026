@@ -369,17 +369,6 @@ ninja.data = [{
             window.location.href = "/2026/blog/2026/subject-invariant-eeg/";
           
         },
-      },{id: "post-artistic-style-and-the-play-of-neural-style-representations",
-        
-          title: "Artistic Style and the Play of Neural Style Representations",
-        
-        description: "How do neural networks percieve the complex human construct of artistic style? We explore the dynamic interplay between diverse machine representations of style and style definitions. We reveal a profound divergence where models often reject established historical narratives in favour of their own perceptual truths.",
-        section: "Posts",
-        handler: () => {
-          
-            window.location.href = "/2026/blog/2026/style-representations/";
-          
-        },
       },{id: "post-speeding-up-training-of-model-free-reinforcement-learning-a-comparative-evaluation-for-fast-and-accurate-learning",
         
           title: "Speeding up Training of Model-Free Reinforcement Learning :A Comparative Evaluation for Fast and...",
@@ -875,15 +864,15 @@ ninja.data = [{
             window.location.href = "/2026/blog/2026/from-ml-to-dl/";
           
         },
-      },{id: "post-flow-where-you-want",
+      },{id: "post-divide-conquer-and-standardize-a-recursive-architecture-for-multi-agent-systems-mas",
         
-          title: "Flow Where You Want",
+          title: "Divide, Conquer, and Standardize — A Recursive Architecture for Multi-Agent Systems (MAS)",
         
-        description: "This tutorial demonstrates how to add inference-time controls to pretrained flow-based generative models. Using an unconditional MNIST flow model, we apply classifier guidance and inpainting by adding velocity corrections during sampling. We also explore PnP-Flow, which satisfies constraints through iterative projection rather than velocity correction.",
+        description: "The scalability and robustness of current Multi-Agent Systems (MAS) are severely constrained by the heterogeneity of communication interfaces and a reliance on fragile ad-hoc integrations. We introduce FRACTAL-MAS, a recursive architecture that standardizes orchestration through the convergence of MCP and A2A protocols, integrating a unified control loop with procedural memory grounded in Case-Based Reasoning (CBR). This design allows for continuous adaptation without fine-tuning and enables a seamless transition from rigid hierarchical structures to decentralized networks, providing a reference architecture for the robust and scalable construction of MAS.",
         section: "Posts",
         handler: () => {
           
-            window.location.href = "/2026/blog/2026/flow-where-you-want/";
+            window.location.href = "/2026/blog/2026/fractal-mas/";
           
         },
       },{id: "post-from-trajectories-to-operators-a-unified-flow-map-perspective-on-generative-modeling",
@@ -895,6 +884,17 @@ ninja.data = [{
         handler: () => {
           
             window.location.href = "/2026/blog/2026/flow-map-learning/";
+          
+        },
+      },{id: "post-understanding-and-fixing-bottlenecks-in-state-space-models-what-recency-and-over-smoothing-tell-us",
+        
+          title: "Understanding and Fixing Bottlenecks in State Space Models: What Recency and Over-Smoothing Tell...",
+        
+        description: "This work analyzes how recency bias and hidden-state over-smoothing emerge in modern State Space Models, revealing the bottlenecks that limit their ability to capture long-range dependencies.",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/2026/blog/2026/fixing-bottlenecks-in-state-space-models/";
           
         },
       },{id: "post-the-coverage-boundary-why-high-fidelity-primitives-don-39-t-compose",
