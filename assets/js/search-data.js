@@ -611,6 +611,17 @@ ninja.data = [{
             window.location.href = "/2026/blog/2026/interpret-model/";
           
         },
+      },{id: "post-industrial-agent-benchmarking-what-300-real-evaluations-reveal-about-the-limits-of-agentic-ai",
+        
+          title: "Industrial Agent Benchmarking - What 300+ Real Evaluations Reveal About the Limits of...",
+        
+        description: "A community-scale evaluation of multi-agent systems using AssetOpsBench and a privacy-preserving Codabench pipeline, exposing real-world failure modes and methodological gaps in industrial AI agent evaluation.",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/2026/blog/2026/industrial-agent-benchmarking/";
+          
+        },
       },{id: "post-how-many-tokens-does-it-take-to-say-नमस्ते-a-dive-into-indic-tokenization",
         
           title: "How many tokens does it take to say “नमस्ते”? A Dive into Indic...",
