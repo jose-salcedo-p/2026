@@ -688,6 +688,17 @@ ninja.data = [{
             window.location.href = "/2026/blog/2026/genai-archaeology/";
           
         },
+      },{id: "post-learning-function-space-maps-a-red-herring",
+        
+          title: "Learning Function Space Maps: A Red Herring?",
+        
+        description: "Much interest has been generated in the space of learning function space maps, such as in deep operator networks and neural operators. In this post, we explore whether viewing data in their underlying, infinite-dimensional form offers benefits in the manner professed or whether this is a fad.",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/2026/blog/2026/function-space-maps/";
+          
+        },
       },{id: "post-quot-how-to-transition-from-ml-to-dl-in-production-lessons-from-the-trenches-at-company-quot",
         
           title: "[&quot;How to Transition from ML to DL in Production - Lessons From the...",
