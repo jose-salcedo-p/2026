@@ -94,6 +94,17 @@ ninja.data = [{
             window.location.href = "/2026/blog/2026/fans/";
           
         },
+      },{id: "post-beyond-attention-as-a-graph",
+        
+          title: "Beyond Attention as a Graph",
+        
+        description: "We extend a graph-based perspective on attention to higher-order topological structures, exploring 2-simplicial attention and its implications for transformer depth and expressivity.",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/2026/blog/2026/beyond-attention-as-graph/";
+          
+        },
       },{id: "post-attention-sinks-from-the-graph-perspective",
         
           title: "Attention Sinks from the Graph Perspective",
