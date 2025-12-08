@@ -259,6 +259,17 @@ ninja.data = [{
             window.location.href = "/2026/blog/2026/unigramlm-manual/";
           
         },
+      },{id: "post-trade-offs-in-llm-compute-for-reasoning-intensive-information-retrieval",
+        
+          title: "Trade-offs in LLM Compute for Reasoning-Intensive Information Retrieval",
+        
+        description: "The BRIGHT benchmark (ICLR 2025 Spotlight) revealed that reasoning-intensive information retrieval requires LLM-augmented pipelines, but this raises a critical resource allocation question: where should computational budget be invested for maximum effectiveness? We conduct a systematic study on BRIGHT using the Gemini 2.5 model family, evaluating trade-offs across model strength, inference-time thinking depth, and reranking depth. Our controlled experiments quantify the marginal gains of allocating compute to query expansion versus reranking, providing practical guidance for optimizing LLM-based retrieval systems on reasoning-intensive tasks.",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/2026/blog/2026/trade-offs-in-llm-compute-for-reasoning-intensive-information-retrieval/";
+          
+        },
       },{id: "post-tracing-the-principles-behind-modern-diffusion-models",
         
           title: "Tracing the Principles Behind Modern Diffusion Models",
@@ -1214,6 +1225,17 @@ ninja.data = [{
         handler: () => {
           
             window.location.href = "/2026/blog/2025/2026-04-27-sampler-eval-trilemma/";
+          
+        },
+      },{id: "post-",
+        
+          title: "",
+        
+        description: "",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/2026/blog/2025/2026-04-27-indic-tokenization/";
           
         },
       },{id: "post-",
