@@ -171,6 +171,17 @@ ninja.data = [{
             window.location.href = "/2026/blog/2026/why-ai-evaluations-need-error-bars/";
           
         },
+      },{id: "post-when-we-are-nosy",
+        
+          title: "When We are Nosy",
+        
+        description: "Machine learning systems are defined for many people, and for the design of in particular language models, calls for “social choice–based’’ methods are increasing. This seems to run counter to the practice in machine learning to “personalize’’ models. This blogpost clarifies when personalization and when social choice has its place, using the Impossibility of a Paretian Liberal by Amartya Sen.",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/2026/blog/2026/when-we-are-nosy/";
+          
+        },
       },{id: "post-computer-use-survey-a-visual-survey-of-computer-use-agents",
         
           title: "Computer Use Survey - A Visual Survey of Computer Use Agents",
@@ -268,17 +279,6 @@ ninja.data = [{
         handler: () => {
           
             window.location.href = "/2026/blog/2026/unigramlm-manual/";
-          
-        },
-      },{id: "post-trade-offs-in-llm-compute-for-reasoning-intensive-information-retrieval",
-        
-          title: "Trade-offs in LLM Compute for Reasoning-Intensive Information Retrieval",
-        
-        description: "The BRIGHT benchmark (ICLR 2025 Spotlight) revealed that reasoning-intensive information retrieval requires LLM-augmented pipelines, but this raises a critical resource allocation question: where should computational budget be invested for maximum effectiveness? We conduct a systematic study on BRIGHT using the Gemini 2.5 model family, evaluating trade-offs across model strength, inference-time thinking depth, and reranking depth. Our controlled experiments quantify the marginal gains of allocating compute to query expansion versus reranking, providing practical guidance for optimizing LLM-based retrieval systems on reasoning-intensive tasks.",
-        section: "Posts",
-        handler: () => {
-          
-            window.location.href = "/2026/blog/2026/trade-offs-in-llm-compute-for-reasoning-intensive-information-retrieval/";
           
         },
       },{id: "post-tracing-the-principles-behind-modern-diffusion-models",
@@ -851,17 +851,6 @@ ninja.data = [{
         handler: () => {
           
             window.location.href = "/2026/blog/2026/from-ml-to-dl/";
-          
-        },
-      },{id: "post-divide-conquer-and-standardize-a-recursive-architecture-for-multi-agent-systems-mas",
-        
-          title: "Divide, Conquer, and Standardize — A Recursive Architecture for Multi-Agent Systems (MAS)",
-        
-        description: "The scalability and robustness of current Multi-Agent Systems (MAS) are severely constrained by the heterogeneity of communication interfaces and a reliance on fragile ad-hoc integrations. We introduce FRACTAL-MAS, a recursive architecture that standardizes orchestration through the convergence of MCP and A2A protocols, integrating a unified control loop with procedural memory grounded in Case-Based Reasoning (CBR). This design allows for continuous adaptation without fine-tuning and enables a seamless transition from rigid hierarchical structures to decentralized networks, providing a reference architecture for the robust and scalable construction of MAS.",
-        section: "Posts",
-        handler: () => {
-          
-            window.location.href = "/2026/blog/2026/fractal-mas/";
           
         },
       },{id: "post-flow-where-you-want",
