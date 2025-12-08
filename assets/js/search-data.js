@@ -270,6 +270,17 @@ ninja.data = [{
             window.location.href = "/2026/blog/2026/unigramlm-manual/";
           
         },
+      },{id: "post-trade-offs-in-llm-compute-for-reasoning-intensive-information-retrieval",
+        
+          title: "Trade-offs in LLM Compute for Reasoning-Intensive Information Retrieval",
+        
+        description: "The BRIGHT benchmark (ICLR 2025 Spotlight) revealed that reasoning-intensive information retrieval requires LLM-augmented pipelines, but this raises a critical resource allocation question: where should computational budget be invested for maximum effectiveness? We conduct a systematic study on BRIGHT using the Gemini 2.5 model family, evaluating trade-offs across model strength, inference-time thinking depth, and reranking depth. Our controlled experiments quantify the marginal gains of allocating compute to query expansion versus reranking, providing practical guidance for optimizing LLM-based retrieval systems on reasoning-intensive tasks.",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/2026/blog/2026/trade-offs-in-llm-compute-for-reasoning-intensive-information-retrieval/";
+          
+        },
       },{id: "post-tracing-the-principles-behind-modern-diffusion-models",
         
           title: "Tracing the Principles Behind Modern Diffusion Models",
@@ -444,6 +455,17 @@ ninja.data = [{
         handler: () => {
           
             window.location.href = "/2026/blog/2026/rethinking-mmicl/";
+          
+        },
+      },{id: "post-rethinking-the-diffusion-model-from-a-langevin-perspective",
+        
+          title: "Rethinking the Diffusion Model from a Langevin Perspective",
+        
+        description: "Diffusion models are often introduced from multiple perspectives—such as VAEs, score matching, or flow matching—accompanied by dense and technically demanding mathematics that can be difficult for beginners to grasp. This article systematically organizes the diffusion model from a fresh Langevin perspective, aiming to present diffusion models in a simpler, clearer, and more intuitive way while addressing the following questions 1. How does the reverse process invert the forward process to generate data from pure noise? 2. How can ODE-based and SDE-based diffusion models be unified under a single framework? 3. Why are diffusion models theoretically superior to ordinary VAEs? 4. How can Denoising, Score Matching, and Flow Matching training objectives be unified and derived from first principles? We demonstrate that the diffusion model offers clear and straightforward answers to these questions, providing pedagogical value for both learners and experienced researchers seeking deeper intuition.",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/2026/blog/2026/rethinking-diffusion-langevin/";
           
         },
       },{id: "post-dynamic-parameter-reuse-augments-reasoning-via-latent-chain-of-thought",
@@ -798,17 +820,6 @@ ninja.data = [{
             window.location.href = "/2026/blog/2026/healthcare-nlp/";
           
         },
-      },{id: "post-ready-for-general-agents-let-39-s-test-it",
-        
-          title: "Ready For General Agents? Let&#39;s Test It.",
-        
-        description: "General-purpose agents are emerging, but current evaluation tools cannot yet measure how well they adapt to unfamiliar environments or protocols; we outline the gaps and a path to a protocol-agnostic framework.",
-        section: "Posts",
-        handler: () => {
-          
-            window.location.href = "/2026/blog/2026/general-agent-evaluation/";
-          
-        },
       },{id: "post-generative-ai-archaeology",
         
           title: "Generative AI Archaeology",
@@ -840,6 +851,17 @@ ninja.data = [{
         handler: () => {
           
             window.location.href = "/2026/blog/2026/from-ml-to-dl/";
+          
+        },
+      },{id: "post-divide-conquer-and-standardize-a-recursive-architecture-for-multi-agent-systems-mas",
+        
+          title: "Divide, Conquer, and Standardize — A Recursive Architecture for Multi-Agent Systems (MAS)",
+        
+        description: "The scalability and robustness of current Multi-Agent Systems (MAS) are severely constrained by the heterogeneity of communication interfaces and a reliance on fragile ad-hoc integrations. We introduce FRACTAL-MAS, a recursive architecture that standardizes orchestration through the convergence of MCP and A2A protocols, integrating a unified control loop with procedural memory grounded in Case-Based Reasoning (CBR). This design allows for continuous adaptation without fine-tuning and enables a seamless transition from rigid hierarchical structures to decentralized networks, providing a reference architecture for the robust and scalable construction of MAS.",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/2026/blog/2026/fractal-mas/";
           
         },
       },{id: "post-flow-where-you-want",
