@@ -875,6 +875,17 @@ ninja.data = [{
             window.location.href = "/2026/blog/2026/generalization-in-diffusion-as-infinite-hvae/";
           
         },
+      },{id: "post-ready-for-general-agents-let-39-s-test-it",
+        
+          title: "Ready For General Agents? Let&#39;s Test It.",
+        
+        description: "General-purpose agents are emerging and can potentially scale to many environments. However, current evaluation solutions do not measure performance across environments—a core requirement for true generality.We outline the key challenges for cross-environment testing and lay out a path toward an evaluation framework to guide the development of general agents.",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/2026/blog/2026/general-agent-evaluation/";
+          
+        },
       },{id: "post-generative-ai-archaeology",
         
           title: "Generative AI Archaeology",
