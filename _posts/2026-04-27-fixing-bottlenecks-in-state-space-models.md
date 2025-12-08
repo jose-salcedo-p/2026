@@ -597,13 +597,13 @@ behaviors: some channels with $A_{\max} \approx 1$ for preserving long-range inf
 with $A_{\min} \approx 0$ for reacting sharply to new inputs, and many intermediate channels
 forming a rich spectrum in between.</p> 
     <p>However, the cumulative histogram in Figure 3
-reveals the opposite. More than <strong>60% of channels satisfy $\boldsymbol{A_{\max} - A_{\min} < 0.5}$</strong>,
+reveals the opposite. More than <strong>60% of channels satisfy</strong> $A_{\max} - A_{\min} < 0.5$,
 meaning their effective memory range is highly compressed. This narrow distribution indicates that
 most channels behave similarly, rather than specializing into long-memory and short-memory roles.
 As a consequence, if $A_t$ drifts toward small values, the model exhibits rapid forgetting and
 strong recency bias; if $A_t$ stays large, the hidden state barely updates, leading to
-over-smoothing. The model therefore struggles to naturally produce the desired mix of ``fast''
-and ``slow'' memory channels, explaining why these failure modes arise so consistently in practice.
+over-smoothing. The model therefore struggles to naturally produce the desired mix of <strong>fast</strong>
+and <strong>slow</strong> memory channels, explaining why these failure modes arise so consistently in practice.
     </p>
   </div>
 
@@ -615,8 +615,8 @@ To improve the memory behavior of Mamba, the authors introduce *polarization*, w
 dimension of $A_t$ is fixed to $1$ and another to $0$, with the remaining channels learned normally.
 The zero-polarized channel resets at every step and therefore focuses purely on the current token,
 helping prevent over-smoothing in deeper stacks. The one-polarized channel never decays and thus
-retains the full sequence history, ensuring a stable long-term memory path. In implementation, the first state channel is set to $(A_t)_{1,1}=1$ and the last to
-$(A_t)_{N,N}=0$. This guarantees that the model always has both a global and local memory pathway,
+retains the full sequence history, ensuring a stable long-term memory path. In implementation, the first state channel is set to $$(A_t)_{1,1} = 1$$ and the last to $$(A_t)_{N,N} = 0$$.
+This guarantees that the model always has both a global and local memory pathway,
 regardless of training dynamics.
 
 The associative recall experiments show that the default $A_t$ struggles with long
