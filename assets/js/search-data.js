@@ -94,6 +94,17 @@ ninja.data = [{
             window.location.href = "/2026/blog/2026/fans/";
           
         },
+      },{id: "post-attention-sinks-from-the-graph-perspective",
+        
+          title: "Attention Sinks from the Graph Perspective",
+        
+        description: "We explore attention sinks in decoder-only transformers through the lens of message passing on graphs, revealing an intrinsic structural bias toward early tokens that may explain this phenomenon.",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/2026/blog/2026/attention-sinks-graph-perspective/";
+          
+        },
       },{id: "post-what-can-you-do-when-you-have-zero-rewards-during-rl",
         
           title: "What Can You Do When You Have Zero Rewards During RL?",
