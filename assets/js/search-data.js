@@ -941,17 +941,6 @@ ninja.data = [{
             window.location.href = "/2026/blog/2026/fractal-mas/";
           
         },
-      },{id: "post-flow-where-you-want",
-        
-          title: "Flow Where You Want",
-        
-        description: "This tutorial demonstrates how to add inference-time controls to pretrained flow-based generative models operating in latent space. Using an unconditional MNIST flow model, we apply classifier guidance and inpainting by adding velocity corrections during sampling. We also explore PnP-Flow, which satisfies constraints through iterative projection rather than velocity correction.",
-        section: "Posts",
-        handler: () => {
-          
-            window.location.href = "/2026/blog/2026/flow-where-you-want/";
-          
-        },
       },{id: "post-from-trajectories-to-operators-a-unified-flow-map-perspective-on-generative-modeling",
         
           title: "From Trajectories to Operators — A Unified Flow Map Perspective on Generative Modeling...",
@@ -1150,6 +1139,17 @@ ninja.data = [{
             window.location.href = "/2026/blog/2026/diffusion-inverse-problems/";
           
         },
+      },{id: "post-diffusion-guidance-opportunities-for-physical-sciences",
+        
+          title: "Diffusion Guidance - Opportunities for Physical Sciences",
+        
+        description: "Guidance has been a central driver of the success of diffusion models, enabling precise control over the sampling process toward desired target conditions. The most widely used techniques include Classifier Guidance and Classifier-Free Guidance. Recently, however, there has been growing interest in alternative guidance strategies. In this blog post, we review recent progress in training-free diffusion guidance methods and highlight their applications in scientific domains.",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/2026/blog/2026/diffusion-guidance/";
+          
+        },
       },{id: "post-from-u-nets-to-dits-the-architectural-evolution-of-text-to-image-diffusion-models-2021-2025",
         
           title: "From U-Nets to DiTs: The Architectural Evolution of Text-to-Image Diffusion Models (2021–2025)",
@@ -1280,6 +1280,17 @@ ninja.data = [{
         handler: () => {
           
             window.location.href = "/2026/blog/2026/auto-calibration/";
+          
+        },
+      },{id: "post-an-overview-of-subliminal-learning",
+        
+          title: "An Overview of Subliminal Learning",
+        
+        description: "In this blog post we survey the current state of subliminal learning research. We conclude by discussing the gaps in the literature which would take these techniques from research interests to potential real world concerns.",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/2026/blog/2026/an-overview-of-subliminal-learning/";
           
         },
       },{id: "post-the-adversarial-conditioning-paradox-why-attacked-inputs-are-more-stable-not-less",
