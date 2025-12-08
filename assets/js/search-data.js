@@ -248,17 +248,6 @@ ninja.data = [{
             window.location.href = "/2026/blog/2026/unigramlm-manual/";
           
         },
-      },{id: "post-uncertainty-lifecycle-in-deep-learning",
-        
-          title: "Uncertainty Lifecycle in Deep Learning",
-        
-        description: "Uncertainty modeling in deep learning has different attributes such as uncertainty propagation, uncertainty estimation, uncertainty decomposition, uncertainty attribution and uncertainty sensitivity, that are extensively discussed in literature. However, there is no proper structure explaining how these different components interact with each other at different stages of Deep Learning pipeline. We propose to structure the flow and transformation of uncertainty from input to prediction through the model, by appropriately positioning them. And we call this structure as “Uncertainty Lifecycle”. The “Uncertainty lifecycle” can be represented as a structured process for handling, quantifying, analyzing, and interpreting uncertainties at different stages of Deep Learning pipeline.",
-        section: "Posts",
-        handler: () => {
-          
-            window.location.href = "/2026/blog/2026/uncertainty-lifecycle-in-deep-learning/";
-          
-        },
       },{id: "post-trade-offs-in-llm-compute-for-reasoning-intensive-information-retrieval",
         
           title: "Trade-offs in LLM Compute for Reasoning-Intensive Information Retrieval",
@@ -582,7 +571,7 @@ ninja.data = [{
         
           title: "Evaluating Machine-Learned Inter-Atomic Potentials for a Practical Simulation Workflow",
         
-        description: "MLIPs are a promising new paradigm in atomistic simulation, potentially offering the accuracy of ab-initio methods at the speed of empirical potentials. In this blog post, we give an overview of recent MLIP architectures, followed by an evaluation on a practical CO2 adsorption simulation. We find that as of today these models, though promising, are far from plug-and-play, requiring significant engineering effort to operate within established simulation frameworks, while also failing to produce physically consistent results.",
+        description: "MLIPs are a promising paradigm in atomistic simulation, potentially offering the accuracy of ab-initio methods at the speed of empirical potentials. In this blog post, we give an overview of recent MLIP architectures, followed by an evaluation on a practical CO2 adsorption simulation. We find that as of today these models, though promising, are far from plug-and-play, requiring significant engineering effort to operate within established simulation frameworks, while also failing to produce physically consistent results.",
         section: "Posts",
         handler: () => {
           
@@ -1203,17 +1192,6 @@ ninja.data = [{
         handler: () => {
           
             window.location.href = "/2026/blog/2025/2026-04-27-sampler-eval-trilemma/";
-          
-        },
-      },{id: "post-",
-        
-          title: "",
-        
-        description: "",
-        section: "Posts",
-        handler: () => {
-          
-            window.location.href = "/2026/blog/2025/2026-04-27-indic-tokenization/";
           
         },
       },{id: "post-",
