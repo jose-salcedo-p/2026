@@ -94,6 +94,17 @@ ninja.data = [{
             window.location.href = "/2026/blog/2026/fans/";
           
         },
+      },{id: "post-what-can-you-do-when-you-have-zero-rewards-during-rl",
+        
+          title: "What Can You Do When You Have Zero Rewards During RL?",
+        
+        description: "If your base model has zero success rates, performing RL with outcome rewards won&#39;t do anything. What can you do then? 🤔TL;DR: simply adding easy samples to your training dataset can unlock RL training!",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/2026/blog/2026/zero-rewards/";
+          
+        },
       },{id: "post-why-vlms-waste-their-vision",
         
           title: "Why vlms waste their vision",
