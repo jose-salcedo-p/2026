@@ -424,6 +424,17 @@ ninja.data = [{
             window.location.href = "/2026/blog/2026/rl-with-gnns/";
           
         },
+      },{id: "post-revisiting-the-nethack-learning-environment",
+        
+          title: "Revisiting The NetHack Learning Environment",
+        
+        description: "The NetHack Learning Environment (NLE) was proposed as a challenging benchmark to test an agents abilities to perform complex reasoning over long time horizons in a stochastic, partially-observed, procedurally generated setting. To date, no approach, including those based on reinforcement learning, using large pretrained models, using handcoded symbolic agents, imitating expert trajectories or any hybrid method has achieved significant progress towards completing the game. We take a deeper look into the mechanics and interface of the NLE and show that much of the complexity of NetHack is inaccessible due to constraints on the observation and action spaces. We propose a series of modifications and show that they meaningfully improve performance on the NLE.",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/2026/blog/2026/revisiting-the-nle/";
+          
+        },
       },{id: "post-rethinking-the-diffusion-model-from-a-langevin-perspective",
         
           title: "Rethinking the Diffusion Model from a Langevin Perspective",
@@ -983,6 +994,17 @@ ninja.data = [{
         handler: () => {
           
             window.location.href = "/2026/blog/2026/dissonant-machine/";
+          
+        },
+      },{id: "post-dissecting-non-determinism-in-large-language-models",
+        
+          title: "Dissecting Non-Determinism in Large Language Models",
+        
+        description: "The Large Language Models (LLMs) evolve into the backbone of complex decision-making systems, their inherent non-deterministic nature poses a significant threat to the validity of experimental results. This blog explores the impact of stochasticity, prompt brittleness, and LLM-as-a-Judge during both response generation and evaluation. We conclude that understanding these dynamics is essential to prevent misleading conclusions, advocating for consistency oriented practices that treat non-determinism as a critical variable in rigorous experimentation.",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/2026/blog/2026/dissecting-non-determinism/";
           
         },
       },{id: "post-discretisation-invariance",
