@@ -886,17 +886,6 @@ ninja.data = [{
             window.location.href = "/2026/blog/2026/fractal-mas/";
           
         },
-      },{id: "post-flow-where-you-want",
-        
-          title: "Flow Where You Want",
-        
-        description: "This tutorial demonstrates how to add inference-time controls to pretrained flow-based generative models. Using an unconditional MNIST flow model, we apply classifier guidance and inpainting by adding velocity corrections during sampling. We also explore PnP-Flow, which satisfies constraints through iterative projection rather than velocity correction.",
-        section: "Posts",
-        handler: () => {
-          
-            window.location.href = "/2026/blog/2026/flow-where-you-want/";
-          
-        },
       },{id: "post-from-trajectories-to-operators-a-unified-flow-map-perspective-on-generative-modeling",
         
           title: "From Trajectories to Operators — A Unified Flow Map Perspective on Generative Modeling...",
@@ -906,17 +895,6 @@ ninja.data = [{
         handler: () => {
           
             window.location.href = "/2026/blog/2026/flow-map-learning/";
-          
-        },
-      },{id: "post-understanding-and-fixing-bottlenecks-in-state-space-models-what-recency-and-over-smoothing-tell-us",
-        
-          title: "Understanding and Fixing Bottlenecks in State Space Models: What Recency and Over-Smoothing Tell...",
-        
-        description: "This work analyzes how recency bias and hidden-state over-smoothing emerge in modern State Space Models, revealing the bottlenecks that limit their ability to capture long-range dependencies.",
-        section: "Posts",
-        handler: () => {
-          
-            window.location.href = "/2026/blog/2026/fixing-bottlenecks-in-state-space-models/";
           
         },
       },{id: "post-the-coverage-boundary-why-high-fidelity-primitives-don-39-t-compose",
