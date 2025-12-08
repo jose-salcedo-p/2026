@@ -116,6 +116,17 @@ ninja.data = [{
             window.location.href = "/2026/blog/2026/why-vlms-waste-their-vision/";
           
         },
+      },{id: "post-computer-use-survey-a-visual-survey-of-computer-use-agents",
+        
+          title: "Computer Use Survey - A Visual Survey of Computer Use Agents",
+        
+        description: "In recent years, AI systems operating on the web and in computer environments have become a major topic of interest for both academia and industry. The goal of this blog is to provide an interesting and interactive survey of historical and recent works on computer use agents. We define key terms used in the literature, catalogue the expansive list of environments and datasets, discuss the evolution of the methodologies, and assess both today’s landscape and possible paths forward.",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/2026/blog/2026/web-agent/";
+          
+        },
       },{id: "post-wait-do-we-need-to-wait-revisiting-budget-forcing-for-sequential-test-time-scaling",
         
           title: "Wait, Do We Need to Wait? Revisiting Budget Forcing for Sequential Test-Time Scaling...",

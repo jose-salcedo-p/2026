@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Key Definitions</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: #ffffff;
+            color: #212529;
+            padding: 1.5rem;
+            min-height: 100%;
+            line-height: 1.6;
+        }
+
+        .definitions-container {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1.5rem;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .definitions-header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .definitions-title {
+            color: #212529;
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+        }
+
+        .definitions-subtitle {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        .definitions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1rem;
+        }
+
+        .definition-card {
+            background: #ffffff;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 6px;
+            padding: 1.2rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .definition-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-color: #2698ba;
+        }
+
+        .definition-card.expanded {
+            background: #f0f9fc;
+            border-color: #2698ba;
+        }
+
+        .definition-term {
+            color: #2698ba;
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-bottom: 0.4rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .definition-term::after {
+            content: '▼';
+            font-size: 0.6rem;
+            color: #6c757d;
+            transition: transform 0.2s ease;
+            margin-left: auto;
+        }
+
+        .definition-card.expanded .definition-term::after {
+            transform: rotate(180deg);
+        }
+
+        .definition-preview {
+            color: #6c757d;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .definition-card.expanded .definition-preview {
+            display: none;
+        }
+
+        .definition-full {
+            display: none;
+            color: #495057;
+            font-size: 0.9rem;
+            line-height: 1.7;
+            margin-top: 0.8rem;
+            padding-top: 0.8rem;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .definition-card.expanded .definition-full {
+            display: block;
+            animation: fadeIn 0.2s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .definition-full strong {
+            color: #212529;
+        }
+
+        /* Force d-cite to be inline */
+        d-cite {
+            display: inline !important;
+            white-space: nowrap !important;
+            vertical-align: baseline !important;
+            line-height: inherit !important;
+        }
+        
+        .definition-full d-cite {
+            display: inline !important;
+            white-space: nowrap !important;
+            vertical-align: baseline !important;
+            line-height: inherit !important;
+        }
+        
+        .definition-full {
+            white-space: normal;
+        }
+
+        @media (max-width: 600px) {
+            .definitions-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            body {
+                padding: 1rem;
+            }
+        }
+
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: #1c1c1d;
+                color: #c4c4c4;
+            }
+            
+            .definitions-container {
+                background: #212529;
+                border-color: #424246;
+            }
+            
+            .definitions-title {
+                color: #e9ecef;
+            }
+            
+            .definitions-subtitle {
+                color: #adb5bd;
+            }
+            
+            .definition-card {
+                background: #2c3237;
+                border-color: #424246;
+            }
+            
+            .definition-card:hover,
+            .definition-card.expanded {
+                border-color: #2698ba;
+            }
+            
+            .definition-card.expanded {
+                background: #1e2a30;
+            }
+            
+            .definition-preview {
+                color: #adb5bd;
+            }
+            
+            .definition-full {
+                color: #c4c4c4;
+                border-top-color: #424246;
+            }
+            
+            .definition-full strong {
+                color: #e9ecef;
+            }
+        }
+    </style>
+    <script src="/2026/assets/js/distillpub/template.v2.js"></script>
+    <script src="/2026/assets/js/distillpub/transforms.v2.js"></script>
+</head>
+<body>
+    <d-bibliography src="/2026/assets/bibliography/2026-04-27-web-agent.bib"></d-bibliography>
+
+    <div class="definitions-container">
+        <div class="definitions-header">
+            <h3 class="definitions-title">Key Definitions</h3>
+            <p class="definitions-subtitle">Click on terms to explore foundational concepts</p>
+        </div>
+
+        <div class="definitions-grid">
+            <div class="definition-card" data-term="agent">
+                <div class="definition-term">Agent</div>
+                <div class="definition-preview">The learner and decision maker...</div>
+                <div class="definition-full">
+                    <strong>Sutton and Barto <d-cite key="sutton2018reinforcement"></d-cite>:</strong> "The learner and decision maker is called the agent. The thing it interacts with, comprising everything outside the agent, is called the environment." These interact continually. The agent receives some representation of the environment's state and on that basis selects an action.
+                </div>
+            </div>
+
+            <div class="definition-card" data-term="environment">
+                <div class="definition-term">Environment</div>
+                <div class="definition-preview">Everything outside the agent...</div>
+                <div class="definition-full">
+                    The environment responds to the agent's actions and presents a new state to the agent. The environment also gives rise to rewards, special numerical values that the agent seeks to maximize over time through its choice of actions. In computer use, this includes operating systems, web browsers, applications, and interfaces.
+                </div>
+            </div>
+
+            <div class="definition-card" data-term="observations">
+                <div class="definition-term">Observations</div>
+                <div class="definition-preview">Partial information about state...</div>
+                <div class="definition-full">
+                    <strong>Sutton and Barto <d-cite key="sutton2018reinforcement"></d-cite>:</strong> "Observations — signals that depend on its [environment's] state but, like a robot's sensors, provide only partial information about it." In computer use, these might be screenshots, DOM trees, or accessibility information.
+                </div>
+            </div>
+
+            <div class="definition-card" data-term="execution">
+                <div class="definition-term">Execution vs. Non-Execution</div>
+                <div class="definition-preview">Dynamic vs. static evaluation...</div>
+                <div class="definition-full">
+                    <strong>Execution environments</strong> allow agents to dynamically interact and receive real-time feedback (e.g., live websites, VMs). <strong>Non-execution environments</strong> evaluate against pre-recorded traces or static snapshots without dynamic interaction.
+                </div>
+            </div>
+
+            <div class="definition-card" data-term="interfaces">
+                <div class="definition-term">Interfaces & Tools</div>
+                <div class="definition-preview">Different ways to interact...</div>
+                <div class="definition-full">
+                    The environment includes everything an agent can interact with through distinct interfaces and tools. For example: using the browser interface to access Google Maps, the terminal interface to run git commands, or the chat interface to clarify user intent.
+                </div>
+            </div>
+
+            <div class="definition-card" data-term="host">
+                <div class="definition-term">Agent's Host</div>
+                <div class="definition-preview">Where the agent operates...</div>
+                <div class="definition-full">
+                    The physical or virtual machine where the agent is deployed and operates (e.g., a developer's laptop). The <strong>local workspace</strong> is the isolated environment specific to the agent within the host (e.g., a containerized Docker environment).
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.querySelectorAll('.definition-card').forEach(card => {
+            card.addEventListener('click', function(e) {
+                // Don't toggle if clicking on a citation link
+                if (e.target.closest('d-cite')) return;
+                
+                document.querySelectorAll('.definition-card').forEach(c => {
+                    if (c !== this) c.classList.remove('expanded');
+                });
+                this.classList.toggle('expanded');
+            });
+        });
+
+        // Author names mapping for citations
+        const authorNames = {
+            'sutton2018reinforcement': 'Sutton & Barto'
+        };
+
+        // Style d-cite to display inline with author names
+        function styleCitations() {
+            const applyStyles = () => {
+                document.querySelectorAll('d-cite').forEach(cite => {
+                    const keys = (cite.getAttribute('key') || cite.getAttribute('data-cite-key') || '')
+                        .split(',')
+                        .map(k => k.trim())
+                        .filter(Boolean);
+                    const authorLabel = keys.map(k => authorNames[k] || k || 'Citation').join('; ') || 'Citation';
+                    
+                    // Force inline display on the element itself
+                    cite.style.cssText = 'display: inline !important; white-space: nowrap !important; vertical-align: baseline !important; line-height: inherit !important; position: relative !important;';
+                    
+                    const styleShadowDOM = () => {
+                        if (!cite.shadowRoot) {
+                            setTimeout(styleShadowDOM, 10);
+                            return;
+                        }
+
+                        // Inject style to force :host to be inline
+                        let hostStyle = cite.shadowRoot.querySelector('style[data-inline-host]');
+                        if (!hostStyle) {
+                            hostStyle = document.createElement('style');
+                            hostStyle.setAttribute('data-inline-host', '');
+                            hostStyle.textContent = ':host { display: inline !important; white-space: nowrap !important; }';
+                            cite.shadowRoot.insertBefore(hostStyle, cite.shadowRoot.firstChild);
+                        }
+                        
+                        const wrapper = cite.shadowRoot.querySelector('#citation-') || cite.shadowRoot.querySelector('.citation');
+                        if (wrapper) {
+                            wrapper.style.cssText = 'display: inline !important; margin: 0 !important; padding: 0 !important;';
+                        }
+
+                        const span = cite.shadowRoot.querySelector('.citation-number') || cite.shadowRoot.querySelector('span');
+                        if (span) {
+                            span.textContent = `(${authorLabel})`;
+                            span.style.cssText = 'display: inline !important; white-space: nowrap !important; color: #2698ba !important; cursor: pointer !important; text-decoration: none !important; font-size: 1em !important; vertical-align: baseline !important; line-height: inherit !important;';
+                        }
+                    };
+
+                    // Override default displayNumbers so future updates stay author-based
+                    cite.displayNumbers = () => {
+                        styleShadowDOM();
+                    };
+                    
+                    styleShadowDOM();
+                });
+            };
+
+            customElements.whenDefined('d-cite').then(applyStyles);
+        }
+
+        // Run after a short delay to ensure d-cite elements are fully rendered
+        setTimeout(styleCitations, 500);
+    </script>
+</body>
+</html>
