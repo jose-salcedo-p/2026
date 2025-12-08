@@ -578,6 +578,17 @@ ninja.data = [{
             window.location.href = "/2026/blog/2026/layered-ontology-model/";
           
         },
+      },{id: "post-a-small-observation-on-schulmann-39-s-kl-divergence-estimator",
+        
+          title: "A small observation on Schulmann&#39;s KL divergence estimator",
+        
+        description: "The unbiased estimator of the Kullback–Leibler divergence introduced by John Schulman has a free parameter. Schulman sets it to one to yield non-negativity. Interestingly, we can prove that this parameter choice coincidentally also approximately minimizes variance",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/2026/blog/2026/kl-estimator/";
+          
+        },
       },{id: "post-justrl-scaling-a-1-5b-llm-with-a-simple-rl-recipe",
         
           title: "JustRL: Scaling a 1.5B LLM with a Simple RL Recipe",
