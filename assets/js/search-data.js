@@ -589,9 +589,9 @@ ninja.data = [{
             window.location.href = "/2026/blog/2026/layered-ontology-model/";
           
         },
-      },{id: "post-a-small-observation-on-schulmann-39-s-kl-divergence-estimator",
+      },{id: "post-a-small-observation-on-schulman-39-s-kl-divergence-estimator",
         
-          title: "A small observation on Schulmann&#39;s KL divergence estimator",
+          title: "A small observation on Schulman&#39;s KL divergence estimator",
         
         description: "The unbiased estimator of the Kullback–Leibler divergence introduced by John Schulman has a free parameter. Schulman sets it to one to yield non-negativity. Interestingly, we can prove that this parameter choice coincidentally also approximately minimizes variance",
         section: "Posts",
