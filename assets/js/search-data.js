@@ -402,17 +402,6 @@ ninja.data = [{
             window.location.href = "/2026/blog/2026/scaling-rlvr/";
           
         },
-      },{id: "post-trilemma-for-data-free-sampler-evaluation",
-        
-          title: "Trilemma for data-free sampler evaluation",
-        
-        description: "Neural samplers like diffusion samplers aim to learn to sample a target unnormalized energy potential, which is known but considered challenging to sample from. Here, we prove an impossible trinity (trilemma) for data-free sampler evaluation; we can only have two among i) mode-covering metric, ii) stable with finite variance, iii) no dominance cycles. We situate the implications of this trilemma in the broader conceptual landscape of data-driven and data-free sampler evaluation.",
-        section: "Posts",
-        handler: () => {
-          
-            window.location.href = "/2026/blog/2026/sampler-eval-trilemma/";
-          
-        },
       },{id: "post-getting-sac-to-work-on-a-massive-parallel-simulator-an-rl-journey-with-off-policy-algorithms",
         
           title: "Getting SAC to Work on a Massive Parallel Simulator: An RL Journey With...",
@@ -1181,6 +1170,17 @@ ninja.data = [{
         handler: () => {
           
             window.location.href = "/2026/blog/2026/a-human-centric-framework-for-debating-the-ethics-of-ai-consciousness-under-uncertainty/";
+          
+        },
+      },{id: "post-",
+        
+          title: "",
+        
+        description: "",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/2026/blog/2025/2026-04-27-sampler-eval-trilemma/";
           
         },
       },{id: "post-",
