@@ -347,17 +347,6 @@ ninja.data = [{
             window.location.href = "/2026/blog/2026/rl-with-gnns/";
           
         },
-      },{id: "post-rethinking-the-diffusion-model-from-a-langevin-perspective",
-        
-          title: "Rethinking the Diffusion Model from a Langevin Perspective",
-        
-        description: "Diffusion models are often introduced from multiple perspectives—such as VAEs, score matching, or flow matching—accompanied by dense and technically demanding mathematics that can be difficult for beginners to grasp. This article offers a fresh Langevin perspective on diffusion models to lower the technical barrier, aiming to present diffusion models in a simpler, clearer, and more intuitive way while addressing the following questions 1. How does the reverse process invert the forward process to generate data from pure noise? 2. How can ODE-based and SDE-based diffusion models be unified under a single framework? 3. Why are diffusion models theoretically superior to ordinary VAEs? 4. How can Denoising, Score Matching, and Flow Matching training objectives be unified and derived from first principles? We demonstrate that the Langevin perspective offers clear and straightforward answers to these questions, providing pedagogical value for both learners and experienced researchers seeking deeper intuition.",
-        section: "Posts",
-        handler: () => {
-          
-            window.location.href = "/2026/blog/2026/rethinking-diffusion-langevin/";
-          
-        },
       },{id: "post-dynamic-parameter-reuse-augments-reasoning-via-latent-chain-of-thought",
         
           title: "Dynamic Parameter Reuse Augments Reasoning via Latent Chain of Thought",
@@ -884,17 +873,6 @@ ninja.data = [{
         handler: () => {
           
             window.location.href = "/2026/blog/2026/diffusion-inverse-problems/";
-          
-        },
-      },{id: "post-diffusion-guidance-opportunities-for-physical-sciences",
-        
-          title: "Diffusion Guidance - Opportunities for Physical Sciences",
-        
-        description: "Guidance has been a central driver of the success of diffusion models, enabling precise control over the sampling process toward desired target conditions. The most widely used techniques include Classifier Guidance and Classifier-Free Guidance. Recently, however, there has been growing interest in alternative guidance strategies. In this blog post, we review recent progress in training-free diffusion guidance methods and highlight their applications in scientific domains.",
-        section: "Posts",
-        handler: () => {
-          
-            window.location.href = "/2026/blog/2026/diffusion-guidance/";
           
         },
       },{id: "post-from-u-nets-to-dits-the-architectural-evolution-of-text-to-image-diffusion-models-2021-2025",
