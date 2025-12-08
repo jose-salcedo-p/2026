@@ -127,17 +127,6 @@ ninja.data = [{
             window.location.href = "/2026/blog/2026/zero-rewards/";
           
         },
-      },{id: "post-the-witness-problem-in-multi-agent-cooperation",
-        
-          title: "The Witness Problem in Multi-Agent Cooperation",
-        
-        description: "I built cognitive modules for Concordia agents and found that agent intelligence isn&#39;t the bottleneck. Strategic cooperation fails because the observation layer can&#39;t recognize strategic behavior.",
-        section: "Posts",
-        handler: () => {
-          
-            window.location.href = "/2026/blog/2026/witness-problem/";
-          
-        },
       },{id: "post-why-vlms-waste-their-vision",
         
           title: "Why vlms waste their vision",
