@@ -281,6 +281,17 @@ ninja.data = [{
             window.location.href = "/2026/blog/2026/the-bottlenecks-to-scaling-foundation-models-for-robotics/";
           
         },
+      },{id: "post-task-complexity-analysis",
+        
+          title: "Task Complexity Analysis",
+        
+        description: "We analyzed and compared 3 different sampling strategies to sample 100 questions from MATH 500 and Hendrycks&#39; 4500 (the remaining questions from Hendrycks&#39; math dataset that wasn&#39;t selected for MATH500). We ran the subsets on 13 different small (apparent difficulty (the levels assigned by Hendrycks&#39; creators) than MATH 500 results in a more stable ranking for the low performing models, but the baseline apparent difficulty split is the most stable for the top performing models.",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/2026/blog/2026/task-complexity-analysis/";
+          
+        },
       },{id: "post-from-dense-monoliths-to-modular-minds-the-rise-of-symbolic-routing-in-llms",
         
           title: "From Dense Monoliths to Modular Minds: The Rise of Symbolic Routing in LLMs...",
@@ -664,17 +675,6 @@ ninja.data = [{
         handler: () => {
           
             window.location.href = "/2026/blog/2026/interpret-model/";
-          
-        },
-      },{id: "post-charting-the-depths-interpretability-tools-to-enhance-llm-safety",
-        
-          title: "Charting the Depths: Interpretability Tools to Enhance LLM Safety",
-        
-        description: "Motivated by the increasing deployment of LLMs for safety-critical applications, we provide an accessible introduction to a practical suite of interpretability tools useful for understanding LLMs’ behavior during safety-critical decisions. Previous discussions of interpretability are often heavily focused on these methods&#39; technical aspects, rather than giving practical guidance for their immediate use; here, we provide practitioners with an overview of a range of methods for understanding LLM behavior. For each method covered, we highlight what it can and cannot tell us, and how this can help inform deployment decisions.",
-        section: "Posts",
-        handler: () => {
-          
-            window.location.href = "/2026/blog/2026/interp-safety/";
           
         },
       },{id: "post-industrial-agent-benchmarking-what-300-real-evaluations-reveal-about-the-limits-of-agentic-ai",
