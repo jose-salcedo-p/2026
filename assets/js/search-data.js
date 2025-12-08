@@ -259,17 +259,6 @@ ninja.data = [{
             window.location.href = "/2026/blog/2026/unigramlm-manual/";
           
         },
-      },{id: "post-trade-offs-in-llm-compute-for-reasoning-intensive-information-retrieval",
-        
-          title: "Trade-offs in LLM Compute for Reasoning-Intensive Information Retrieval",
-        
-        description: "Large Language Models have become essential for reasoning-intensive information retrieval, but their computational cost raises a critical question: where should compute be allocated for maximum effectiveness? Using the BRIGHT benchmark and the Gemini 2.5 model family, we systematically evaluate trade-offs across model strength, inference-time thinking depth, and reranking depth. Our controlled experiments reveal the marginal gains of investing compute in query expansion versus reranking, providing practical guidance for optimizing cost-performance in LLM-augmented retrieval pipelines.",
-        section: "Posts",
-        handler: () => {
-          
-            window.location.href = "/2026/blog/2026/trade-offs-in-llm-compute-for-reasoning-intensive-information-retrieval/";
-          
-        },
       },{id: "post-tracing-the-principles-behind-modern-diffusion-models",
         
           title: "Tracing the Principles Behind Modern Diffusion Models",
