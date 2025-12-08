@@ -116,17 +116,6 @@ ninja.data = [{
             window.location.href = "/2026/blog/2026/why-vlms-waste-their-vision/";
           
         },
-      },{id: "post-why-ai-evaluations-need-error-bars",
-        
-          title: "Why AI Evaluations Need Error Bars",
-        
-        description: "AI evaluations often rely on single-run scores even though models, agents, and judges are inherently stochastic, making many reported differences unstable. This post surveys statistical tools—error bars, reliability measures, Bayesian models—that show and help manage this variance. Overall, it highlights how incorporating established statistical practices can make evaluations more trustworthy and informative.",
-        section: "Posts",
-        handler: () => {
-          
-            window.location.href = "/2026/blog/2026/why-ai-evaluations-need-error-bars/";
-          
-        },
       },{id: "post-computer-use-survey-a-visual-survey-of-computer-use-agents",
         
           title: "Computer Use Survey - A Visual Survey of Computer Use Agents",
@@ -675,6 +664,17 @@ ninja.data = [{
         handler: () => {
           
             window.location.href = "/2026/blog/2026/interpret-model/";
+          
+        },
+      },{id: "post-charting-the-depths-interpretability-tools-to-enhance-llm-safety",
+        
+          title: "Charting the Depths: Interpretability Tools to Enhance LLM Safety",
+        
+        description: "Motivated by the increasing deployment of LLMs for safety-critical applications, we provide an accessible introduction to a practical suite of interpretability tools useful for understanding LLMs’ behavior during safety-critical decisions. Previous discussions of interpretability are often heavily focused on these methods&#39; technical aspects, rather than giving practical guidance for their immediate use; here, we provide practitioners with an overview of a range of methods for understanding LLM behavior. For each method covered, we highlight what it can and cannot tell us, and how this can help inform deployment decisions.",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/2026/blog/2026/interp-safety/";
           
         },
       },{id: "post-industrial-agent-benchmarking-what-300-real-evaluations-reveal-about-the-limits-of-agentic-ai",
