@@ -846,7 +846,7 @@ ninja.data = [{
         
           title: "The effect of feature resolution on embedding dimension",
         
-        description: "High-dimensional data can be compressed into lower-dimensional embeddings while retaining a relatively large amount of relevant information, a phenomenon which, despite its widespread use, we struggle to fully explain. In this post, we use a common property of datasets - a limit on the number of features per data point - to show how a slight uniform dependence between features can be exploited to reduce the required dimensions by at least a third, while sacrificing no information about the features. To do so, we introduce the concepts of dataset resolution and feature composition of a dataset, and analyse how a set of orderings of the dataset affect the types of partitions we can create of the dataset.",
+        description: "High-dimensional data can be compressed into lower-dimensional embeddings while retaining a relatively large amount of relevant information, a phenomenon which, despite its widespread use, we struggle to fully explain. In this post, we use a common property of datasets - a limit on the number of features per data point - to show how a slight uniform dependence between features can be exploited to reduce the required dimensions by at least a third, while sacrificing no information about the features. To do so, we introduce the concepts of dataset resolution and feature composition of a dataset, and analyse how a set of orderings of the dataset affects the types of partitions we can create of the dataset.",
         section: "Posts",
         handler: () => {
           
@@ -1049,6 +1049,17 @@ ninja.data = [{
         handler: () => {
           
             window.location.href = "/2026/blog/2026/chunked-tabpfn/";
+          
+        },
+      },{id: "post-hypes-and-hopes-for-causal-inference-for-brain-dynamics",
+        
+          title: "Hypes and Hopes for Causal Inference for Brain Dynamics",
+        
+        description: "We study whether modern identifiability-based nonlinear ICA methods, in particular Time-Contrastive Learning (TCL), can recover meaningful sources from realistic scalp-level brain recordings such as EEG. Using simulated data, EEG sensor data, and source-reconstructed cortical activity, we evaluate whether TCL provides representations aligned with the underlying sources.",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/2026/blog/2026/causal-ts/";
           
         },
       },{id: "post-budget-alignment-making-models-reason-in-the-user-39-s-language",
