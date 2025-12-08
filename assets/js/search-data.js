@@ -622,17 +622,6 @@ ninja.data = [{
             window.location.href = "/2026/blog/2026/mlip-practical/";
           
         },
-      },{id: "post-is-the-evidence-in-39-language-models-learn-to-mislead-humans-via-rlhf-39-valid",
-        
-          title: "Is the evidence in &#39;Language Models Learn to Mislead Humans via RLHF&#39; valid?...",
-        
-        description: "Language Models Learn to Mislead Humans Via RLHF (published at ICLR 2025) argues that RLHF can unintentionally train models to mislead humans – a phenomenon termed Unintentional-SOPHISTRY. However, our review of the paper&#39;s code and experiments suggests that a significant portion of their empirical findings may be due largely to major bugs that make the RLHF setup both unrealistic and highly prone to reward hacking. In addition to high-level claims, we  correct these issues for one of their experiments, and fail to find evidence that supports the original paper&#39;s claims.",
-        section: "Posts",
-        handler: () => {
-          
-            window.location.href = "/2026/blog/2026/mislead-lm/";
-          
-        },
       },{id: "post-misalignments-and-rl-failure-modes-in-the-early-stage-of-superintelligence",
         
           title: "Misalignments and RL Failure Modes in the Early Stage of Superintelligence",
@@ -886,17 +875,6 @@ ninja.data = [{
             window.location.href = "/2026/blog/2026/flow-map-learning/";
           
         },
-      },{id: "post-understanding-and-fixing-bottlenecks-in-state-space-models-what-recency-and-over-smoothing-tell-us",
-        
-          title: "Understanding and Fixing Bottlenecks in State Space Models: What Recency and Over-Smoothing Tell...",
-        
-        description: "This work analyzes how recency bias and hidden-state over-smoothing emerge in modern State Space Models, revealing the bottlenecks that limit their ability to capture long-range dependencies.",
-        section: "Posts",
-        handler: () => {
-          
-            window.location.href = "/2026/blog/2026/fixing-bottlenecks-in-state-space-models/";
-          
-        },
       },{id: "post-the-coverage-boundary-why-high-fidelity-primitives-don-39-t-compose",
         
           title: "The Coverage Boundary: Why High-Fidelity Primitives Don&#39;t Compose",
@@ -1005,6 +983,17 @@ ninja.data = [{
         handler: () => {
           
             window.location.href = "/2026/blog/2026/dynamic-routing/";
+          
+        },
+      },{id: "post-dllm-rethinking-generation-beyond-autoregressive-models",
+        
+          title: "dLLM - Rethinking Generation Beyond Autoregressive Models",
+        
+        description: "Diffusion large language models (dLLMs) provide an alternative to autoregressive Transformers, supporting parallel token generation and flexible infilling. They excel in structured, long-horizon, or data-constrained settings, though challenges remain with output length, denoising, and blockwise generation. Hybrid approaches combining diffusion for reasoning and AR for generation show promise.",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/2026/blog/2026/dllm/";
           
         },
       },{id: "post-sample-blog-post",
