@@ -457,6 +457,17 @@ ninja.data = [{
             window.location.href = "/2026/blog/2026/scaling-rlvr/";
           
         },
+      },{id: "post-an-impossibility-trilemma-for-data-free-sampler-evaluation",
+        
+          title: "An Impossibility Trilemma for Data-Free Sampler Evaluation",
+        
+        description: "Neural samplers aim to learn to sample a target unnormalized energy potential. Sampler quality can be evaluated in a data-free manner, using only the model and the target potential, or in a data-driven manner, with additional data about the target distribution such as known modes, summary statistics, and reference MCMC samples. While data-driven eval is valuable, data-free eval has compelling conceptual advantages, raising the question of how well data-free eval could work. Here, we prove an impossibility trilemma for data-free sampler evaluation; we can only have two among i) mode-covering metric, ii) stable with finite variance, iii) transitivity guarantee (if A&gt;B and B&gt;C, then A&gt;C). We situate the implications of this trilemma in the broader conceptual landscape of data-driven and data-free sampler evaluation.",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/2026/blog/2026/sampler-eval-trilemma/";
+          
+        },
       },{id: "post-getting-sac-to-work-on-a-massive-parallel-simulator-an-rl-journey-with-off-policy-algorithms",
         
           title: "Getting SAC to Work on a Massive Parallel Simulator: An RL Journey With...",
@@ -985,17 +996,6 @@ ninja.data = [{
             window.location.href = "/2026/blog/2026/fixing-bottlenecks-in-state-space-models/";
           
         },
-      },{id: "post-the-coverage-boundary-why-high-fidelity-primitives-don-39-t-compose",
-        
-          title: "The Coverage Boundary: Why High-Fidelity Primitives Don&#39;t Compose",
-        
-        description: "A controlled experiment showing that adversarially trained primitives hit a glass ceiling on compositional generalization, while low-fidelity pedagogical primitives achieve perfect transfer.",
-        section: "Posts",
-        handler: () => {
-          
-            window.location.href = "/2026/blog/2026/fidelity-trap/";
-          
-        },
       },{id: "post-the-effect-of-feature-resolution-on-embedding-dimension",
         
           title: "The effect of feature resolution on embedding dimension",
@@ -1346,17 +1346,6 @@ ninja.data = [{
         handler: () => {
           
             window.location.href = "/2026/blog/2025/2026-04-27-supertransformer/";
-          
-        },
-      },{id: "post-",
-        
-          title: "",
-        
-        description: "",
-        section: "Posts",
-        handler: () => {
-          
-            window.location.href = "/2026/blog/2025/2026-04-27-sampler-eval-trilemma/";
           
         },
       },{id: "post-",
