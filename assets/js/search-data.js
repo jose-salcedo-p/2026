@@ -996,6 +996,17 @@ ninja.data = [{
             window.location.href = "/2026/blog/2026/fixing-bottlenecks-in-state-space-models/";
           
         },
+      },{id: "post-the-coverage-boundary-why-high-fidelity-primitives-don-39-t-compose",
+        
+          title: "The Coverage Boundary: Why High-Fidelity Primitives Don&#39;t Compose",
+        
+        description: "A controlled experiment showing that adversarially trained primitives hit a glass ceiling on compositional generalization, while low-fidelity pedagogical primitives achieve perfect transfer.",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/2026/blog/2026/fidelity-trap/";
+          
+        },
       },{id: "post-the-effect-of-feature-resolution-on-embedding-dimension",
         
           title: "The effect of feature resolution on embedding dimension",
