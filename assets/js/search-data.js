@@ -171,9 +171,9 @@ ninja.data = [{
             window.location.href = "/2026/blog/2026/why-vlms-waste-their-vision/";
           
         },
-      },{id: "post-why-did-the-model-say-that-a-methodological-practical-guide-for-explaining-multimodal-medical-decisions",
+      },{id: "post-why-did-the-ai-model-say-that-a-methodological-practical-guide-for-explaining-multimodal-medical-decisions",
         
-          title: "Why Did the Model Say That? A Methodological Practical Guide for Explaining Multimodal...",
+          title: "Why Did the AI Model Say That? A Methodological Practical Guide for Explaining...",
         
         description: "A methodological guide that summarizes key explainability techniques for understanding multimodal medical AI systems, addressing the critical challenge of understanding what these systems have learned and how they&#39;ll behave in real-world clinical settings.",
         section: "Posts",
