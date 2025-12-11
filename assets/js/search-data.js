@@ -853,6 +853,17 @@ ninja.data = [{
             window.location.href = "/2026/blog/2026/industrial-agent-benchmarking/";
           
         },
+      },{id: "post-how-many-tokens-does-it-take-to-say-नमस्ते-a-dive-into-indic-tokenization",
+        
+          title: "How many tokens does it take to say “नमस्ते”? A Dive into Indic...",
+        
+        description: "Tokenizers trained on English-dominant data often produce unusually high token counts for Indic languages. This &#39;tokenizer fertility&#39; increases sequence lengths, raises compute costs, and can hurt downstream performance, even when the underlying model is strong. In this post, we examine how fertility varies across major Indic scripts and how it affects language modeling quality, inference efficiency, and instruction-following behavior.",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/2026/blog/2026/indic-tokenization/";
+          
+        },
       },{id: "post-the-illusion-of-mastery-breaking-the-cycle-of-benchmark-memorization-with-generative-evaluation",
         
           title: "The Illusion of Mastery: Breaking the Cycle of Benchmark Memorization with Generative Evaluation...",
@@ -1357,17 +1368,6 @@ ninja.data = [{
         handler: () => {
           
             window.location.href = "/2026/blog/2025/2026-04-27-llm-bitter-lesson/";
-          
-        },
-      },{id: "post-",
-        
-          title: "",
-        
-        description: "",
-        section: "Posts",
-        handler: () => {
-          
-            window.location.href = "/2026/blog/2025/2026-04-27-indic-tokenization/";
           
         },
       },{id: "post-",
