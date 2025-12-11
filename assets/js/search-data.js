@@ -776,6 +776,17 @@ ninja.data = [{
             window.location.href = "/2026/blog/2026/llm-conflicts/";
           
         },
+      },{id: "post-the-human-knowledge-loophole-in-the-39-bitter-lesson-39-for-llms",
+        
+          title: "The human knowledge loophole in the &#39;bitter lesson&#39; for LLMs",
+        
+        description: "Are LLMs a proof that the &#39;bitter lesson&#39; holds for NLP? Perhaps the opposite is true: they work due to the scale of human data, and not just computation.",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/2026/blog/2026/llm-bitter-lesson/";
+          
+        },
       },{id: "post-the-layered-ontology-of-models-resolving-the-epistemological-crisis-of-ai",
         
           title: "The Layered Ontology of Models, Resolving the Epistemological Crisis of AI",
@@ -1357,17 +1368,6 @@ ninja.data = [{
         handler: () => {
           
             window.location.href = "/2026/blog/2026/a-human-centric-framework-for-debating-the-ethics-of-ai-consciousness-under-uncertainty/";
-          
-        },
-      },{id: "post-",
-        
-          title: "",
-        
-        description: "",
-        section: "Posts",
-        handler: () => {
-          
-            window.location.href = "/2026/blog/2025/2026-04-27-llm-bitter-lesson/";
           
         },
       },{id: "post-",
