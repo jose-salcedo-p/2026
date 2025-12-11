@@ -1326,6 +1326,17 @@ ninja.data = [{
             window.location.href = "/2026/blog/2026/beyond-the-rerun/";
           
         },
+      },{id: "post-square-peg-round-hole-plugging-non-sequential-data-into-sequential-language-models",
+        
+          title: "Square Peg, Round Hole: Plugging Non-Sequential Data into Sequential Language Models",
+        
+        description: "Autoregressive (AR) models are central to modern generative AI systems, yet their sequential inductive bias clashes with modalities that lack an obvious ordering, such as images, graphs, and point clouds. Despite this mismatch, AR models are widely used beyond language, owing to their scalability and controllability. This post highlights the growing set of techniques that make non-sequential data amenable to autoregressive modeling. There are two broad directions: approaches that choose or optimize a generation order for a fixed tokenization, and approaches that redesign the tokenization itself to simplify each next-token prediction step. We emphasize the tradeoffs these methods face, particularly between compression and autoregressive ``modelability”. By drawing these connections, we aim to motivate future work on tokenizations tailored to the needs of autoregressive models for arbitrary datatypes.",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/2026/blog/2026/autoregressive-tokenization/";
+          
+        },
       },{id: "post-llm-judges-on-autopilot",
         
           title: "(LLM-)Judges on autopilot",
@@ -1390,17 +1401,6 @@ ninja.data = [{
         handler: () => {
           
             window.location.href = "/2026/blog/2025/2026-04-27-egraph-symreg/";
-          
-        },
-      },{id: "post-",
-        
-          title: "",
-        
-        description: "",
-        section: "Posts",
-        handler: () => {
-          
-            window.location.href = "/2026/blog/2025/2026-04-27-autoregressive-tokenization/";
           
         },
       },{id: "books-the-godfather",
