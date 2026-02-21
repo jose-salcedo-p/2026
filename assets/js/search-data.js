@@ -226,17 +226,6 @@ ninja.data = [{
             window.location.href = "/2026/blog/2026/wait-do-we-need-to-wait/";
           
         },
-      },{id: "post-visual-reversal-curse-from-general-domain-to-remote-sensing-images",
-        
-          title: "Visual Reversal Curse: From General Domain to Remote Sensing Images",
-        
-        description: "The &#39;Reversal Curse&#39; highlights a fundamental limitation in AI: models often fail to infer inverse relationships. This post investigates whether this curse extends to Vision Foundation Models and proposes remote sensing image translation as the optimal testbed for evaluating bidirectional visual generalization.",
-        section: "Posts",
-        handler: () => {
-          
-            window.location.href = "/2026/blog/2026/visual-reversal-curse-from-general-domain-to-remote-sensing-images/";
-          
-        },
       },{id: "post-text-as-image-a-visual-encoding-approach-for-long-context-understanding",
         
           title: "Text-as-Image, A Visual Encoding Approach for Long-Context Understanding",
