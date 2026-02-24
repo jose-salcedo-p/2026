@@ -13,7 +13,12 @@ mermaid:
   zoomable: true
 
 authors:
-  - name: Anonymous
+  - name: Daniel P. Martin
+    affiliations:
+      - name: Camulos
+  - name: Sam Spillard
+    affiliations:
+      - name: Camulos
 
 # must be the exact same name as your blogpost
 bibliography: 2026-04-27-an-overview-of-subliminal-learning.bib
