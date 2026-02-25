@@ -1337,11 +1337,11 @@ ninja.data = [{
             window.location.href = "/2026/blog/2026/an-overview-of-subliminal-learning/";
           
         },
-      },{id: "post-the-adversarial-conditioning-paradox-why-attacked-inputs-are-more-stable-not-less",
+      },{id: "post-the-adversarial-conditioning-paradox-how-fine-tuning-creates-a-geometric-signature-that-attacks-unknowingly-exploit",
         
-          title: "The Adversarial Conditioning Paradox: Why Attacked Inputs Are More Stable, Not Less",
+          title: "The Adversarial Conditioning Paradox: How Fine-Tuning Creates a Geometric Signature That Attacks Unknowingly...",
         
-        description: "Adversarial inputs exhibit systematically lower Jacobian condition numbers at early transformer layers—the opposite of our initial hypothesis that attacks exploit unstable regions. This paradox reveals that adversarial attacks succeed by finding well-conditioned directions that cross decision boundaries.",
+        description: "Adversarial attacks optimized purely against the softmax output reliably land in geometrically ill-conditioned regions at Layer 12 of fine-tuned BERT — a signature that does not exist before task training. We validate this finding across three attack families (TextFooler, PWWS, DeepWordBug) at N=1,000 each.",
         section: "Posts",
         handler: () => {
           
