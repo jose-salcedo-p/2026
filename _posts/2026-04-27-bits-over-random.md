@@ -6,11 +6,6 @@ date: 2026-04-27
 future: true
 htmlwidgets: true
 
-# Mermaid diagrams
-mermaid:
-  enabled: true
-  zoomable: true
-
 # Authors
 authors:
   - name: Vyzantinos Repantis
