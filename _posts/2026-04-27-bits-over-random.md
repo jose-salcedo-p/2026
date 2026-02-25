@@ -13,19 +13,19 @@ authors:
     affiliations:
       name: Meta Platforms, Inc.
   - name: Harshvardhan Singh
-    url: "https://www.linkedin.com/in/harshvardhan-singh-72487414/"
+    url: "https://www.linkedin.com/in/harshvardhan-singh-72487414"
     affiliations:
       name: Meta Platforms, Inc.
   - name: Tony Joseph
     url: "https://www.linkedin.com/in/tony-joseph"
     affiliations:
       name: Meta Platforms, Inc.
-  - name:  Cien Zhang
-    url: "https://www.linkedin.com/in/cienzhang/"
+  - name: Cien Zhang
+    url: "https://www.linkedin.com/in/cienzhang"
     affiliations:
       name: Meta Platforms, Inc.
   - name: Akash Vishwakarma
-    url: "https://www.linkedin.com/in/avishwaka/"
+    url: "https://www.linkedin.com/in/avishwaka"
     affiliations:
       name: Meta Platforms, Inc.
   - name: Svetlana Karslioglu
@@ -33,11 +33,11 @@ authors:
     affiliations:
       name: Meta Platforms, Inc.
   - name: Michael Wyatt Thot
-    url: "https://www.linkedin.com/in/michaelthot/"
+    url: "https://www.linkedin.com/in/michaelthot"
     affiliations:
       name: Meta Platforms, Inc.
   - name: Ameya Gawde
-    url: "https://www.linkedin.com/in/ameyagawde/"
+    url: "https://www.linkedin.com/in/ameyagawde"
     affiliations:
       name: Meta Platforms, Inc.
 
