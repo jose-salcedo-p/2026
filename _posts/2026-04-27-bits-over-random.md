@@ -9,11 +9,11 @@ htmlwidgets: true
 # Authors
 authors:
   - name: Vyzantinos Repantis
-    url: " https://www.linkedin.com/in/vyzantinos-repantis"
+    url: "https://www.linkedin.com/in/vyzantinos-repantis"
     affiliations:
       name: Meta Platforms, Inc.
   - name: Harshvardhan Singh
-    url: https://www.linkedin.com/in/harshvardhan-singh-72487414/
+    url: "https://www.linkedin.com/in/harshvardhan-singh-72487414/"
     affiliations:
       name: Meta Platforms, Inc.
   - name: Tony Joseph
@@ -21,7 +21,7 @@ authors:
     affiliations:
       name: Meta Platforms, Inc.
   - name:  Cien Zhang
-    url: https://www.linkedin.com/in/cienzhang/
+    url: "https://www.linkedin.com/in/cienzhang/"
     affiliations:
       name: Meta Platforms, Inc.
   - name: Akash Vishwakarma
@@ -29,7 +29,7 @@ authors:
     affiliations:
       name: Meta Platforms, Inc.
   - name: Svetlana Karslioglu
-    url: https://www.linkedin.com/in/svetlana-karslioglu"
+    url: "https://www.linkedin.com/in/svetlana-karslioglu"
     affiliations:
       name: Meta Platforms, Inc.
   - name: Michael Wyatt Thot
