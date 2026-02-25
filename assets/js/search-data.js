@@ -1282,6 +1282,17 @@ ninja.data = [{
             window.location.href = "/2026/blog/2026/boundlessness-overtaking-benchmarks/";
           
         },
+      },{id: "post-the-99-success-paradox-when-near-perfect-retrieval-equals-random-selection",
+        
+          title: "The 99% Success Paradox: When Near-Perfect Retrieval Equals Random Selection",
+        
+        description: "For most of the history of information retrieval (IR), search results were designed for human consumers who could scan, filter, and discard irrelevant information on their own. This shaped retrieval systems to optimize for finding and ranking more relevant documents, but not keeping results clean and minimal, as the human was the final filter. However, LLMs have changed that by lacking this filtering ability. To address this, we introduce Bits-over-Random (BoR), a chance-corrected measure of retrieval selectivity that reveals when high success rates mask random-level performance.",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/2026/blog/2026/bits-over-random/";
+          
+        },
       },{id: "post-beyond-the-rerun-why-reproducibility-is-failing-science",
         
           title: "Beyond the Rerun: Why Reproducibility is Failing Science",
