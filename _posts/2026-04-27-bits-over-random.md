@@ -13,7 +13,39 @@ mermaid:
 
 # Authors
 authors:
-  - name: Anonymous
+  - name: Vyzantinos Repantis
+    url: " https://www.linkedin.com/in/vyzantinos-repantis"
+    affiliations:
+      name: Meta Platforms, Inc.
+  - name: Harshvardhan Singh
+    url: https://www.linkedin.com/in/harshvardhan-singh-72487414/
+    affiliations:
+      name: Meta Platforms, Inc.
+  - name: Tony Joseph
+    url: "https://www.linkedin.com/in/tony-joseph"
+    affiliations:
+      name: Meta Platforms, Inc.
+  - name:  Cien Zhang
+    url: https://www.linkedin.com/in/cienzhang/
+    affiliations:
+      name: Meta Platforms, Inc.
+  - name: Akash Vishwakarma
+    url: "https://www.linkedin.com/in/avishwaka/"
+    affiliations:
+      name: Meta Platforms, Inc.
+  - name: Svetlana Karslioglu
+    url: https://www.linkedin.com/in/svetlana-karslioglu"
+    affiliations:
+      name: Meta Platforms, Inc.
+  - name: Michael Wyatt Thot
+    url: "https://www.linkedin.com/in/michaelthot/"
+    affiliations:
+      name: Meta Platforms, Inc.
+  - name: Ameya Gawde
+    url: "https://www.linkedin.com/in/ameyagawde/"
+    affiliations:
+      name: Meta Platforms, Inc.
+
 
 # must be the exact same name as your blogpost
 bibliography: 2026-04-27-bits-over-random.bib
@@ -38,6 +70,7 @@ toc:
   - name: What You Should Do About This
   - name: "Sidebar: SuccessK vs RecallK"
   - name: Final Thoughts
+  - name: Acknowledgements
 
 
 _styles: >
@@ -214,7 +247,7 @@ Each bit also represents a doubling of selectivity. Our definition follows.
 
 ## A Concrete Example
 
-Let's assume you have 10,000 documents. Each query has exactly ten relevant documents ($$R_q = 1$$).
+Let's assume you have 10,000 documents. Each query has exactly ten relevant documents ($$R_q = 10$$).
 **Note:** Many standard benchmarks such as MS MARCO have $$R_q ≈ 1$$ on average, even sparser than this example.
 
 You are testing two different retriever systems against the same dataset:
@@ -418,7 +451,6 @@ At K=100 on 20 Newsgroups:
 Perfect success rate. Essentially zero selectivity. **The ceiling has collapsed.**
 
 The predicted **ΔBoR** from theory matches reality within **0.01** bits. The math is working exactly as expected.
-
 {% include figure.liquid path="assets/img/2026-04-27-bits-over-random/selectivity_collapse_paradox_newsgroups.png" class="img-fluid" %}
 
 **Figure 2:** *The selectivity collapse paradox on 20 Newsgroups. Left: BoR declines sharply with depth, converging to the theoretical ceiling (dashed line). Right: As Success@K approaches 100%, BoR approaches zero.*
@@ -438,7 +470,7 @@ Setup: Multiple-choice classification task, 50 queries per configuration, temper
 | **BM25** | 66% | **50%** | 94% → 100% | 10x increase |
 | **SPLADE** | 68% | **58%** | 95% → 100% | 10x increase |
 
-Read that again:
+Highlights:
 
 - Success rate increased to 100% ✓
 - Accuracy **dropped** by 10–16 percentage points ✗
@@ -598,3 +630,7 @@ When your tool-based agent has 50 functions available, and you dump all 50 into 
 When you boost Success@K from 95% to 100% by tripling K, traditional metrics celebrate. BoR shows you just lost 1.5 bits of selectivity.
 
 The systems that win in the next era of AI won't be the ones that retrieve the most. They'll be the ones that retrieve the most **selectively**.
+
+## Acknowledgements
+
+We are grateful to Mike Halloran and Himanshu Pathak for their valuable feedback and insightful suggestions.
