@@ -155,8 +155,8 @@ Here's everything you need to remember:
 | $$K$$ | How many items you retrieve per query (top-K) | $$K=10$$ or $$K=100$$ |
 | $$R_q$$ | Relevant items in the corpus for a certain query q | $$R_q=1$$ (sparse) or $$R_q=20$$ (many) |
 | $$\bar{R}_q$$ | Average relevant items in the corpus per query | ≈1.1 on SciFact, ≈572 on 20 Newsgroups |
-| $$P_{obs}(K)$$ | Your observed success rate at K (Note: any success rate can be used here.) | 60% of queries succeed |
-| $$P_{rand}(K)$$ | Random-chance success at K | What luck would give you |
+| $$P_{\text{obs}}(K)$$ | Your observed success rate at K (Note: any success rate can be used here.) | 60% of queries succeed |
+| $$P_{\text{rand}}(K)$$ | Random-chance success at K | What luck would give you |
 | $$\lambda$$ | Heuristic: expected random hits = $$K \cdot \bar{R}_q / N$$ | $$\lambda$$ in the 3–5 range signals collapse |
 
 ### Step 1. Measure Your Success Rate
@@ -249,8 +249,8 @@ You are testing two different retriever systems against the same dataset:
 
 | Metric | System A (K=20, 60% success) | System B (K=100, 70% success) |
 |--------|------------------------------|-------------------------------|
-| P_obs | 0.60 | 0.70 |
-| P_rand | 0.01983 | 0.09566 |
+| $$P_{\text{obs}}$$ | 0.60 | 0.70 |
+| $$P_{\text{rand}}$$ | 0.01983 | 0.09566 |
 | EF (Enrichment Factor) | 0.60/0.01983 = 30.257 | 0.70/0.09566 = 7.318 |
 | BoR | 4.92 bits | 2.87 bits |
 
