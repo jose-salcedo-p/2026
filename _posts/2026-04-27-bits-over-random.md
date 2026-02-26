@@ -628,4 +628,4 @@ The systems that win in the next era of AI won't be the ones that retrieve the m
 
 ## Acknowledgements
 
-We are grateful to Mike Halloran and Himanshu Pathak for their valuable feedback and insightful suggestions.
+We are grateful to Mike Halloran and [Himanshu Pathak](https://github.com/himanshupathak1986) for their valuable feedback and insightful suggestions.
