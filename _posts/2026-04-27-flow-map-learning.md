@@ -13,22 +13,14 @@ mermaid:
   zoomable: true
 
 # Anonymize when submitting
-authors:
-  - name: Anonymous
-
 # authors:
-#  - name: Albert Einstein
-#    url: "https://en.wikipedia.org/wiki/Albert_Einstein"
-#    affiliations:
-#      name: IAS, Princeton
-#  - name: Boris Podolsky
-#    url: "https://en.wikipedia.org/wiki/Boris_Podolsky"
-#    affiliations:
-#      name: IAS, Princeton
-#  - name: Nathan Rosen
-#    url: "https://en.wikipedia.org/wiki/Nathan_Rosen"
-#    affiliations:
-#      name: IAS, Princeton
+#  - name: Anonymous
+
+authors:
+  - name: Anbu Huang
+    url: "https://innovation-cat.github.io/"
+    affiliations:
+      name: Independent Researcher
 
 # must be the exact same name as your blogpost
 bibliography: 2026-04-27-flow-map-learning.bib
@@ -100,34 +92,55 @@ The landscape of continuous-time generative modeling has largely crystallized in
     $$
 
 
-While these methods have achieved remarkable success, they face a dichotomy between **flexibility** and **efficiency**. 
 
-Integration-based methods (Diffusion, Flow Matching) are flexible but computationally expensive, requiring dozens or hundreds of sequential function evaluations (NFEs) to traverse the trajectory. Conversely, distillation methods like Consistency Models are fast (1-2 steps) but structurally **rigid**: they typically memorize the mapping to a fixed endpoint ($s=0$). This "schedule lock-in" makes them brittle under guidance, editing, or varying step counts, as the model lacks knowledge of the intermediate geometry of the flow.
+Despite their success, these approaches expose a persistent tension between **flexibility** and **efficiency**.
 
-To achieve **fast**, **few-step**, and **highly controlled** generation, we need a primitive that is richer than a single-point mapping but faster than numerical integration.
+- **Integration-based methods** (Diffusion, Flow Matching) are highly expressive: by refining the solver and step schedule, they can approximate the underlying continuous dynamics more accurately. However, they are often computationally expensive in practice, requiring dozens to hundreds of sequential network evaluations (NFEs). Their quality is tightly coupled to discretization choices: step count, schedule shape, and whether guidance or editing introduces additional stiffness into the dynamics.
+
+- **Distillation-style shortcuts** (e.g., Consistency Models) sit at the other extreme. They can generate in 1–2 steps, but this speed typically comes with structural rigidity: the model effectively learns a mapping anchored to a fixed endpoint (most commonly $$s=0$$). This endpoint anchoring can induce a form of *schedule lock-in*: changing step counts, inserting intermediate stops, or running back-and-forth editing procedures becomes fragile because the model is not explicitly trained to represent the geometry of intermediate time states.
+
+In many modern workflows—guided generation, iterative editing, multi-stage refinement, or any pipeline that composes multiple time jumps—we would like a primitive that is **richer than a single endpoint projection**, yet **cheaper than numerical integration**. This motivates the central idea of this post: instead of treating sampling as “integrate an infinitesimal field,” we learn a **two-time solution operator** that can jump from any $$t$$ to any $$s$$ directly. In the next section, we formalize this as the **Flow Map Paradigm**.
 
 
 
 ## 2. The Flow Map Paradigm
 
-Sampling from modern generative models is traditionally viewed as "following a trajectory": starting from noise and iteratively integrating a velocity field. We propose a shift in perspective: what if the fundamental object of learning is not the infinitesimal velocity, but the **finite-time transformation** itself?
 
-We define the **Flow Map** as the family of two-time solution operators $\Phi_{t\to s}$ that answers the question:
 
-<div class="box-note" markdown="1">
-**The Operator Question:**  If the system is currently at state $x_t$ at time $t$, exactly where will it be at time $s$?
-</div>
+Sampling in continuous-time generative models is usually described as “following a trajectory”: start from a noisy state and repeatedly integrate an infinitesimal dynamics (a score field or a velocity field). Here we propose a different primitive.
+
+Instead of treating the **vector field** as the main object and numerical integration as the inevitable inference engine, we elevate the **finite-time solution operator** to the center stage. Concretely, we consider the family of two-time maps
+
+$$
+\Phi_{t\to s}:\mathbb{R}^d\to\mathbb{R}^d,
+$$
+
+which answers the question: If the system is at state $x_t$ at time $t$, where will it be at time $s$?
+
+Throughout this post we adopt the denoising convention $t\in[0,1]$, where $t=1$ is the noisiest endpoint and $t=0$ is the clean/data endpoint, so a typical generation step is a **backward-time jump** with $s\le t$.
+
 
 
 
 
 ### 2.1. From trajectories to operators
 
-Consider a time-dependent vector field $v_{\phi}(x, t)$ defining the ODE: $$dx/dt = v_{\phi}(x, t)$$. While the vector field describes **local** motion, the flow map $$\Phi_{t\to s}: \mathbb{R}^d \to \mathbb{R}^d$$ describes the **global** transport. It is characterized by the integral equation:
+
+
+Consider a time-dependent vector field $v_{\phi}(x,t)$ defining the ODE
 
 $$
-x_s = \Phi_{t\to s}(x_t) \triangleq x_t + \int_{t}^{s} v_{\phi}(x_{\tau},\tau) d\tau, \qquad 0 \le s \le t \le 1.\tag{2.1}\label{eq:21}
+\frac{dx}{dt}=v_{\phi}(x,t).
 $$
+
+The vector field specifies **local** motion. The flow map $\Phi_{t\to s}$ instead specifies **global transport**: given the initial condition $x(t)=x_t$, it returns the state at time $s$. Equivalently, it satisfies the integral form
+
+$$
+x_s=\Phi_{t\to s}(x_t)\triangleq x_t+\int_t^s v_{\phi}(x_\tau,\tau)\,d\tau,
+\qquad 0\le s\le t\le 1.
+\tag{2.1}\label{eq:21}
+$$
+
 
 The **Flow Map Paradigm** reframes generative modeling from an **integration problem** to a **function approximation problem**. Instead of solving the integral at inference time, we train a neural network $f_\theta(x_t, t, s)$ to approximate the operator directly:
 
@@ -135,14 +148,19 @@ $$
 f_\theta(x_t, t, s) \approx \Phi_{t\to s}(x_t).
 $$
 
-A mathematically valid flow map must satisfy two intrinsic algebraic properties, which serve as the "physics" of the operator:
+A well-defined flow map is not an arbitrary function of $(x,t,s)$; it is constrained by the algebra of dynamical systems. Two properties are especially fundamental:
 
-1.  **Identity:** $\Phi_{t\to t}(x) = x$.
-2.  **Semigroup (Composition) Property:** For any intermediate time $u$,
+1.  **Identity:** For any time step $t$,
+    
+    $$\Phi_{t\to t}(x) = x$$
+
+2.  **Semigroup (Composition) Property:** For any intermediate time $u$ between $t$ and $s$,
     
     $$
     \Phi_{u\to s} \circ \Phi_{t\to u} = \Phi_{t\to s}.
     $$
+
+These identities act as the “physics” of the operator: they encode path-independence of time slicing. In later sections, this is exactly what will let us diagnose and reduce **compositional drift** in multi-hop generation/editing pipelines.
 
 
 ### 2.2. Unifying Existing Methods
@@ -156,18 +174,18 @@ The Flow Map formulation provides a generalized coordinate system for understand
 %}
 
 *   **Consistency Models (CM) are Boundary Operators:**
-    CMs restrict the target time to the data manifold ($s=0$). They learn the slice:
+    CMs restrict the target time to the data endpoint $s=0$ and learn only the boundary slice:
 
     $$ f_\theta^{\text{CM}}(x_t, t) \equiv f_\theta(x_t, t, 0). $$
     
-    **Limitation:** Because they ignore $s > 0$, they cannot support iterative refinement or arbitrary start-stop editing.
+    **Limitation:** because the model never represents $s>0$ explicitly, arbitrary stop-and-go schedules (or back-and-forth edits) often require extra heuristics (e.g., go to $x_0$ then re-noise), which can accumulate error across hops.
 
 *   **Flow Matching (FM) is the Infinitesimal Limit:**
-    FM learns the velocity field $v_\phi$, which is the derivative of the flow map as $s \to t$:
+    Flow Matching learns the local velocity field $v_\phi(x,t)$. In flow-map language, this corresponds to learning the first-order infinitesimal behavior of the operator:
 
     $$ v_\phi(x,t) = \lim_{s\to t} \frac{f_\theta(x, t, s) - x}{s-t}. $$
     
-    **Limitation:** Recovering finite jumps requires expensive numerical integration.
+    **Limitation:** to realize a finite jump $t\to s$, we still need numerical integration (many NFEs), unless further distilled.
 
 *   **MeanFlow is a Linearized Operator:**
     MeanFlow <d-cite key="geng2025mean"></d-cite> parameterizes the map using an average velocity $u_\theta$:
@@ -188,93 +206,224 @@ The Flow Map formulation provides a generalized coordinate system for understand
 
     $$ f_\theta(f_\theta(x, t_2, t_1), t_1, t_0) \approx f_\theta(x, t_2, t_0). $$
 
-
+Under the operator-centric view, methods such as MeanFlow and Consistency Trajectory Models (CTM) can be interpreted as concrete instantiations of flow-map learning, differing mainly in parameterization and which parts of the two-time operator are explicitly represented and constrained.
 
 
 ### 2.3. Why Operators? Speed, Control, and Composability
 
 
-By lifting the abstraction from **trajectories** to **operators**, we gain distinct advantages:
+Lifting the abstraction from **trajectories** to **operators** buys us three practical advantages:
+
 
 1.  **Amortization of Integration (Speed):**
-    We trade the cost of repeated integration during training for $O(1)$ inference. A jump from $t=1$ to $t=0$ becomes a single function call, yet unlike Consistency Models, we retain the ability to stop at any $s$.
+    Once $f_\theta$ is trained, a finite jump $t\to s$ is a single network evaluation. Unlike boundary-only maps, the operator can directly target any intermediate $s$, rather than always “touching” $s=0$.
 
 2.  **Decoupling Physics from Discretization (Control):**
     Trajectory-based samplers entangle the ODE dynamics with the solver's step size. With a flow map, the "desired jump" $(t, s)$ is an explicit input. This makes the model robust to changing step counts and enables non-uniform schedules tailored to specific editing tasks.
 
-3.  **Algebraic Consistency:**
-    Complex pipelines (e.g., SDEdit, in-painting) often require jumping back and forth in time. A flow map trained with composition constraints ensures that $x_t \to x_s \to x_u$ yields a valid state, preventing the accumulation of drift errors common in heuristic distillations.
+3. **Algebraic consistency (Composability).**  
+   Many real pipelines require chaining time jumps (e.g., iterative editing, refine-and-correct loops). If $f_\theta$ respects semigroup structure, then “direct” and “composed” jumps agree:
 
+   $$
+   \Phi_{t\to s}\approx \Phi_{u\to s}\circ\Phi_{t\to u},
+   $$
+   
+   which directly suppresses drift accumulation. This gives us not only better behavior in composed pipelines, but also a concrete diagnostic: *semigroup violation* becomes a measurable unit test for learned generative operators.
 
 
 ## 3. Training Two-Time Operators via Eulerian and Lagrangian Distillation
 
 
-We have defined the object of interest: a neural operator $f_\theta(x_t, t, s)$ approximating the true solution $\Phi_{t\to s}$ of a teacher velocity field $v_\phi$. The challenge is training this operator efficiently without running expensive ODE solvers in the loop.
+In Chapter 2, we elevated generative modeling from <b>integrating infinitesimal dynamics</b> to <b>learning finite-time operators</b>.
+We now turn to the central practical question: how can we train a neural operator
+$$f_\theta(x_t, t, s) \approx \Phi_{t\to s}(x_t)$$
+without placing an expensive ODE solver inside the training loop?
 
 
-We can derive training objectives by analyzing the partial derivatives of the flow map $\Phi_{t\to s}$ with respect to its two time arguments. These lead to two complementary "distillation" paradigms.
+
+Assume we have a teacher dynamics (e.g., probability-flow ODE or rectified-flow ODE) governed by a velocity field
+
+$$\frac{dx}{dt} = v_\phi(x,t), \qquad 0 \le s \le t \le 1.$$
+
+A naive approach would sample many $(t,s)$ pairs and numerically integrate the teacher from $t$ to $s$ to obtain supervision. This is prohibitively costly. Instead, we exploit two identities of flow maps:
+
+- How the map changes when we move the <b>target time</b> $s$ (Lagrangian view),
+- How the map changes when we move the <b>start time</b> $t$ (Eulerian view).
+
+Both lead to <b>one-step</b> distillation losses that require only a small teacher step / teacher velocity evaluation.
+
 
 
 
 ### 3.1. The Lagrangian View: Moving the Endpoint
 
-Fix the start state $x_t$ at time $t$. As we vary the target time $s$, the output $x_s$ traces a trajectory of the teacher ODE. This is the **Lagrangian** perspective (following the particle).
+{% include figure.liquid
+   path="assets/img/2026-04-27-flow-map-learning/lagrangian_view.gif"
+   class="img-fluid"
+%}
 
-**The Identity <d-cite key="boffi2025flow"></d-cite>:**
-Differentiation w.r.t. $s$ yields:
 
-$$
-\boxed{\ \frac{\partial}{\partial s} \Phi_{t\to s}(x_t) = v_\phi(\Phi_{t\to s}(x_t), s) \ }
-$$
 
-**Intuition:** As the target time $s$ advances, the value of the map changes according to the teacher's velocity at the current location.
-
-**Lagrangian Distillation (LMD) <d-cite key="sabour2025align"></d-cite>:**
-Directly matching this derivative gives us a training objective. In practice, we use a robust "predict-then-correct" discretization. We predict a jump to an intermediate time $s'$, and then ensure that taking one Euler step from $s'$ leads to the same result as predicting $s$ directly.
-
-Let $s' = s + \varepsilon (t-s)$. A discrete loss is:
+<p>
+Fix a starting state $x_t$ at time $t$, and view $\Phi_{t\to s}(x_t)$ as a function of the endpoint $s$.
+Following the same particle along the trajectory yields the standard identity (flow-map derivative in the target time):
+</p>
 
 $$
-\mathcal{L}_{\mathrm{LMD}} = \mathbb{E}_{t,s} \left[ \left\| f_\theta(x_t, t, s) - \underbrace{\left( f_{\theta^-}(x_t, t, s') + (s-s') v_\phi(f_{\theta^-}(x_t, t, s'), s') \right)}_{\text{1-step Teacher correction}} \right\|^2 \right].
+\frac{d\Phi_{t\to s}(x_t)}{ds} = \frac{\partial}{\partial s} \Phi_{t\to s}(x_t) = v_\phi(\Phi_{t\to s}(x_t), s)
 $$
 
-Here, $f_{\theta^-}$ is a target network (EMA). This effectively trains the student to match the teacher's *future* velocity.
+<p>
+<b>Interpretation.</b> As we move the endpoint $s$, the output moves according to the teacher velocity evaluated at the current location on the trajectory. This suggests a natural “predict-then-correct” distillation rule <d-cite key="boffi2025flow"></d-cite>.
+</p>
+
+<p>
+<b>Lagrangian Map Distillation (LMD) <d-cite key="sabour2025align"></d-cite>.</b>
+Choose a small fraction $\varepsilon\in(0,1)$ and define an intermediate endpoint
+$$s' = s + \varepsilon (t-s), \qquad \text{so that } s < s' < t.$$
+Then a first-order (backward-in-time) Euler correction from $s'$ to $s$ gives:
+</p>
+
+$$
+\Phi_{t\to s}(x_t)\;\approx\;\Phi_{t\to s'}(x_t) + (s-s')\,v_\phi(\Phi_{t\to s'}(x_t),\, s').
+$$
+
+<p>
+We implement this without integrating the teacher trajectory: we let a target/EMA network $f_{\theta^-}$ propose
+a state at time $s'$, and use the teacher velocity to correct it by one step.
+The LMD objective becomes:
+</p>
+
+$$
+\mathcal{L}_{\mathrm{LMD}}
+=
+\mathbb{E}_{t,s,\varepsilon}\Bigg[
+\Big\|
+f_\theta(x_t,t,s)
+-
+\Big(
+f_{\theta^-}(x_t,t,s')
++
+(s-s')\,v_\phi\big(f_{\theta^-}(x_t,t,s'),\,s'\big)
+\Big)
+\Big\|^2
+\Bigg].
+$$
+
+<p>
+<b>Why this helps.</b> LMD directly ties the predicted endpoint to the teacher dynamics: the student is trained to land on a
+state that is consistent with the teacher’s velocity <i>at that future point</i>.
+Empirically, this stabilizes “where you end up” for arbitrary $(t,s)$ jumps and reduces endpoint bias that often appears
+when a model is trained only to hit a single boundary (e.g., $s=0$).
+</p>
+
 
 
 ### 3.2. The Eulerian View: Moving the Start
 
-Alternatively, fix the target time $s$ and the spatial coordinate $x$, but vary the start time $t$. This describes how the solution operator itself evolves and leads to the **Eulerian** perspective (observing the flow at a fixed point).
+{% include figure.liquid
+   path="assets/img/2026-04-27-flow-map-learning/eulerian_view.gif"
+   class="img-fluid"
+%}
 
-**The Identity <d-cite key="boffi2025flow"></d-cite>:**
-The composition law implies a transport PDE (the Kolmogorov Backward Equation):
+
+
+<p>
+Now fix the destination time $s$ and study how the operator changes when we perturb the start time $t$.
+This is an <b>Eulerian</b> viewpoint: instead of following a particle, we ask how the map itself must transform
+so that the final destination at time $s$ remains invariant.
+</p>
+
+<p>
+From the semigroup law $\Phi_{t\to s} = \Phi_{t'\to s}\circ \Phi_{t\to t'}$ and a first-order expansion,
+one obtains the transport (backward) equation for ODE flow maps <d-cite key="boffi2025flow"></d-cite>:
+</p>
 
 $$
-\boxed{\ \frac{\partial}{\partial t} \Phi_{t\to s}(x) + J_x \Phi_{t\to s}(x) \, v_\phi(x, t) = 0 \ }
+\frac{d\Phi_{t\to s}(x)}{dt} = \frac{\partial}{\partial t}\,\Phi_{t\to s}(x)
++
+J_x \Phi_{t\to s}(x)\, v_\phi(x,t)
+=
+0.
 $$
 
-**Intuition:** If we perturb the start time $t$ (move it slightly toward $s$), we must compensate by moving the input $x$ along the flow $v_\phi$ by that same amount, such that the final destination $s$ remains unchanged.
-
-**Eulerian Distillation (EMD) <d-cite key="sabour2025align"></d-cite>:**
-This identity enforces **consistency under transport**. A discrete approximation involves taking a small teacher step from $t$ to $t'$ and demanding that the flow map from $t'$ yields the same result.
-
-Let $t' = t + \varepsilon (s-t)$. We first compute $x_{t'} = x_t + (t'-t)v_\phi(x_t, t)$. The loss is:
+<p>
+<b>Equivalent “pre-transport” intuition.</b>
+If we move the start time from $t$ to a slightly later (closer-to-$s$) time $t'$,
+we should first push the input $x_t$ along the teacher flow from $t$ to $t'$,
+and then apply the operator from $t'$ to $s$:
+</p>
 
 $$
-\mathcal{L}_{\mathrm{EMD}} = \mathbb{E}_{t,s} \left[ \left\| f_\theta(x_t, t, s) - f_{\theta^-}(x_{t'}, t', s) \right\|^2 \right].
+\Phi_{t\to s}(x_t)\;\approx\;\Phi_{t'\to s}(x_{t'}),\qquad
+x_{t'} \approx x_t + (t'-t)\,v_\phi(x_t,t).
 $$
 
-This is the core mechanism behind Consistency Models, but generalized here for arbitrary target times $s$.
+<p>
+<b>Eulerian Map Distillation (EMD) <d-cite key="sabour2025align"></d-cite>.</b>
+Pick the same $\varepsilon\in(0,1)$ and define
+$$t' = t + \varepsilon(s-t), \qquad \text{so that } s < t' < t.$$
+We compute a single teacher Euler step to obtain $x_{t'}$ and enforce consistency under this transport:
+</p>
+
+$$
+\mathcal{L}_{\mathrm{EMD}}
+=
+\mathbb{E}_{t,s,\varepsilon}\Big[
+\big\|
+f_\theta(x_t,t,s) - f_{\theta^-}(x_{t'},t',s)
+\big\|^2
+\Big].
+$$
+
+<p>
+<b>Connection to consistency-style training.</b>
+When $s$ is fixed to the boundary (e.g., $s=0$), this becomes the familiar “start-time invariance” constraint
+behind consistency-type objectives—here generalized to arbitrary destinations $s$.
+</p>
+
+
+
 
 
 ### 3.3. Synthesis: A Unified Objective
 
-The Lagrangian and Eulerian views provide orthogonal supervision signals:
 
-*   **Lagrangian (LMD)** stabilizes the **destination**: it ensures the map outputs valid states along the ODE trajectory.
-*   **Eulerian (EMD)** stabilizes the **path**: it ensures the map is invariant to the choice of starting time along the flow.
+<p>
+LMD and EMD provide complementary supervision signals:
+</p>
 
-Combining these allows for training flow maps that are both locally accurate (matching the vector field) and globally consistent (respecting composition). By learning the full operator $\Phi_{t\to s}$, we obtain a generative model that offers the speed of distilled models without sacrificing the flexibility of differential equations.
+<ul>
+  <li>
+    <b>Lagrangian (LMD)</b> constrains <b>endpoint correctness</b>:
+    the jump must land on a state that is locally consistent with the teacher velocity at the predicted location.
+  </li>
+  <li>
+    <b>Eulerian (EMD)</b> constrains <b>start-time consistency</b>:
+    shifting the start time and transporting the input accordingly should not change the final prediction.
+  </li>
+</ul>
+
+<p>
+A practical training objective is a weighted combination:
+</p>
+
+$$
+\mathcal{L}_{\mathrm{FMAP}}
+=
+\lambda_{\mathrm{L}}\,\mathcal{L}_{\mathrm{LMD}}
++
+\lambda_{\mathrm{E}}\,\mathcal{L}_{\mathrm{EMD}}.
+$$
+
+<p>
+<b>What this buys us.</b>
+Unlike endpoint-only shortcuts, the combined objective learns a <i>two-time</i> primitive:
+it can jump to arbitrary $s$ (control), remains stable under varying step schedules (robustness),
+and is structurally aligned with semigroup composition (composability).
+This sets up the experimental questions in the next chapter: are learned jumps indeed less sensitive to NFE,
+and do they exhibit smaller drift under multi-hop composition?
+</p>
 
 
 ## 4. Experiments
