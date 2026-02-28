@@ -9,7 +9,20 @@ htmlwidgets: true
 
 # Anonymize for the review process!
 authors:
-  - name: Anonymous
+  - name: Tommy Mordo
+    url: mailto:tommymordo@technion.ac.il
+  - name: Sagie Dekel
+    url: mailto:sagie.dekel@campus.technion.ac.il
+  - name: Tomer Kordonsky
+    url: mailto:tkordonsky@campus.technion.ac.il
+  - name: Omer Madmon
+    url: mailto:omermadmon@campus.technion.ac.il
+  - name: Moshe Tennenholtz
+    url: mailto:moshet@technion.ac.il
+  - name: Oren Kurland
+    url: mailto:kurland@technion.ac.il
+affiliations:
+  - name: Faculty of Data and Decision Sciences, Technion – Israel Institute of Technology
 
 # Link to the bibliography file
 bibliography: 2026-04-27-content-promotion-agent-design.bib
@@ -39,6 +52,7 @@ toc:
         - name: Attacking RAG-based systems
   - name: Tools
   - name: Conclusion
+  - name: Acknowledgment
 ---
 
 ## TL;DR
@@ -161,6 +175,8 @@ mechanism;
 
 ## Content Promotion as a Game
 
+A search system acts as a mediator between publishers and users and thus determines how much exposure each publisher receives. The publishers’ objective is to maximize exposure of their content among users. To achieve this, publishers apply a suite of approaches by which they optimize their content to increase exposure; in traditional search engines these approaches are often referred to as Search Engine Optimization (SEO) and in generative search engines as Generative (Search) Engine Optimization (GEO). As discussed above, varying measures of exposure exist in the emerging heterogeneous search ecosystem (e.g., CTR and citation count).
+
 We argue that game theory provides a major and essential framework for analyzing the
 resulting competitive dynamics and for designing agents that assist publishers to
 strategically promote their content. More precisely, repeated games with incomplete
@@ -219,28 +235,23 @@ define. These shifts motivate the development of new models that account for gen
 selection mechanisms, opaque feedback, and high adaptivity --- all of which strengthen the
 case for game-theoretic reasoning and for new solution concepts.
 
+Having formalized the game, we now discuss how should a publisher design an agent to operate within it.
+
 ## Agent Design Aspects for Traditional Search and Chat-like Systems
 
-We delve into three important aspects that should be considered when designing agents that
+We discuss several important aspects that should be considered when designing agents that
 assist publishers promote their content.
 
-The first ingredient that can (and will) be naturally used, is to exploit the significant power of
-LLMs, e.g., use clever prompt engineering to promote content and maintain faithfulness in
-such games.
+The first ingredient that can (and will) be naturally used is to leverage the significant power of LLMs (e.g., use clever prompt engineering) to adapt content in a query-aware manner, optimizing for visibility signals while preserving factual consistency. In traditional search settings, such prompt-based content modification strategies have already been explored (e.g., <d-cite key=bardas_automatic_2025></d-cite>), where structured prompts are used to induce targeted document revisions aligned with ranking objectives. In chat-like systems, similar mechanisms may instead optimize for inclusion likelihood or citation probability within generated answers.
 
-A second ingredient one should be aware of is incomplete information about the selection or
-generation mechanism applied by the system. Using, for example, information about the decision made by the mechanism (e.g., past responses) can help to train and fine tune
-agents.
+A second ingredient one should be aware of is the incomplete information about the selection or generation mechanism applied by the system. In both traditional ranking and chat-like settings, publishers do not observe the underlying scoring or answer-generation process; they only observe partial feedback, such as ranking positions, inclusion in generated answers, citation frequency, or changes in traffic. Using, for example, information about the decision made by the mechanism (e.g., past responses <d-cite key="mordo_lemss_2025" block></d-cite>) can help to train and fine tune agents by correlating specific document changes with downstream visibility improvements.
 
-The third ingredient is the need to be aware of competitors’ behavior. With limited access to
-annotated data --- and only partial observability of the decisions made by these systems ---
-this calls for carefully designed simulation tools. here again LLMs can be used as effective
-generative tools.
+The third ingredient is the need to be aware of competitors’ behavior. In a repeated strategic setting, publishers do not adapt in isolation; ranking or answer inclusion depends on the relative quality and structure of competing content. Even if the underlying mechanism is fixed, changes in competitors' documents can shift visibility outcomes.
+In practice, an agent can monitor top-ranked or frequently cited competing documents, extract structural and semantic features (e.g., heading structure, coverage of key entities, citation patterns, stylistic elements), and track how these evolve over time. By correlating competitor modifications with ranking or citation shifts, the agent can form hypotheses about emerging strategies or system sensitivities.
+Since real-world annotated multi-round competitive data is scarce, simulation becomes essential. One approach is to construct a surrogate environment in which multiple publisher agents --- potentially LLM-driven --- iteratively modify content and compete under a proxy ranking or answer-generation model. LLMs can serve not only as content generators but also as simulated competing publishers with heterogeneous capabilities (e.g., static human-like content vs. adaptive agentic publishers), enabling controlled self-play experiments.
+Nevertheless, such simulations inevitably introduce a domain gap between the surrogate mechanism and real-world systems, making robustness evaluation and transfer a central research challenge.
 
-Heretofore, we have described content promotion as a publishers game, shaped by evolving
-search and chat-based ecosystems and by the increasing role of generative AI. We now
-discuss different frameworks that can be employed to model and design effective agents in
-such settings.
+Heretofore, we have framed content promotion as a publisher game and outlined the core design requirements that a publisher-side agent must satisfy in both traditional and chat-based systems. We now turn to discuss different frameworks can operationalize these requirements and support the design of effective competitive agents.
 
 ## Frameworks
 ### Multi-Agent Reinforcement Learning (MARL)
@@ -298,7 +309,7 @@ for clean ablation studies, controlled perturbations, and the isolation of causa
 which are essential for understanding and improving agents operating in competitive ranking
 and chat-like ecosystems. Importantly LLMs now make it feasible to generate high-fidelity
 synthetic datasets at scale, enabling richer and more flexible experimental environments
-than were previously possible.
+than were previously possible. For instance, <d-cite key="mordo_lemss_2025" block></d-cite> introduced an LLM-based simulation framework for traditional ranking competitions, and <d-cite key="mordo_rlrf_2025"></d-cite> simulated a strategic ecosystem to generate synthetic data, which was then used to train content optimization agents.
 
 ### Simulation Environment
 A simulation environment that models the rules of the game, the ranking or generation
@@ -428,3 +439,6 @@ long-term dynamics in repeated competitive scenarios.
 Overall, as the ecosystem continues to evolve, combining insights from game theory,
 reinforcement learning, and simulation offers a principled path toward designing agents
 capable of succeeding in both current and future search paradigms.
+
+## Acknowledgment
+We thank the reviewers for their comments. The blogpost is also based on work supported in part by the Israel Science Foundation (grant no. 403/22).
