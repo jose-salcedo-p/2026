@@ -8,7 +8,10 @@ htmlwidgets: true
 
 # anonymize when submitting
 authors:
-  - name: Anonymous
+  - name: Qingfeng Lan
+    url: "https://lancelqf.github.io/about/"
+    affiliations:
+      name: University of Alberta
 
 # do not fill this in until your post is accepted and you're publishing your camera-ready post!
 # authors:
