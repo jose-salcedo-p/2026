@@ -12,9 +12,15 @@ mermaid:
   enabled: true
   zoomable: true
 
-# Anonymize when submitting
 authors:
-  - name: Anonymous
+  - name: Alex Schutz
+    url: "https://alex-schutz.github.io/"
+    affiliations:
+      name: University of Oxford
+  - name: Victor-Alexandru Darvariu
+    url: "https://victor.darvariu.me/"
+    affiliations:
+      name: University of Oxford
 
 
 # must be the exact same name as your blogpost
@@ -73,14 +79,16 @@ Deep reinforcement learning (RL) has also been an area of active research, with 
 However, the potential of GNNs in RL remains relatively underexplored.
 Compared to traditional deep learning architectures such as convolutional neural networks (CNNs) and multi-layer perceptrons (MLPs), GNNs offer several advantages that enable novel capabilities in RL settings when used as a policy or value function approximator.
 These include being agnostic to input size, permutation invariance, and the ability to handle variable action spaces.
-These properties have great value in applications such as multi-agent systems, navigation, combinatorial optimisation, and resource allocation.
+Transformer-based architectures have recently proven popular in RL settings, and can be seen as a special case of GNNs with a fully-connected graph structure.
+However, in problems with specific relational structure, using a GNN that takes advantage of this structure can be more efficient and effective than a fully-connected architecture.
+The properties of GNNs have great value in applications such as combinatorial optimization, multi-agent systems, and resource allocation.
 
-We hypothesise that the lack of uptake of GNNs in RL is due to unclear design patterns for integrating GNNs into RL frameworks, as well as a lack of implementation support in popular RL libraries.
+We hypothesise that the lack of uptake of GNNs in RL is partly due to unclear design patterns for integrating GNNs into RL frameworks, as well as a lack of implementation support in popular RL libraries.
 Thus, in this blog post, we aim to provide a comprehensive overview of GNNs in RL, focusing on the practical design aspects of using GNNs as policy or value function approximators.
 We discuss common approaches to representing environments as graphs, defining action spaces, and handling invalid actions.
 Furthermore, we include a detailed implementation example using Stable Baselines 3 (SB3) <d-cite key="raffin2021stable"></d-cite> and PyTorch Geometric <d-cite key="fey2019fast"></d-cite>, two of the most widely used RL and GNN libraries respectively.
 
-We hope that this post and [associated code](https://anonymous.4open.science/r/RL-with-GNNs-7B7E/README.md) will serve as a useful starting point for researchers and practitioners interested in leveraging GNNs in RL settings.
+We hope that this post and [associated code](https://github.com/alex-schutz/RL-with-GNNs) will serve as a useful starting point for researchers and practitioners interested in leveraging GNNs in RL settings.
 
 ## Preliminaries
 
@@ -96,7 +104,7 @@ The agent's objective is to learn a policy that maximises the expected cumulativ
 RL methods fall into two main categories: _value-based_ methods and _policy-based_ methods.
 Value-based methods, such as Q-learning and Deep Q-Networks (DQN), focus on estimating the Q-function $$Q : S \times A \rightarrow \mathbb{R}$$, representing the expected return for taking a particular action in a given state.
 Given the Q-function, a policy can be derived by selecting the action that maximises the value.
-Policy-based methods, such as Policy Gradient and Proximal Policy Optimization (PPO), directly parameterise the policy $$\pi_{\theta}(a | s)$$ and optimise the parameters $$\theta$$ to maximise the expected return. An RL policy can also be trained from expert demonstrations directly using _imitation learning_ algorithms such as Behavioral Cloning (BC).
+Policy-based methods, such as Policy Gradient and Proximal Policy Optimization (PPO), directly parameterise the policy $$\pi_{\theta}(a | s)$$ and optimize the parameters $$\theta$$ to maximise the expected return. An RL policy can also be trained from expert demonstrations directly using _imitation learning_ algorithms such as Behavioral Cloning (BC).
 With this approach, the agent learns to mimic the behaviour of an expert by aligning its action predictions with those from state-action pairs collected from expert trajectories.
 
 Deep neural networks including GNNs can be used as function approximators of $$Q$$ and $$\pi$$ for scaling to environments with large state and action spaces, which is loosely referred to as _Deep RL_. A typical Deep RL architecture is shown below.
@@ -110,15 +118,9 @@ The value / policy network then takes this latent representation as input and ou
 Typical deep learning architectures use CNNs for processing image-based observations and MLPs for vector-based observations.
 Policy and value networks are often implemented as MLPs, which take the encoded observation as input and output action values or action probabilities.
 Notably, using MLPs requires a fixed input dimension $$d$$, according to the size of the observation space or the output of the encoder, and a fixed output dimension according to the size of the action space $$|A|$$. 
+For further details on RL and Deep RL, we recommend the textbook by Sutton and Barto <d-cite key="suttonReinforcementLearningAn2018"></d-cite>.
 
 GNNs are a powerful alternative architecture that can provide a host of advantages for a variety of practical RL problems. Let us review GNNs next.
-
-<!-- Let's have a look at some popular deep RL benchmark problems.
-- **Lunar Lander**: 
-  - Observation space: 8-dimensional vector -- lander coordinates, velocities, and contacts.
-  - Action space: $$\{0, 1, 2, 3\}$$ -- do nothing, fire left engine, fire main engine, fire right engine. -->
-
-
 
 ### Graph Neural Networks
 
@@ -135,6 +137,7 @@ _Shallow_ graph embedding methods are manually-designed approaches using local n
 However, these methods often fail to capture complex relationships in the graph.
 _Deep_ graph embedding methods aim to learn the representation by training end-to-end with task-specific supervision signals.
 Graph Neural Networks (GNNs) are a class of deep learning models designed to operate on graph-structured data.
+We will provide a brief overview of GNNs here, but refer the interested reader to the textbook by Hamilton <d-cite key="hamiltonGraphRepresentationLearning2020"></d-cite> for a comprehensive introduction.
 
 {% include figure.liquid path="assets/img/2026-04-27-rl-with-gnns/graph_embedding2.svg" class="img-fluid" alt="On the left is an input graph with 8 nodes. On the right is a plot demonstrating the 2-D embedding of the nodes in vector space." caption="A GNN can learn an embedding of nodes in vector space." %}
 
@@ -175,10 +178,10 @@ In order to preserve permutation invariance, the readout function must also be p
 
 Many popular GNN architectures can be expressed using this message-passing framework, including Graph Convolutional Networks (GCNs) <d-cite key="kipfSemiSupervisedClassificationGraph2017"></d-cite>, Graph Attention Networks (GATs) <d-cite key="velickovic2018graph"></d-cite>, and GraphSAGE <d-cite key="hamiltonInductiveRepresentationLearning2017"></d-cite>.
 
+## Limitations of Using Traditional Architectures in Deep Reinforcement Learning
 
-## Limitations of Traditional Architectures for Deep Reinforcement Learning
-
-Even though MLPs and CNNs are widely used in Deep RL, there are a number of limitations inherent in their representational power, which we discuss below.
+Traditional architectures such as MLP and CNNs are frequently used for function approximation in Deep RL. Typically, this relies on fixed-size input encodings and policy or value heads. 
+There are a number of significant limitations inherent in this approach, which we discuss below.
 
 ### Permutation Sensitivity
 Graphs nominally enjoy the property of permutation invariance: regardless of the ordering of the nodes, the properties are the same, as only the *relationships* between the nodes are important.
@@ -190,7 +193,7 @@ If we use the matrix representation of the graph as input to a neural network, w
 The two adjacency matrices above are created from the same graph. Fed to an MLP, we obtain two very different outputs.
 This means that in order to train our network to, say, classify graphs based on their structure, we would have to add permutations of the training data in order to ensure that it learns to correctly classify what is fundamentally the same graph.
 
-Let's use the game of tic-tac-toe as an example. 
+Consider the game of tic-tac-toe as an example. 
 This game is represented by a $$3\times 3$$ grid, in which spaces can be blank, or contain an $$\texttt{X}$$ or $$\texttt{O}$$.
 A simple representation of this state would be a $$3\times 3$$ matrix with each entry corresponding to the contents of the space on the board.
 This kind of state representation is easily handled by an appropriately sized CNN layer or MLP after vectorisation.
@@ -243,7 +246,6 @@ This means that it is possible to train a GNN-based policy on small graphs and d
 
   
 ## Designing Environments for Graph Problems
-<!-- todo: highlight advantage of GNNs in each example -->
 
 While using GNNs can offer several advantages compared to standard learning architectures in RL settings, designing the environment that the agent interacts with (e.g., action space and transition function of the MDP) also has an important role. 
 In order to use GNNs in RL, we need to represent the environment as a graph.
@@ -264,7 +266,7 @@ In the following sections, we discuss several common approaches to defining acti
 
 ### Fixed Action Spaces
 
-The most straightforward way to use a GNN in RL is to use it as a feature extractor for environments with fixed action spaces.
+The most straightforward way to leverage a GNN in RL is to use it as a feature extractor for environments with fixed action spaces.
 In this case, the GNN processes the graph-structured observation from the environment and produces a graph or node-level embedding vector.
 This vector can then passed to an MLP to produce action values or probabilities.
 
@@ -303,7 +305,7 @@ From these scores, an action distribution can be created, or the highest scoring
 ### Nodes as Actions: Score-Based
 
 More generally, we can consider the entire set of nodes in the graph as possible actions.
-This is particularly useful in environments where the agent can select any node in the graph as an action, such as in combinatorial optimisation problems.
+This is particularly useful in environments where the agent can select any node in the graph as an action, such as in combinatorial optimization problems.
 Using this action space, an agent can be trained on graphs of small sizes, and learn a policy that can be evaluated on much larger graphs at test time.
 
 Similarly to the neighbours-as-actions approach, the node embeddings produced by the GNN can be scored to produce action values or action probabilities.
@@ -312,7 +314,7 @@ Similarly to the neighbours-as-actions approach, the node embeddings produced by
 
 
 #### Examples
-+ Khalil et al. <d-cite key="Khalil2017LearningCO"></d-cite> approach combinatorial optimisation problems such as the travelling salesman problem (TSP) and minimum vertex cover (MVC) using Q-learning. At each step, a node is selected from the graph to be added to the solution set. The action-value estimate for each node $$v$$ in graph state $$G$$ is given by $$Q(G, v) = f([\mathbf{z}_G \| \mathbf{z}_v])$$, where $$\mathbf{z}_G$$ is the graph-level embedding obtained via pooling and $$\mathbf{z}_v$$ is the GNN embedding of node $$v$$. Here, $$f$$ is a 2-layer MLP.
++ Khalil et al. <d-cite key="Khalil2017LearningCO"></d-cite> approach combinatorial optimization problems such as the travelling salesman problem (TSP) and minimum vertex cover (MVC) using Q-learning. At each step, a node is selected from the graph to be added to the solution set. The action-value estimate for each node $$v$$ in graph state $$G$$ is given by $$Q(G, v) = f([\mathbf{z}_G \| \mathbf{z}_v])$$, where $$\mathbf{z}_G$$ is the graph-level embedding obtained via pooling and $$\mathbf{z}_v$$ is the GNN embedding of node $$v$$. Here, $$f$$ is a 2-layer MLP.
 + Antonietti et al. <d-cite key="antonietti2025magnet"></d-cite> consider mesh agglomeration as a graph partitioning problem. At each step, a point is chosen to be switched from its current partition into the other. The model is implemented using four GraphSAGE layers, followed by two linear layers. The critic then uses attentional aggregation and two further linear layers to produce a value estimate, and the model is trained using A2C. Here, the authors use action masking to prevent previously selected nodes from being selected again.
 + Infantes et al. <d-cite key="infantes2024earth"></d-cite> address satellite observation scheduling using a GNN-based policy trained with PPO. In this case, the authors obtain the action logits from a concatenation of node embeddings from each layer of the GNN, passed through a linear layer to reduce them to dimension 1.
 
@@ -327,9 +329,8 @@ The inspiration for this approach comes from <d-cite key="dulac-arnoldDeepReinfo
 
 #### Examples
 + Darvariu et al. <d-cite key="darvariuSolvingGraphbasedPublic2021"></d-cite> approach a public goods game reformulated as finding a maximal independent set in a graph. At each step, a node is selected from the graph to add to the set until no valid nodes remain. The authors create a proto-action by first summing the node embeddings and then passing it through an MLP. An action distribution is created by taking the Euclidean distance between the proto-action and each node embedding, passing these distances through a softmax layer to obtain probabilities. The policy is trained using imitation learning.
-+ Trivedi et al. <d-cite key="trivediGraphOptLearningOptimization2020"></d-cite> seek to learn generative mechanisms for graph-structured data. Edges are formed by sampling two nodes from a Gaussian policy following $$\mathbf{a}^{(1)}, \mathbf{a}^{(2)} \sim \mathcal{N}(\mathbf{\mu}, \log(\mathbf{\sigma}^2))$$ given the policy $$\pi(s) = [\mathbf{\mu}, \log(\mathbf{\sigma}^2)] = g(Enc(s))$$, where $$g$$ is a 2 layer MLP and $$Enc$$ is a GNN. The policy is trained using Soft Actor-Critic (SAC) combined with Inverse Optimal Control (IOC).
++ Trivedi et al. <d-cite key="trivediGraphOptLearningOptimization2020"></d-cite> seek to learn generative mechanisms for graph-structured data. Edges are formed by sampling two nodes from a Gaussian policy following $$\mathbf{a}^{(1)}, \mathbf{a}^{(2)} \sim N(\mathbf{\mu}, \log(\mathbf{\sigma}^2))$$ given the policy $$\pi(s) = [\mathbf{\mu}, \log(\mathbf{\sigma}^2)] = g(Enc(s))$$, where $$g$$ is a 2 layer MLP and $$Enc$$ is a GNN. The policy is trained using Soft Actor-Critic (SAC) combined with Inverse Optimal Control (IOC).
 
-<!-- TODO: \mathcal{N} redefinition conflict with neighbour notation -->
 
 ### Edges as Actions
 
@@ -367,15 +368,18 @@ We will demonstrate that action masking is generally a more effective approach w
 
 #### Experiment
 
-We will run a simple experiment to compare the performance of action masking and invalid action penalties in a GNN-based RL environment.
-We will use a weighted minimum vertex cover (MVC) problem, where the agent must select nodes to cover all edges in the graph while minimising the total weight of the selected nodes.
-The full environment setup is described in the [Implementation Example](#implementation-example) section below.
+We run a simple experiment to compare the performance of action masking and invalid action penalties in a GNN-based RL environment.
+We use the weighted minimum vertex cover (MVC) problem as a test environment, where the agent must select nodes to cover all edges in the graph while minimising the total weight of the selected nodes.
+
+We remark that this problem has been widely studied in the combinatorial optimization literature and powerful solvers have been developed. 
+Thus, we use the MVC as an illustrative example due to its relative simplicity, but do not recommend a learning-based approach for solving it in practice. 
+The strength of the RL+GNN approach lies in its generality and applicability to less-studied combinatorial optimization problems <d-cite key='darvariu2024graph'></d-cite>. The full environment setup is described in the [Implementation Example](#implementation-example) section below.
 
 In this setting, invalid actions correspond to selecting nodes that have already been selected.
 In a given episode, the maximum number of steps that can be taken by only selecting valid actions is equal to the number of nodes in the graph.
 However, if invalid actions are allowed (and penalised), the agent may select the same node multiple times, leading to indefinite episode lengths.
 
-We will compare two agents: one using action masking to prevent invalid actions, and one using a fixed penalty of -1 for selecting an invalid action.
+We compare two agents: one using action masking to prevent invalid actions, and one using a fixed penalty of -1 for selecting an invalid action.
 The reward for selecting a valid node is equal to the negative weight of the node.
 For the agent using penalties, we set the maximum episode length to be the number of nodes in the graph, to prevent indefinite episodes.
 Both agents are trained using PPO with the same GNN architecture (2 GraphSAGE layers) and hyperparameters.
@@ -393,16 +397,15 @@ Clearly, this is an important design decision which can have a significant impac
 
 ## Implementation Example
 
-We will illustrate how to implement a simple GNN-based policy network using PyTorch Geometric <d-cite key="fey2019fast"></d-cite>.
-This will be trained using Proximal Policy Optimisation (PPO) <d-cite key="schulman2017proximalpolicyoptimizationalgorithms"></d-cite> on a weighted minimum vertex cover (MVC) problem.
-We will use Stable Baselines3 (SB3) <d-cite key="raffin2021stable"></d-cite> for the RL training loop.
+We illustrate how to implement a simple GNN-based policy network using PyTorch Geometric <d-cite key="fey2019fast"></d-cite>.
+The training is performed using Proximal Policy Optimization (PPO) <d-cite key="schulman2017proximalpolicyoptimizationalgorithms"></d-cite> on a weighted minimum vertex cover (MVC) problem.
+We use Stable Baselines3 (SB3) <d-cite key="raffin2021stable"></d-cite> for the RL training loop.
 
 The MVC problem is defined on an undirected graph $$G = (V, E)$$ with node weights $$w: V \rightarrow \mathbb{R}^+$$.
 The goal is to find a subset of nodes $$C \subseteq V$$ such that every edge $$ (u, v) \in E $$ has at least one endpoint in $$ C $$, while minimising the total weight of the selected nodes $$ \sum_{v \in C} w(v) $$.
-We will formulate this as a sequential decision-making problem, where at each step, the agent selects a node to add to the cover set until all edges are covered.
+We formulate this as a sequential decision-making problem, where at each step, the agent selects a node to add to the cover set until all edges are covered.
 
-<!-- TODO: change to real repo -->
-Full code can be found in the [accompanying GitHub repository](https://anonymous.4open.science/r/RL-with-GNNs-7B7E/README.md), along with extra network examples and environment implementations.
+Full code can be found in the [accompanying GitHub repository](https://github.com/alex-schutz/RL-with-GNNs), along with extra network examples and environment implementations.
 
 ### A Note on SB3 Integration
 
@@ -410,30 +413,30 @@ SB3 provides a flexible framework for implementing custom policy networks with s
 SB3 assumes an environment that follows the OpenAI Gym interface <d-cite key="brockman2016openai"></d-cite>, which requires defining the observation and action spaces, as well as the step and reset functions.
 While Gymnasium <d-cite key="towers2024gymnasium"></d-cite> supports graph-structured or sequence-structured observations, SB3 does not natively support these types of observations, and instead requires both the observation space and action space to have pre-defined fixed dimensions.
 
-In order to work around this limitation, we will require that our environments and policies use fixed-size graphs of size `max_nodes`, padded as necessary.
+In order to work around this limitation, we require that our environments and policies use fixed-size graphs of size `max_nodes`, padded as necessary.
 This restriction allows us to use SB3's existing functionality while still leveraging the benefits of GNNs for processing graph-structured data.
 While the padding introduces some overhead, the padded graphs in matrix form will immediately be transformed back into sparse graph representations to be processed by the GNN.
 The `max_nodes` parameter should be chosen based on the expected size of the graphs in the environment.
 However, this parameter does not inherently impose any architectural constraints on the GNN, which means it can be **changed at test time** to allow for testing on larger graphs than seen during training.
 
-### The Actor Critic Architecture
+### The Actor-Critic Architecture
 
-We will base our implementation on the actor-critic architecture provided by SB3.
-As a base class, we will use `MaskableActorCriticPolicy` from the `sb3_contrib` package, which allows us to apply action masks to the action distribution.
-This is useful in our environment, as not all nodes will be valid actions at each step (i.e., nodes that have already been selected cannot be selected again).
+We base our implementation on the actor-critic architecture provided by SB3.
+As a base class, we use `MaskableActorCriticPolicy` from the `sb3_contrib` package, which allows us to apply action masks to the action distribution.
+This is useful in our environment, as not all nodes are valid actions at each step (i.e., nodes that have already been selected cannot be selected again).
 
 The key components of the architecture are:
-1. **Features extractor**: This is typically a network that processes the raw observations from the environment into a latent representation, and is shared by both the actor and critic networks. In a GNN-based architecture, this could be an encoder that maps different types of node and edge features into a common feature space. In our example, this will be a simple transformation from the matrix representation of the graph to a PyTorch Geometric `Data` object.
-2. **Processor**: This network defines the main processing of the graph-structured data, which here will be shared by both the actor and critic networks. This will be a GNN that processes the graph and produces node embeddings and a graph-level embedding.
-3. **Policy and value heads**: These are the final layers that produce the action distribution and value estimates, respectively. In our case, the policy head will use a [proto-action approach](#nodes-as-actions-proto-action) to select nodes, while the value head will use the graph-level embedding to estimate the value of the current state.
+1. **Features extractor**: This is typically a network that processes the raw observations from the environment into a latent representation, and is shared by both the actor and critic networks. In a GNN-based architecture, this could be an encoder that maps different types of node and edge features into a common feature space. In our example, this is a simple transformation from the matrix representation of the graph to a PyTorch Geometric `Data` object.
+2. **Processor**: This network defines the main processing of the graph-structured data, which here is shared by both the actor and critic networks. This is a GNN that processes the graph and produces node embeddings and a graph-level embedding.
+3. **Policy and value heads**: These are the final layers that produce the action distribution and value estimates, respectively. In our case, the policy head uses a [proto-action approach](#nodes-as-actions-proto-action) to select nodes, while the value head uses the graph-level embedding to estimate the value of the current state.
 
 More detail on implementing custom policies in SB3 can be found in the [SB3 documentation](https://stable-baselines3.readthedocs.io/en/master/guide/custom_policy.html).
 
 ### Features Extractor
 
-First, we will define a simple feature extractor that converts the matrix representation of the graph into a PyTorch Geometric `Data` object.
-We will assume that the environment implements observations in the form of a dictionary, where the key `node_features` maps to a matrix of shape `(max_nodes, node_dim)`, the key `edge_features` maps to a matrix of shape `(max_nodes, max_nodes, node_dim)`, and the key `adjacency_matrix` maps to a binary adjacency matrix of shape `(max_nodes, max_nodes)`.
-Based on these matrix representations, we will create the corresponding `Data` object, where we remove any padding from the matrices by assuming that any node with zero edges is padding.
+First, we define a simple feature extractor that converts the matrix representation of the graph into a PyTorch Geometric `Data` object.
+We assume that the environment implements observations in the form of a dictionary, where the key `node_features` maps to a matrix of shape `(max_nodes, node_dim)`, the key `edge_features` maps to a matrix of shape `(max_nodes, max_nodes, node_dim)`, and the key `adjacency_matrix` maps to a binary adjacency matrix of shape `(max_nodes, max_nodes)`.
+Based on these matrix representations, we create the corresponding `Data` object, where we remove any padding from the matrices by assuming that any node with zero edges is padding.
 
 {% highlight python %}
 
@@ -655,7 +658,7 @@ class GraphActorCriticProcessor(nn.Module):
 
 ### Defining the Actor Network
 
-Next, we will define the policy network that uses the GNN to produce action probabilities.
+Next, we define the policy network that uses the GNN to produce action probabilities.
 We create a proto-action from the pooled node embeddings produced by the GNN indicating the best action to take, then use a similarity function to rank the available actions.
 
 {% highlight python %}
@@ -765,10 +768,10 @@ class ProtoActionNetwork(nn.Module):
 
 ### Putting Together the Complete Policy
 
-Finally, we will create the complete GNN-based policy by combining the feature extractor, processor, and actor/critic networks.
+Finally, we create the complete GNN-based policy by combining the feature extractor, processor, and actor/critic networks.
 Note that we have not explicitly defined the critic network. 
 This is because the critic MLP is automatically created by the `MaskableGraphActorCriticPolicy` base class, according to the `latent_dim_vf` attribute defined in the processor network.
-This will map the graph embedding to a scalar value estimate, and the depth can be configured via the `net_arch` parameter.
+This maps the graph embedding to a scalar value estimate, and the depth can be configured via the `net_arch` parameter.
 
 {% highlight python %}
 
@@ -867,14 +870,14 @@ class MaskableGraphActorCriticPolicy(MaskableActorCriticPolicy):
 
 ### Defining the Environment
 
-With the policy defined, we will now create a simple Gym environment for the weighted minimum vertex cover problem.
-Here, we will use a node feature vector consisting of the node weight and a binary indicator of whether the node has been selected.
-We will also define an edge feature vector consisting of a binary indicator of whether the edge is covered in the current solution.
-We will use a simple reward structure, where the agent receives a negative reward equal to the weight of the selected node at each step, and the episode ends when all edges are covered.
+With the policy defined, we now create a simple Gym environment for the weighted minimum vertex cover problem.
+Here, we use a node feature vector consisting of the node weight and a binary indicator of whether the node has been selected.
+We also define an edge feature vector consisting of a binary indicator of whether the edge is covered in the current solution.
+We use a simple reward structure in which the agent receives a negative reward equal to the weight of the selected node at each step, and the episode ends when all edges are covered.
 
 We will not provide the full implementation of the environment here, but the key components are:
 
-1\. The action and observation space. These are defined as fixed-size spaces, with the observation space being a dictionary containing the node features, edge features, and adjacency matrix. This will be the input to the `MatrixObservationToGraph` features extractor that we defined earlier.
+1\. The action and observation space. These are defined as fixed-size spaces, with the observation space being a dictionary containing the node features, edge features, and adjacency matrix. This is the input to the `MatrixObservationToGraph` features extractor that we defined earlier.
 {% highlight python %}
 
         self.action_space = gym.spaces.Discrete(self.max_nodes)
@@ -904,7 +907,7 @@ We will not provide the full implementation of the environment here, but the key
         )
 
 {% endhighlight %}
-2\. The core logic. The step function will take an action (node index), and add the node to the vertex cover set if it has not already been selected. The covered edges will be updated accordingly, and the reward will be calculated based on the node weight.
+2\. The core logic. The step function takes an action (node index), and adds the node to the vertex cover set if it has not already been selected. The covered edges are updated accordingly, and the reward is calculated based on the node weight.
 {% highlight python %}
 
     def step(self, action):
@@ -926,7 +929,7 @@ We will not provide the full implementation of the environment here, but the key
         return self._get_observation(), reward, done, False, {}
 
 {% endhighlight %}
-3\. The observation function. This function will take the current state of the environment and return the node feature matrix and edge feature matrix as defined, including any padding.
+3\. The observation function. This function takes the current state of the environment and returns the node feature matrix and edge feature matrix as defined, including any padding.
 {% highlight python %}
 
     def _get_observation(self):
@@ -949,7 +952,7 @@ We will not provide the full implementation of the environment here, but the key
             "adjacency_matrix": adjacency_matrix,
         }
 {% endhighlight %}
-4\. The action masks. Here, the environment will indicate which actions (nodes) are valid at each step, i.e., nodes that have not already been selected.
+4\. The action masks. Here, the environment indicates which actions (nodes) are valid at each step, i.e., nodes that have not already been selected.
 {% highlight python %}
 
     def action_masks(self):
@@ -957,13 +960,12 @@ We will not provide the full implementation of the environment here, but the key
 
 {% endhighlight %}
 
-<!-- TODO: change to real repo -->
-Full code for the environment can be found in the [accompanying GitHub repository](https://anonymous.4open.science/r/RL-with-GNNs-7B7E/README.md).
+Full code for the environment can be found in the [accompanying GitHub repository](https://github.com/alex-schutz/RL-with-GNNs).
 
 ### Training the Policy
 
 With the environment and policy defined, we can now train the GNN-based policy using SB3's PPO implementation.
-We will train on randomly generated graphs of size 5, 10 and 15 nodes.
+We train on randomly generated graphs of size 5, 10 and 15 nodes.
 We validate the policy on graphs of size 15 at regular intervals during training.
 Here we train a 2-layer GAT with embedding dimension 128 on graphs with 100k PPO steps.
 For comparison, we also train GCN and GraphSAGE architectures with the same parameters. 
@@ -1018,13 +1020,12 @@ Using GNNs as policy or value function approximators in RL unlocks many new capa
 
 As discussed previously, defining the action space is a key challenge when using GNNs in RL.
 Most existing works use either a fixed action space or model actions as some function of nodes or edges.
-Popular GNN architectures are primarily designed to produce node-level embeddings, and edge-based actions are mostly unexplored in RL settings.
-At this stage, modelling more complex action spaces, such as hybrids of fixed and graph-based actions, remains an open question.
+At this stage, how to model more complex action spaces such as hybrids of graph-based and continuous actions (e.g., choosing an edge *and* allocating it a real-valued capacity) remains an open question.
 
 The limitations of GNN architectures themselves can also limit their effectiveness in RL settings.
 At present, many GNNs operate under the assumption of homophily: that connected nodes are more likely to share similar features or labels.
 GNNs have also been designed for heterogeneous graphs (e.g., <d-cite key="wang2019heterogeneous"></d-cite>), but these require a strict bipartite structure, limiting their applicability.
-At present, even if an environment can be modelled as a graph, complex structures or interactions (such as distinct node types, or higher-order relationships) may create an environment that is not well-suited to existing GNN architectures.
+At present, even if an environment can be modelled as a graph, complex structures or interactions (such as distinct node types or higher-order relationships) may create an environment that is not well-suited to existing GNN architectures.
 Furthermore, many GNNs can be prone to over-smoothing, where node embeddings become indistinguishable after multiple message-passing layers <d-cite key="rusch2023survey"></d-cite>.
 This makes long-range dependencies difficult to capture, and can limit the effectiveness of GNNs in environments with large or dense graphs.
 
@@ -1037,6 +1038,6 @@ In addition, standardised benchmarks and evaluation protocols for GNN-based RL m
 
 GNNs offer a powerful approach for function approximation in RL settings, enabling capabilities such as permutation invariance, handling variable action spaces, and applicability with dynamic input sizes.
 By representing the environment as a graph, we can leverage the strengths of GNNs to tackle practical RL problems that are difficult to solve with traditional deep learning architectures.
-While there are still challenges and open questions to be addressed, the integration of GNNs into RL holds great promise for advancing the field and unlocking new applications in combinatorial optimisation, multi-agent systems, and dynamic resource allocation.
-Looking forward, we hope this blogpost will encourage more research exploring the application of GNNs in RL, as well as improved support for graph-based RL in popular libraries and frameworks.
+While there are important challenges and open questions to be addressed, the works reviewed in this blog post demonstrate that integrating GNNs into RL holds promise for advancing the field and unlocking new applications in combinatorial optimization, multi-agent systems, and resource allocation.
+Looking forward, we hope this blog post will encourage more research exploring the application of GNNs in RL, as well as improved support for graph-based RL in popular libraries and frameworks.
 
