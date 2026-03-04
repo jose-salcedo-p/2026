@@ -1885,7 +1885,36 @@ Our word-frequency analysis offers a plausible explanation: models tend to use w
 
 ## Summary
 
-{% include figure.liquid path="assets/img/2026-04-27-wait-do-we-need-to-wait/summary.png" class="img-fluid rounded-lg" %}
+```mermaid
+flowchart LR
+    %% Inputs
+    P("📝 Prompting")
+    B("🎯 Benchmark")
+    
+    %% Model
+    M("🤖 Model")
+    
+    %% Setup & Forcing
+    K("💬 Keyword")
+    Bg("💰 Budget")
+    BF["Budget Forcing"]
+    
+    %% Output
+    R("🔠 Response")
+
+    %% Connections
+    P --> M
+    B --> M
+    M --> BF
+    K --> BF
+    Bg --> BF
+    BF --> R
+
+    %% Styling
+    classDef default fill:transparent,stroke:#888,stroke-width:1px,color:inherit
+    classDef process fill:#dbeafe,stroke:#3b82f6,stroke-width:2px,color:#1e3a8a,font-weight:bold
+    class BF process
+```
 
 This work revisits **budget forcing**, a sequential test-time scaling method that extends or trims a model's reasoning by controlling the token budget and repeatedly prompting it to continue thinking. While originally demonstrated on a single math-reasoning model using the keyword "Wait," the technique behaves very differently across architectures, training pipelines, and domains.
 
