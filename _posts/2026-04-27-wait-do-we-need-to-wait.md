@@ -58,65 +58,96 @@ toc:
   - name: Limitations
 
 _styles: |
-  /* Base Variables */
+  /* Base Variables - Premium Modern Aesthetic */
     :root {
-        /* Core Call-out Identity */
-        --co-accent: #6366f1; /* Indigo accent */
-        --co-bg: #f8fafc;     /* Very light cool gray */
-        --co-border: #e2e8f0;
-        --co-text: #334155;
+        --co-accent: #6366f1; /* Soft Indigo */
+        --co-accent-gradient: linear-gradient(135deg, #6366f1, #a855f7);
+        --co-bg: rgba(255, 255, 255, 0.7);     
+        --co-border: rgba(226, 232, 240, 0.8);
+        --co-text: #475569;
         --co-title: #0f172a;
+        --co-shadow: 0 4px 20px -2px rgba(99, 102, 241, 0.1);
+        --co-glass: blur(12px);
     }
 
     /* Dark Theme Overrides */
     @media (prefers-color-scheme: dark) {
         :root {
             --co-accent: #818cf8;
-            --co-bg: #1e293b;     /* Dark slate blueish */
-            --co-border: #334155;
-            --co-text: #cbd5e1;
-            --co-title: #f1f5f9;
+            --co-accent-gradient: linear-gradient(135deg, #818cf8, #c084fc);
+            --co-bg: rgba(15, 23, 42, 0.6);     
+            --co-border: rgba(51, 65, 85, 0.6);
+            --co-text: #94a3b8;
+            --co-title: #f8fafc;
+            --co-shadow: 0 8px 32px -4px rgba(0, 0, 0, 0.5);
         }
     }
 
-    /* Dark Theme Overrides for Manual Toggle */
     [data-theme="dark"] {
         --co-accent: #818cf8;
-        --co-bg: #1e293b;     /* Dark slate blueish */
-        --co-border: #334155;
-        --co-text: #cbd5e1;
-        --co-title: #f1f5f9;
+        --co-accent-gradient: linear-gradient(135deg, #818cf8, #c084fc);
+        --co-bg: rgba(15, 23, 42, 0.6);     
+        --co-border: rgba(51, 65, 85, 0.6);
+        --co-text: #94a3b8;
+        --co-title: #f8fafc;
+        --co-shadow: 0 8px 32px -4px rgba(0, 0, 0, 0.5);
     }
 
-    /* Light Theme Overrides for Manual Toggle */
     [data-theme="light"] {
-        --co-accent: #6366f1; /* Indigo accent */
-        --co-bg: #f8fafc;     /* Very light cool gray */
-        --co-border: #e2e8f0;
-        --co-text: #334155;
+        --co-accent: #6366f1; 
+        --co-accent-gradient: linear-gradient(135deg, #6366f1, #a855f7);
+        --co-bg: rgba(255, 255, 255, 0.7);     
+        --co-border: rgba(226, 232, 240, 0.8);
+        --co-text: #475569;
         --co-title: #0f172a;
+        --co-shadow: 0 4px 20px -2px rgba(99, 102, 241, 0.1);
     }
 
     .highlight-card {
+        position: relative;
         display: flex;
         flex-direction: row;
-        align-items: flex-start; /* Aligns icon to top */
-        gap: 1rem;
+        align-items: flex-start; 
+        gap: 1.25rem;
         
         width: 100%;
-        padding: 1.25rem;
-        margin: 1.5rem 0;
+        padding: 1.5rem;
+        margin: 2rem 0;
         box-sizing: border-box;
         
-        /* Call-out Look */
-        background-color: var(--co-bg);
+        /* Glassmorphism & Modern Styling */
+        background: var(--co-bg);
+        backdrop-filter: var(--co-glass);
+        -webkit-backdrop-filter: var(--co-glass);
         border: 1px solid var(--co-border);
-        border-left: 5px solid var(--co-accent); /* The signature call-out bar */
-        border-radius: 6px; /* Tighter radius for alert style */
+        border-radius: 16px; 
         
         color: var(--co-text);
-        font-family: system-ui, -apple-system, sans-serif;
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        box-shadow: var(--co-shadow);
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
+        overflow: hidden;
+    }
+
+    .highlight-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 4px;
+        background: var(--co-accent-gradient);
+    }
+
+    .highlight-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 28px -6px rgba(99, 102, 241, 0.15);
+    }
+    
+    [data-theme="dark"] .highlight-card:hover, @media (prefers-color-scheme: dark) {
+        .highlight-card:hover {
+            box-shadow: 0 12px 28px -6px rgba(0, 0, 0, 0.6);
+        }
     }
 
     /* The Icon Container */
@@ -125,39 +156,49 @@ _styles: |
         display: flex;
         align-items: center;
         justify-content: center;
-        width: 2rem;
-        height: 2rem;
+        width: 2.5rem;
+        height: 2.5rem;
         font-size: 1.5rem;
-        margin-top: 0; /* Aligns with the first line of text/title */
+        background: rgba(99, 102, 241, 0.1);
+        border-radius: 12px;
+        margin-top: -0.25rem; 
+    }
+    
+    [data-theme="dark"] .highlight-card .icon {
+        background: rgba(129, 140, 248, 0.15);
     }
 
     /* The Content Wrapper */
     .highlight-card .content {
         flex: 1;
-        min-width: 0; /* Prevents flex overflow issues */
+        min-width: 0; 
     }
 
     /* Title Styling */
     .highlight-card .title {
-        font-size: 1.1rem;
+        font-size: 1.15rem;
         font-weight: 700;
         color: var(--co-title);
-        margin: 0 0 0.75rem 0;
-        line-height: 1.2;
-        text-transform: uppercase;
-        letter-spacing: 0.025em;
+        margin: 0 0 1rem 0;
+        line-height: 1.3;
+        letter-spacing: -0.01em;
     }
 
     /* List & Text Styling */
     .highlight-card .content ul {
         margin: 0;
         padding-left: 1.25rem;
+        list-style-type: disc;
     }
 
     .highlight-card .content li {
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.75rem;
         line-height: 1.6;
         font-size: 0.95rem;
+    }
+    
+    .highlight-card .content li::marker {
+        color: var(--co-accent);
     }
 
     .highlight-card .content li:last-child {
@@ -165,11 +206,10 @@ _styles: |
     }
 
     .highlight-card .content p {
-        margin: 0 0 0.5rem 0;
+        margin: 0 0 0.75rem 0;
         line-height: 1.6;
     }
 
-    /* Bold text inside content emphasizes the accent color subtly */
     .highlight-card .content strong {
         color: var(--co-title);
         font-weight: 600;
