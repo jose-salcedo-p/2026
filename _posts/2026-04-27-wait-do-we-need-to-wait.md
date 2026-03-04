@@ -1356,6 +1356,8 @@ We observe:
 - A slight decrease on mathematical benchmarks relative to zero-shot,
 - And again, only a partially linear trend (e.g., MATH500 shows clearer gains from 256 → 1024 budget, while other benchmarks fluctuate).
 
+This presents an apparent contradiction to our earlier hypothesis regarding CoT training lengths. If budget forcing only works on models heavily exposed to long reasoning paths, why does Qwen2.5-Instruct—a standard instruct model—benefit so strongly? At this stage, we do not have a definitive answer, and further investigation is required to determine whether this is due to specific pre-training data or other factors.
+
 Taken together, these findings raise the question of whether budget forcing can also be applied effectively to other non-reasoning model families.
 
 ### How About Other Model Families?
@@ -1632,7 +1634,32 @@ This analysis suggests that "Let" and "Perhaps" are **natural reasoning words** 
 
 ### Let Us Try Other Keywords: Perhaps We Will Get Interesting Results
 
-{% include figure.liquid path="assets/img/2026-04-27-wait-do-we-need-to-wait/keyword_choices.png" class="img-fluid rounded-lg" %}
+<div class="row mt-4 mb-4">
+    <div class="col-md-4 mt-3 mt-md-0">
+        <div class="highlight-card" style="margin: 0; height: 100%; flex-direction: column; align-items: center; text-align: center; gap: 0.75rem;">
+            <div class="icon" style="margin: 0; background: rgba(239, 68, 68, 0.1);">🛑</div>
+            <div class="content mt-2">
+                <div class="title" style="margin-bottom: 0.25rem;">Wait</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mt-3 mt-md-0">
+        <div class="highlight-card" style="margin: 0; height: 100%; flex-direction: column; align-items: center; text-align: center; gap: 0.75rem;">
+            <div class="icon" style="margin: 0; background: rgba(59, 130, 246, 0.1);">🤔</div>
+            <div class="content mt-2">
+                <div class="title" style="margin-bottom: 0.25rem;">Perhaps</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mt-3 mt-md-0">
+        <div class="highlight-card" style="margin: 0; height: 100%; flex-direction: column; align-items: center; text-align: center; gap: 0.75rem;">
+            <div class="icon" style="margin: 0; background: rgba(16, 185, 129, 0.1);">✍️</div>
+            <div class="content mt-2">
+                <div class="title" style="margin-bottom: 0.25rem;">Let</div>
+            </div>
+        </div>
+    </div>
+</div>
 
 We then followed the same experimental setup as before, testing multiple reasoning models with:
 
@@ -1821,7 +1848,15 @@ We then followed the same experimental setup as before, testing multiple reasoni
 
 {% enddetails %}
 
-{% include figure.liquid path="assets/img/2026-04-27-wait-do-we-need-to-wait/performance_keywords.png" class="img-fluid rounded-lg" %}
+<div class="l-body">
+  <iframe
+    src="{{ 'assets/html/2026-04-27-wait-do-we-need-to-wait/fig_keyword_comparison.html' | relative_url }}"
+    frameborder="0"
+    scrolling="no"
+    height="850px"
+    width="100%"
+  ></iframe>
+</div>
 
 Across all six models, we observe a consistent pattern:
 
