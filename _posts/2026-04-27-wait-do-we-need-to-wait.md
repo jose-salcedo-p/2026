@@ -1947,14 +1947,15 @@ Replacing "Wait" with high-frequency reasoning words such as "Let" or "Perhaps" 
             <li><strong>Keyword choices</strong>: Keyword matters significantly</li>
         </ul>
         <p>While budget forcing can provide meaningful gains for the right models (especially SFT reasoning models in the Qwen family), many open questions remain—including whether improvements correlate with token entropy <d-cite key="wang2025beyond"></d-cite>, internal uncertainty, or other emergent signals not yet fully understood.</p>
+        <p>Furthermore, while budget forcing as a sequential test-time scaling technique may prove to be a useful paradigm, the current landscape of contradicting results makes it difficult to reach a definitive conclusion. If proven true, however, the principles of budget forcing should remain applicable to any future models, persisting as a viable strategy even as architectures evolve.</p>
     </div>
 </div>
 
 ---
 
-## Practical Recommendations
+## The Verdict: Guidelines for Practitioners
 
-Based on our experiments, here are actionable guidelines for practitioners looking to apply budget forcing.
+Budget forcing is a powerful tool under specific conditions, but it is not a silver bullet. Based on our experiments, here are actionable guidelines for practitioners attempting to implement sequential test-time scaling in production.
 
 <div class="highlight-card">
     <div class="icon">🎯</div>
