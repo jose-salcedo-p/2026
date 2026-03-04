@@ -12,25 +12,16 @@ mermaid:
   enabled: true
   zoomable: true
 
-# Anonymize when submitting
 authors:
-  - name: Anonymous
+  - name: Pittawat Taveekitworachai
+    url: "https://petepittawat.dev"
+    affiliations:
+      name: SCB DataX, Thailand
+  - name: Kunat Pipatanakul
+    url: "https://www.kunatp.com"
+    affiliations:
+      name: SCB DataX, Thailand
 
-# authors:
-#   - name: Albert Einstein
-#     url: "https://en.wikipedia.org/wiki/Albert_Einstein"
-#     affiliations:
-#       name: IAS, Princeton
-#   - name: Boris Podolsky
-#     url: "https://en.wikipedia.org/wiki/Boris_Podolsky"
-#     affiliations:
-#       name: IAS, Princeton
-#   - name: Nathan Rosen
-#     url: "https://en.wikipedia.org/wiki/Nathan_Rosen"
-#     affiliations:
-#       name: IAS, Princeton
-
-# must be the exact same name as your blogpost
 bibliography: 2026-04-27-wait-do-we-need-to-wait.bib
 
 # Add a table of contents to your post.
