@@ -659,9 +659,25 @@ Here's what we found:
 
 {% enddetails %}
 
-{% include figure.liquid path="assets/img/2026-04-27-wait-do-we-need-to-wait/performance_reasoning_models.png" class="img-fluid rounded-lg" %}
+<div class="l-body">
+  <iframe
+    src="{{ 'assets/html/2026-04-27-wait-do-we-need-to-wait/fig_2_average_performance.html' | relative_url }}"
+    frameborder="0"
+    scrolling="no"
+    height="650px"
+    width="100%"
+  ></iframe>
+</div>
 
-{% include figure.liquid path="assets/img/2026-04-27-wait-do-we-need-to-wait/performance_on_reasoning_models.png" class="img-fluid rounded-lg" %}
+<div class="l-body">
+  <iframe
+    src="{{ 'assets/html/2026-04-27-wait-do-we-need-to-wait/fig_1_performance_comparison.html' | relative_url }}"
+    frameborder="0"
+    scrolling="no"
+    height="850px"
+    width="100%"
+  ></iframe>
+</div>
 
 Budget forcing (CoT+BF) generally enhances performance, especially in **SFT-based models** like *s1.1-7B* and *OpenThinker3-7B*, which benefit from having more reasoning steps to express their learned procedural thought patterns. These models appear to use the extra budget productively, expanding on intermediate reasoning and improving performance across complex benchmarks. This is possibly due to the fact that long CoT responses exist in their training sets <a href="https://huggingface.co/datasets/simplescaling/s1K-1.1" target="_blank">s1K-1.1</a> and <a href="https://huggingface.co/datasets/open-thoughts/OpenThoughts3-1.2M" target="_blank">OpenThoughts3-1.2M</a>, respectively.
 
@@ -907,7 +923,15 @@ In contrast, *DeepSeek-R1-Distill-Qwen-7B* shows minimal or negative gains. The 
 
 {% enddetails %}
 
-{% include figure.liquid path="assets/img/2026-04-27-wait-do-we-need-to-wait/performance_benchmarks_on_reasoning_models.png" class="img-fluid rounded-lg" %}
+<div class="l-page">
+  <iframe
+    src="{{ 'assets/html/2026-04-27-wait-do-we-need-to-wait/fig_3_avg_score_linechart.html' | relative_url }}"
+    frameborder="0"
+    scrolling="no"
+    height="750px"
+    width="100%"
+  ></iframe>
+</div>
 
 Now that we know **budget forcing** is effective for most included reasoning models, the next question is whether the **linear trend** in performance improvements holds universally.
 
