@@ -1315,16 +1315,38 @@ So, what happens when we try it?
 
 {% enddetails %}
 
-<div class="row mt-3">
-    <div class="col-sm mt-3 mt-md-0">
-        {% include figure.liquid path="assets/img/2026-04-27-wait-do-we-need-to-wait/performance_benchmark_llms.png" class="img-fluid rounded-lg" %}
-    </div>
-    <div class="col-sm mt-3 mt-md-0">
-        {% include figure.liquid path="assets/img/2026-04-27-wait-do-we-need-to-wait/performance_on_llms.png" class="img-fluid rounded-lg" %}
+<div class="l-page">
+    <div class="row mt-3">
+        <div class="col-sm mt-3 mt-md-0">
+            <iframe
+                src="{{ 'assets/html/2026-04-27-wait-do-we-need-to-wait/fig_4_qwen_performance.html' | relative_url }}"
+                frameborder="0"
+                scrolling="no"
+                height="450px"
+                width="100%"
+            ></iframe>
+        </div>
+        <div class="col-sm mt-3 mt-md-0">
+            <iframe
+                src="{{ 'assets/html/2026-04-27-wait-do-we-need-to-wait/fig_5_qwen_average.html' | relative_url }}"
+                frameborder="0"
+                scrolling="no"
+                height="450px"
+                width="100%"
+            ></iframe>
+        </div>
     </div>
 </div>
 
-{% include figure.liquid path="assets/img/2026-04-27-wait-do-we-need-to-wait/trend_llm.png" class="img-fluid rounded-lg" %}
+<div class="l-page">
+  <iframe
+    src="{{ 'assets/html/2026-04-27-wait-do-we-need-to-wait/fig_8_qwen_budget_scaling.html' | relative_url }}"
+    frameborder="0"
+    scrolling="no"
+    height="750px"
+    width="100%"
+  ></iframe>
+</div>
 
 Surprisingly, budget forcing at an 8,192-token budget works not only with reasoning models but also with this **instruct model from the Qwen family**. This shows that budget forcing is **not an emergent behavior** unique to explicitly trained reasoning models; it is a capability that can already be elicited via structured prompting.
 
