@@ -260,7 +260,7 @@ We present experimental results, including cases where budget forcing does and d
 
 Before we go deeper into budget forcing, let's take a very brief look at what test-time scaling is. Since **budget forcing** is a (1) *sequential* (2) *test-time scaling* technique. 
 
-Let's unpack that a bit. [***Test-time scaling***](https://arxiv.org/abs/2503.24235) <d-cite key="zhang2025surveytesttimescalinglarge"></d-cite> means spending more compute **during inference** — for example, generating more tokens — to get better performance.
+[***Test-time scaling***](https://arxiv.org/abs/2503.24235) <d-cite key="zhang2025surveytesttimescalinglarge"></d-cite> means spending more compute **during inference** — for example, generating more tokens — to get better performance.
 
 Broadly speaking, test-time scaling methods fall into three categories: **sequential**, **parallel**, and **hybrid**.
 
@@ -286,7 +286,7 @@ Budget forcing was first introduced in [s1: Simple Test-Time Scaling](https://ar
 
 {% include figure.liquid path="assets/img/2026-04-27-wait-do-we-need-to-wait/scaling_up_down.png" class="img-fluid rounded-lg" %}
 
-Let's unpack that a bit. The objective of budget forcing is to control the number of thinking tokens. It operates through two mechanisms: enforcing (1) a **maximum** and (2) a **minimum** number of thinking tokens. We refer to the first mechanism as **scaling down** (enforced maximum) and the second as **scaling up** (enforced minimum). The high-level process follows:
+The objective of budget forcing is to control the number of thinking tokens. It operates through two mechanisms: enforcing (1) a **maximum** and (2) a **minimum** number of thinking tokens. We refer to the first mechanism as **scaling down** (enforced maximum) and the second as **scaling up** (enforced minimum). The high-level process follows:
 
 - We treat everything inside a `<think>...</think>` block as **reasoning tokens**,
 - We enforce a fixed **token budget** on that block,
@@ -1146,7 +1146,7 @@ The answer flips back and forth among A, E, and F multiple times. Here, "Wait" *
 
 At a high level, our quantitative results suggest that models can only use additional tokens productively up to the reasoning lengths represented in their training data. Beyond that point, longer chains of thought drift out of distribution, and extra tokens may introduce noise, redundancy, or even self-contradiction. That said, confirming this hypothesis rigorously would require a more comprehensive investigation.
 
-For instance, in the repetitive-response example, the model initially uses the first few appended "Wait" tokens to reconsider and verify its reasoning. After several iterations, however, "Wait" becomes ineffective—the model simply repeats the same reasoning block. This may indicate that the model is confident in its answer, or that the extended reasoning length has moved far beyond its training distribution.
+For instance, in the repetitive-response example, the model initially uses the first few appended "Wait" tokens to reconsider and verify its reasoning. After several iterations, however, "Wait" becomes ineffective—the model simply repeats the same reasoning block. This upscaling failure may indicate that the model is confident in its answer, or simply that the artificially prolonged reasoning length has pushed the context far beyond the latent structures learned during training (OOD), leading to degenerate looping behavior instead of new insight.
 
 Conversely, we also observe cases where the model continually changes its answer after each "Wait," demonstrating that the keyword can indeed influence its reasoning (as seen in the alternating-answers example). Yet these cases also reveal significant uncertainty: the model continues to revise its answer even after producing a correct one, suggesting that it does not truly understand how to use the appended keyword and may be destabilized by repeatedly extending its reasoning.
 
