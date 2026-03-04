@@ -232,6 +232,11 @@
             transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             border-radius: 4px;
         }
+
+        /* New class added via JS to smoothly handle gradient for over-budget */
+        .budget-fill.full-budget {
+            background: linear-gradient(90deg, var(--color-think), var(--color-wait));
+        }
         
         .budget-limit-marker {
             position: absolute;
@@ -880,9 +885,14 @@
             
             // Color logic based on stage
             if (stage.tokensUsed > 250 && stage.tokensUsed < 1000) {
+                budgetFill.classList.remove('full-budget');
                 budgetFill.style.background = 'var(--primary)'; // Normal
             } else if (stage.tokensUsed >= 1000) {
-                 budgetFill.style.background = 'linear-gradient(90deg, var(--color-think), var(--color-wait))'; // Warning/Full
+                 budgetFill.classList.add('full-budget');
+                 budgetFill.style.background = ''; // clear inline style to let class take over
+            } else {
+                 budgetFill.classList.remove('full-budget');
+                 budgetFill.style.background = ''; // default gradient
             }
             
             budgetNum.innerHTML = `<strong>${stage.tokensUsed}</strong> / ${BUDGET_LIMIT}`;

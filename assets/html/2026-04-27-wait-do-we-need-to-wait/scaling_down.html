@@ -233,6 +233,11 @@
             border-radius: 4px;
         }
         
+        /* New class added via JS to smoothly handle gradient for over-budget */
+        .budget-fill.over-budget {
+            background: linear-gradient(90deg, var(--primary) var(--limit-stop, 70%), var(--color-wait) var(--limit-stop, 70%));
+        }
+        
         .budget-limit-marker {
             position: absolute;
             top: 0;
@@ -867,15 +872,15 @@
             const pct = Math.min(100, (stage.tokensUsed / SCALE_MAX) * 100);
             budgetFill.style.width = `${pct}%`;
             
-            // Color logic based on stage
+            // Color logic based on stage - instead of overriding background, add a class
+            // CSS handles the gradient logic smoothly
             if (stage.tokensUsed > BUDGET_LIMIT) {
-                // Calculate where the limit falls relative to the current width
-                // For example if tokensUsed is 1450 (100% width), limit (1024) is at ~70%
-                // If tokensUsed is 1100, limit is at (1024/1100) ~93%
+                budgetFill.classList.add('over-budget');
+                // Pass the stop point as a CSS custom property for smooth transition
                 const limitStop = (BUDGET_LIMIT / stage.tokensUsed) * 100;
-                budgetFill.style.background = `linear-gradient(90deg, var(--primary) ${limitStop}%, var(--color-wait) ${limitStop}%)`;
+                budgetFill.style.setProperty('--limit-stop', `${limitStop}%`);
             } else {
-                budgetFill.style.background = 'var(--primary)'; // Normal
+                budgetFill.classList.remove('over-budget');
             }
             
             budgetNum.innerHTML = `<strong>${stage.tokensUsed}</strong> / ${BUDGET_LIMIT}`;

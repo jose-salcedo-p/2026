@@ -1337,17 +1337,6 @@ ninja.data = [{
             window.location.href = "/2026/blog/2026/adversarial-conditioning-paradox/";
           
         },
-      },{id: "post-a-human-centric-framework-for-debating-the-ethics-of-ai-consciousness-under-uncertainty",
-        
-          title: "A Human-centric Framework for Debating the Ethics of AI Consciousness Under Uncertainty",
-        
-        description: "As AI systems become increasingly sophisticated, questions about machine consciousness and its ethical implications have moved from fringe speculation to mainstream academic debate. We address these limitations through a structured three-level framework grounded in philosophical uncertainty.",
-        section: "Posts",
-        handler: () => {
-          
-            window.location.href = "/2026/blog/2026/a-human-centric-framework-for-debating-the-ethics-of-ai-consciousness-under-uncertainty/";
-          
-        },
       },{id: "post-",
         
           title: "",
