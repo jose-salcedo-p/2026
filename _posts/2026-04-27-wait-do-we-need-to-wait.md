@@ -1471,9 +1471,25 @@ All runs use the same budget-forcing machinery (with `<think>...</think>` and 
 
 {% enddetails %}
 
-{% include figure.liquid path="assets/img/2026-04-27-wait-do-we-need-to-wait/performance_more_llms.png" class="img-fluid rounded-lg" %}
+<div class="l-body">
+    <iframe
+        src="{{ 'assets/html/2026-04-27-wait-do-we-need-to-wait/fig_7_other_average.html' | relative_url }}"
+        frameborder="0"
+        scrolling="no"
+        height="500px"
+        width="100%"
+    ></iframe>
+</div>
 
-{% include figure.liquid path="assets/img/2026-04-27-wait-do-we-need-to-wait/performance_benchmarks_more_llms.png" class="img-fluid rounded-lg" %}
+<div class="l-page">
+    <iframe
+        src="{{ 'assets/html/2026-04-27-wait-do-we-need-to-wait/fig_6_other_performance.html' | relative_url }}"
+        frameborder="0"
+        scrolling="no"
+        height="500px"
+        width="100%"
+    ></iframe>
+</div>
 
 Unfortunately, the benefits of budget forcing do not generally transfer across model families.
 
