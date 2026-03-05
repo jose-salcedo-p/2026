@@ -3,13 +3,13 @@ layout: distill
 title: Probabilistic Circuits for Uncertainty Quantification
 description: Deep learning models struggle with epistemic uncertainty
   quantification, often exhibiting blind confidence on out-of-distribution data.
-  This work reviews on Probabilistic Circuits (PCs) as a versatile framework for
+  This work reviews Probabilistic Circuits (PCs) as a versatile framework for
   rigorous, tractable reasoning. PCs model the joint probability distribution 
   and by enforcing structural constraints, specifically smoothness, 
   decomposability, and determinism, they allow for the exact computation of 
   marginals, conditionals, and moments in polynomial time without retraining. 
-  We discuss on the suitability of PCs for Uncertainty Quantification, 
-  describing their advantages and highlighting their PCs for tractable UQ in 
+  We discuss the suitability of PCs for Uncertainty Quantification, 
+  describing their advantages and highlighting their potential for tractable UQ in 
   high-dimensional problems.
 date: 2026-04-27
 future: true
@@ -321,7 +321,7 @@ multiple forward passes) and yields only an empirical approximation.
     </div>
 </div>
 <div class="caption">
-    Comparisson of forward passes for a standard PC (a), a PC with MC Dropout sampling (b), and a PC using TDI via variance propagation (c). MCD requires multiple forward passes, each sampling one instantiation of a possible subgraph. In contrast, TDI analytically propagates variances through the graph in a single pass. Illustration taken from<d-cite key="ventola_probabilistic_2023"></d-cite>.
+    Comparison of forward passes for a standard PC (a), a PC with MC Dropout sampling (b), and a PC using TDI via variance propagation (c). MCD requires multiple forward passes, each sampling one instantiation of a possible subgraph. In contrast, TDI analytically propagates variances through the graph in a single pass. Illustration taken from<d-cite key="ventola_probabilistic_2023"></d-cite>.
 </div>
 
 Ventola et al. have introduced Tractable Dropout Inference (TDI) for PCs<d-cite
@@ -349,7 +349,7 @@ data<d-cite key="ventola_probabilistic_2023"></d-cite>.
     </div>
 </div>
 <div class="caption">
-    In-Distributino (ID) vs. OOD detection precision difference for PCs (dashed) and PCs with TDI (solid) across different thresholds on different tasks. TDI improves both absolute performance and the ID/OOD trade-off. Without TDI, PCs perform poorly and peak at counterintuitively low thresholds. Illustration obtained from<d-cite key="ventola_probabilistic_2023"></d-cite>.
+    In-Distribution (ID) vs. OOD detection precision difference for PCs (dashed) and PCs with TDI (solid) across different thresholds on different tasks. TDI improves both absolute performance and the ID/OOD trade-off. Without TDI, PCs perform poorly and peak at counterintuitively low thresholds. Illustration obtained from<d-cite key="ventola_probabilistic_2023"></d-cite>.
 </div>
 
 ### Sequential Uncertainty in Time Series 
@@ -398,7 +398,7 @@ model might capture the global density well but fail to accurately reflect the
 confidence in specific predictions.
 
 The authors' current work addresses this miscalibration by answering two key
-questions: how can systematic calibration error be quantified, and how can it be
+questions: how can the systematic calibration error be quantified, and how can it be
 mitigated? In response, they introduce Probabilistic Calibrated Circuits (PCCs),
 a novel post-hoc recalibration technique that provably retains the structure and
 tractability of PCs while reducing miscalibration. This section provides a
@@ -569,7 +569,7 @@ approximate them.
     </div>
 </div>
 <div class="caption">
-    The illustraion shows a comparisson between a PC and a PFC on a donut-shaped task. The blue and red colors depict the distributions captured by the leaf nodes while the green dots illustrated the joint distribution. The PFC is able to capture the target data better, due to its multi-modal leaf densities. Illustration obtained from<d-cite key="sidheekh_probabilistic_2023"></d-cite>.
+    The illustration shows a comparison between a PC and a PFC on a donut-shaped task. The blue and red colors depict the distributions captured by the leaf nodes while the green dots illustrated the joint distribution. The PFC is able to capture the target data better, due to its multi-modal leaf densities. Illustration obtained from<d-cite key="sidheekh_probabilistic_2023"></d-cite>.
 </div>
 
 Probabilistic Flow Circuits (PFCs) bridge this gap by replacing the standard
@@ -591,7 +591,7 @@ marginals and conditionals, that are typically intractable for standalone
 Normalizing Flows.
 
 Interestingly, despite originating from distinct research motivations, the
-authors work on Probabilistic Calibrated Circuits (discussed above) can be
+authors' work on Probabilistic Calibrated Circuits (discussed above) can be
 viewed as a specialized subclass of Probabilistic Flow Circuits. While PFCs
 generally employ flows to enhance the flexibility of density estimation, PCCs
 utilize specific monotonic transformations at the leaves to minimize calibration
@@ -734,5 +734,5 @@ specifically their integration into live systems to boost reliability and
 provide deeper interpretability. We hope this overview stimulates further
 research and practical deployment of PCs for UQ. Please note, this post is by
 far not a comprehensive survey of all works in this rapidly evolving field. It
-is mere a selection of key ideas and applications that we found particularly
+is merely a selection of key ideas and applications that we found particularly
 interesting and illustrative.
