@@ -93,6 +93,51 @@
     {
       "iteration": 6,
       "value": -6.744434283692306,
+      "color": "blue"
+    },
+    {
+      "iteration": 7,
+      "value": -6.836368298206852,
+      "color": "blue"
+    },
+    {
+      "iteration": 7,
+      "value": -4.101820978924115,
+      "color": "blue"
+    },
+    {
+      "iteration": 8,
+      "value": -4.134917224149353,
+      "color": "blue"
+    },
+    {
+      "iteration": 8,
+      "value": -2.480950334489615,
+      "color": "blue"
+    },
+    {
+      "iteration": 9,
+      "value": -2.4928649827707012,
+      "color": "blue"
+    },
+    {
+      "iteration": 9,
+      "value": -1.4957189896624163,
+      "color": "blue"
+    },
+    {
+      "iteration": 10,
+      "value": -1.500008263043607,
+      "color": "blue"
+    },
+    {
+      "iteration": 10,
+      "value": -0.9000049578261655,
+      "color": "blue"
+    },
+    {
+      "iteration": 11,
+      "value": -0.9015490962433945,
       "color": "blue",
       "annotations":[
         {
@@ -102,6 +147,6 @@
           "translateY": 150
         }
       ]
-    }
+    },
   ]
 }

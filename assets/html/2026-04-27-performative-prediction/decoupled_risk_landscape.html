@@ -631,7 +631,7 @@
         // Initialize
         async function init() {
             await loadLandscape();
-            await loadTrajectory('PerfGDReparam', 'RGD_1d_0.25lr_10.json', 6); // Limit to 6 iterations (13 points) to match 2D data
+            await loadTrajectory('PerfGDReparam', 'RGD_1d_0.2lr_10.json', 6); // Limit to 6 iterations (13 points) to match 2D data
             
             document.getElementById('loading').style.display = 'none';
             document.querySelector('.controls').style.display = 'block';
