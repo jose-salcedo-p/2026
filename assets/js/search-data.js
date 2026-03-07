@@ -182,9 +182,9 @@ ninja.data = [{
             window.location.href = "/2026/blog/2026/why-did-the-model-say-that/";
           
         },
-      },{id: "post-why-ai-evaluations-need-error-bars",
+      },{id: "post-why-ai-evaluations-need-statistical-rigor",
         
-          title: "Why AI Evaluations Need Error Bars",
+          title: "Why AI Evaluations Need Statistical Rigor",
         
         description: "AI evaluations often rely on single-run scores even though models, agents, and judges are inherently stochastic, making many reported differences unstable. This post surveys statistical tools—error bars, reliability measures, Bayesian models—that show and help manage this variance. Overall, it highlights how incorporating established statistical practices can make evaluations more trustworthy and informative.",
         section: "Posts",
