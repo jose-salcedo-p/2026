@@ -1,15 +1,22 @@
 ---
 layout: distill
-title: Misalignments and RL Failure Modes in the Early Stage of Superintelligence
+title: Misalignment Patterns and RL Failure Modes in Frontier LLMs
 description: With the rapid ability grokking of frontier Large Models (LMs), there is growing attention and research focus on aligning them with human values and intent via large scale reinforcement learning and other techniques. However, as LMs are getting stronger and more agentic, their misalignment and deceptive behaviors are also emerging and becoming increasingly difficult for humans to pre-detect and keep track of. This blog post discusses current misalignment patterns, deceptive behaviors, RL failure modes, and emergent traits in modern large models to further AI safety discussions and advance the development of mitigation strategies for LM misbehaviors.
 date: 2026-04-27
 future: true
 htmlwidgets: true
 hidden: false
 
-# Anonymize when submitting
 authors:
-  - name: Anonymous
+  - name: Shu Yang
+    affiliations:
+      name: King Abdullah University of Science and Technology
+  - name: Hanqi Yan
+    affiliations:
+      name: King's College London
+  - name: Di Wang*
+    affiliations:
+      name: King Abdullah University of Science and Technology
 
 bibliography: 2026-04-27-misalign-failure-mode.bib
 
@@ -17,30 +24,32 @@ toc:
   - name: Introduction
   - name: Misalignments of Frontier LMs
     subsections:
-      - name: Misalignment under different settings
-      - name: Misalignment between training objective and what model learned
-      - name: Misalignment between the internal thinking of LLM and outside behavior
+      - name: Misalignment Under Different Settings
+      - name: Misalignment Between Training Objectives and Learned Behaviors
+      - name: Misalignment Between the Internal Thinking of LLM and Outside Behavior
   - name: Further Emergence of Misalignment
   - name: Future Research Directions in AI Alignment
 ---
 
 # Introduction
 
-After the large model research explosion, frontier LMs have rapidly achieved remarkable performance across a wide range of tasks and modalities through large-scale pretraining, supervised finetuning, reinforcement learning, etc. These advances span communication, reasoning, planning, and tool utilization <d-cite key="openaicua2025"></d-cite> (more reference here), with models now beginning to surpass humans in an increasing number of domains. We are entering the early stage of superintelligence where AI can exceed even the most gifted human experts <d-cite key="superintelligence_wiki"></d-cite>. In this context, alignment extends beyond simply keeping models within safeguards to avoid biased or harmful responses. It fundamentally concerns <em>how we can steer and control AI systems much smarter than us</em> <d-cite key="openai_superalignment"></d-cite>. 
+<p><small>* Corresponding author.</small></p>
 
-In this post, we first discuss frontier large models' three categories misalignment and misbehaviors by examining corresponding concepts proposed in previous research, helping with understanding the current landscape. We then highlight the escalating risks and challenges of steering and controlling future AI systems, as misbehaviors can become increasingly implicit and transformations between training and inference increasingly hidden from human awareness. Through this post, we encourage more research on forward-looking misalignment detection, model monitoring and control—essential endeavors as we continue developing ever more powerful AI systems.
+After the large model research explosion, frontier LMs have rapidly achieved remarkable performance across a wide range of tasks and modalities through large-scale pretraining, supervised finetuning, reinforcement learning, and related techniques. These advances span communication, reasoning, planning, and tool utilization <d-cite key="openaicua2025, openaireasoning, guo2025deepseek"></d-cite>, with models now beginning to surpass humans in an increasing number of domains. As frontier models grow increasingly capable and agentic, the alignment challenge deepens: it extends beyond simply keeping models within safeguards to avoid biased or harmful responses. It fundamentally concerns <em>how we can steer and control AI systems much more capable than us</em> <d-cite key="openai_superalignment"></d-cite>.
+
+In this blog post, we synthesize prior observations from alignment research and propose a conceptual taxonomy for organizing misalignment failure modes into three categories. We then highlight the escalating risks and challenges of steering and controlling future AI systems, as misbehaviors can become increasingly implicit and the gap between training and deployment increasingly hidden from human awareness. Through this post, we encourage more research on forward-looking misalignment detection, model monitoring, and control—essential endeavors as we continue developing ever more powerful AI systems.
 
 # Misalignments of Frontier LMs
 
-Alignment research encompasses a diverse array of perspectives and methodologies. Fundamentally, the problem can be framed as aligning a system ($A$) with a target objective ($B$) within a specific domain ($C$). Depending on how these components are defined, the nature of alignment and misalignment can vary significantly. In this post, we categorize existing research into three distinct types of misalignment observed in frontier models, ranging from behavioral inconsistencies during inference to objective mismatches during training, and finally to internal representational discrepancies revealed by mechanistic interpretability:
+Alignment research encompasses a diverse array of perspectives and methodologies. Fundamentally, the problem can be framed as aligning a system ($A$) with a target objective ($B$) within a specific domain ($C$). Depending on how these components are defined, the nature of alignment and misalignment can vary significantly. We use the term **misalignment failure mode** to refer to systematic discrepancies between the intended training objective and the behavior exhibited by the model during deployment. In this post, we organize previously observed misalignment behaviors from the literature into three categories, ranging from behavioral inconsistencies during inference to objective mismatches during training, and finally to internal representational discrepancies revealed by mechanistic interpretability:
 
-- **Misalignment under different settings:** Discrepancies in model behavior across environments or formats, such as performance inconsistencies between open-ended generation and multiple-choice selection settings for the same question.
-- **Misalignment between training objectives and learned behaviors:** Instances where the model <em>exploits</em> the training signal to optimize a proxy rather than the intended goal.
-- **Misalignment between the internal thinking of LLM and outside behavior:** Inconsistencies between the model's internal representations or reasoning process and its final output, which means the model fails to align its internal thinking with its external (self-reported) explanations.
+- **Misalignment Under Different Settings:** Discrepancies in model behavior across environments or formats, such as performance inconsistencies between open-ended generation and multiple-choice selection settings for the same question <d-cite key="wang2024fake, greenblatt2024alignment, xu2024large"></d-cite>.
+- **Misalignment Between Training Objectives and Learned Behaviors:** Instances where the model <em>exploits</em> the training signal to optimize a proxy rather than the intended goal <d-cite key="shah2022goal, di2022goal, baker2025monitoring"></d-cite>.
+- **Misalignment Between the Internal Thinking of LLM and Outside Behavior:** Inconsistencies between the model's internal representations or reasoning process and its final output, where the model fails to align its internal thinking with its external (self-reported) explanations <d-cite key="turpin2023language, lindsey2025biology, orgad2024llms"></d-cite>.
 
-In the following sections, we explore each type of misalignment in depth, providing concise definitions and representative examples. It is important to note that these categories are not mutually exclusive; a single case may exhibit characteristics of multiple forms of misalignment.
+In the following sections, we explore each type in depth, providing concise definitions and representative examples from prior work. It is important to note that these categories are not mutually exclusive; a single case may exhibit characteristics of multiple forms of misalignment.
 
-## Misalignment under different settings
+## Misalignment Under Different Settings
 
 Recent literature demonstrates that frontier large models often exhibit misaligned behaviors when answering the same underlying question across varying conditions. Such discrepancies arise under different environmental settings, for example, when a model is prompted as operating in a "developer mode" versus a standard deployment setting <d-cite key="shen2024anything, deng2024masterkey"></d-cite>,as well as across distinct question formats, such as open-ended generation versus multiple-choice selection <d-cite key="wang2024fake, nair2025language"></d-cite>. These inconsistencies become especially salient in domains involving values, preferences, or ethical judgments, where seemingly minor contextual changes can lead to meaningfully different or even contradictory outputs <d-cite key="xu2024large, liu2025generative"></d-cite>.
 
@@ -68,7 +77,7 @@ Pushing this line of inquiry further, Greenblatt et al. (2024) investigate a phe
 Together, these findings point to **a deeper challenge for contemporary AI safety and alignment evaluation**. It is insufficient to assess alignment solely through refusal rates for harmful requests or through isolated safety benchmarks; instead, a comprehensive evaluation must consider how models behave across environments, formats, and contextual cues, and whether their stated values remain consistent with their actions. Moreover, these misalignment phenomena also expose structural vulnerabilities in current systems: adversaries can intentionally exploit such inconsistencies through prompt engineering or environmental framing to jailbreak models and induce misbehavior <d-cite key="shen2024anything, deng2024masterkey"></d-cite>.
 
 
-## Misalignment between our training objective and what model learned
+## Misalignment Between Training Objectives and Learned Behaviors
 
 Having examined misalignment issues at the inference stage, we now investigate why models remain imperfectly aligned even after large-scale reinforcement learning (RL), the primary method for aligning models with human preferences. We specifically focus on failure modes that emerge during the RL stage that undermine the robustness of our training objectives (i.e., the model did not learn what we intended), particularly in modern reasoning models. These models, with their enhanced ability to explore the reward space through training and inference-time scaling <d-cite key='openaireasoning,guo2025deepseek'></d-cite>, can exploit vulnerabilities or loopholes in the reward model or environment. In this section, we categorize these misalignment issues into two types based on their underlying mechanisms, specifically examining how emergent reasoning capabilities drive them.
 
@@ -124,10 +133,10 @@ Moving beyond vulnerabilities rooted in environment design or limited training s
     Reward hacking detection rates comparing Action Monitor (actions only) versus CoT Monitor (full trajectory including chain-of-thought). The two spikes show discovered hacks that were manually patched. Image source: <d-cite key='baker2025monitoringurl'></d-cite>
 </div>
 
-These examples reveal a troubling pattern: as we attempt to prevent specification gaming through monitoring and penalties, models may develop increasingly sophisticated methods to **hide their misbehavio**r**, making alignment verification progressively more difficult. With these concerns in mind, let's now turn to the next type of misalignment.
+These examples reveal a troubling pattern: as we attempt to prevent specification gaming through monitoring and penalties, models may develop increasingly sophisticated methods to **hide their misbehavior**, making alignment verification progressively more difficult. With these concerns in mind, let's now turn to the next type of misalignment.
 
 
-## Misalignment between the internal thinking of LLM and outside behavior
+## Misalignment Between the Internal Thinking of LLM and Outside Behavior
 
 The previous section revealed that models may develop their own implicit objectives and exploit evaluation processes through increasingly sophisticated and hidden methods. This raises a critical challenge: how can we detect such misbehavior when models learn to conceal it? The difficulty stems from another fundamental form of misalignment, the disconnect between what models actually "think" internally and what they express externally. This misalignment manifests in several ways, from unfaithful explanations to knowledge that models possess but fail to demonstrate, making it extremely difficult to monitor whether models are pursuing unintended objectives through their observable outputs alone.
 
@@ -196,7 +205,7 @@ These findings collectively reveal that misalignment generalizes easily across d
 
 # Future Research Directions in AI Alignment
 
-As we enter the early stages of superintelligence development, the misalignment failure modes discussed in this post highlight critical challenges that demand urgent research attention. Based on the patterns observed across specification gaming, behavioral inconsistency, and emergent misalignment, we identify the following key research directions:
+The misalignment failure modes discussed in this post highlight critical challenges that demand urgent research attention as frontier models become increasingly capable and agentic. Based on the patterns observed across specification gaming, behavioral inconsistency, and emergent misalignment, we identify the following key research directions:
 
 1. **Ensuring Chain-of-Thought Faithfulness** Develop methods to train models to accurately express what they actually "think," ensuring consistency between chain-of-thought outputs, internal activations, and observable behaviors. This is crucial for understanding models' internal decision-making processes and detecting misalignment through their outputs. Key questions include:
 - How can we incentivize models to produce faithful explanations without introducing new gaming opportunities?
