@@ -10,15 +10,35 @@
     <style>
         body {
             margin: 0;
-            padding: 10px 20px;
+            padding: 2px 8px 8px;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background: transparent;
+            background: #ffffff;
+        }
+        .viz-shell {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            height: min(64vh, 580px);
+        }
+        .viz-header {
+            flex: 0 0 auto;
+            min-height: 108px;
+            padding-top: 6px;
+            padding-bottom: 10px;
+            background: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 10px;
         }
         .controls {
             text-align: center;
-            padding-top: 60px;
-            padding-bottom: 8px;
+            padding-top: 0;
+            padding-bottom: 0;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            position: relative;
+            z-index: 2;
         }
         .controls-inner {
             display: inline-flex;
@@ -88,37 +108,48 @@
             padding: 0 10px;
         }
         .step-display .step-number {
-            font-size: 16px;
+            font-size: 17px;
             font-weight: 700;
             color: #ffffff;
         }
         .step-display .step-label {
-            font-size: 11px;
+            font-size: 12px;
             color: rgba(255,255,255,0.7);
         }
         .instructions {
-            font-size: 11px;
+            font-size: 13px;
             color: #999;
-            margin-top: 4px;
-            margin-bottom: 60px;
+            margin: 0;
             font-style: italic;
+            display: block;
+            background: #ffffff;
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 0 10px;
+            position: relative;
+            z-index: 2;
         }
         .container {
             display: flex;
-            gap: 20px;
+            gap: 10px;
             width: 100%;
-            height: 420px;
+            flex: 1 1 auto;
+            min-height: 0;
+            margin-top: 0;
         }
         #plot {
-            flex: 1;
+            flex: 1.08;
             height: 100%;
+            min-width: 0;
         }
         #risk-chart {
-            flex: 1;
+            flex: 0.92;
             height: 100%;
             display: flex;
             align-items: center;
             justify-content: center;
+            min-width: 0;
         }
         #loading {
             text-align: center;
@@ -133,32 +164,36 @@
 </head>
 <body>
     <div id="loading">Loading data...</div>
-    <div class="controls" style="display: none;">
-        <div class="controls-inner">
-            <button id="prev-btn" disabled title="Previous step">
-                <svg class="arrow" width="12" height="12" viewBox="0 0 12 12" fill="none">
-                    <path d="M8 2L4 6L8 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                <div class="spinner"></div>
-            </button>
-            <div class="step-display">
-                <span class="step-number" id="step-current">1</span>
-                <span class="step-label">of 25</span>
+    <div class="viz-shell">
+        <div class="viz-header">
+            <div class="instructions">
+                Step through the optimization process
             </div>
-            <button id="next-btn" title="Next step">
-                <svg class="arrow" width="12" height="12" viewBox="0 0 12 12" fill="none">
-                    <path d="M4 2L8 6L4 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                <div class="spinner"></div>
-            </button>
+            <div class="controls" style="display: none;">
+                <div class="controls-inner">
+                    <button id="prev-btn" disabled title="Previous step">
+                        <svg class="arrow" width="12" height="12" viewBox="0 0 12 12" fill="none">
+                            <path d="M8 2L4 6L8 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <div class="spinner"></div>
+                    </button>
+                    <div class="step-display">
+                        <span class="step-number" id="step-current">1</span>
+                        <span class="step-label" id="step-total">of --</span>
+                    </div>
+                    <button id="next-btn" title="Next step">
+                        <svg class="arrow" width="12" height="12" viewBox="0 0 12 12" fill="none">
+                            <path d="M4 2L8 6L4 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <div class="spinner"></div>
+                    </button>
+                </div>
+            </div>
         </div>
-        <div class="instructions">
-            Step through the optimization process
+        <div class="container">
+            <div id="plot"></div>
+            <div id="risk-chart"></div>
         </div>
-    </div>
-    <div class="container">
-        <div id="plot"></div>
-        <div id="risk-chart"></div>
     </div>
 
     
@@ -171,7 +206,7 @@
         
         // State for progressive visualization
         let currentStep = 1;
-        let totalSteps = 25; // Will be updated based on actual data (13 points + 12 lines)
+        let totalSteps = 1; // Will be updated based on the loaded risk data.
         
         // 2D chart element references for progressive reveal
         let riskChartPoints = [];
@@ -273,8 +308,8 @@
                 },
                 colorbar: {
                     title: 'DPR',
-                    len: 0.7,
-                    x: -0.15,
+                    len: 0.82,
+                    x: -0.08,
                     xanchor: 'left'
                 }
             });
@@ -352,13 +387,15 @@
             
             const layout = {
                 scene: {
-                    xaxis: { title: 'θ<sub>D</sub>', titlefont: { size: 12 } },
-                    yaxis: { title: 'θ<sub>M</sub>', titlefont: { size: 12 } },
-                    zaxis: { title: 'DPR(θ<sub>D</sub>,θ<sub>M</sub>)', titlefont: { size: 12 } },
+                    aspectmode: 'manual',
+                    aspectratio: { x: 1.02, y: 0.98, z: 0.78 },
+                    xaxis: { title: 'θ<sub>D</sub>', titlefont: { size: 14 } },
+                    yaxis: { title: 'θ<sub>M</sub>', titlefont: { size: 14 } },
+                    zaxis: { title: 'DPR(θ<sub>D</sub>,θ<sub>M</sub>)', titlefont: { size: 14 } },
                     camera: {
-                        eye: { x: -1.75, y: 1.65, z: 1.5 },
+                        eye: { x: -1.28, y: 1.16, z: 1.06 },
                         up: { x: 0, y: 0, z: 1 },
-                        center: { x: 0, y: 0, z: 0 }
+                        center: { x: 0, y: 0, z: 0.02 }
                     }
                 },
                 showlegend: false,
@@ -368,7 +405,7 @@
             
             const config = {
                 responsive: true,
-                displayModeBar: true,
+                displayModeBar: 'hover',
                 displaylogo: false,
                 modeBarButtonsToRemove: ['toImage']
             };
@@ -460,11 +497,13 @@
 
             // Update total steps based on actual data
             totalSteps = riskChartData.length + (riskChartData.length - 1); // points + lines
+            document.getElementById('step-total').textContent = `of ${totalSteps}`;
+            const maxIteration = d3.max(riskChartData, d => d.iteration) ?? 0;
 
             // Set up dimensions
-            const containerHeight = 380;
-            const margin = { top: 20, right: 30, bottom: 45, left: 50 };
-            const width = 450 - margin.left - margin.right;
+            const containerHeight = 500;
+            const margin = { top: 18, right: 36, bottom: 52, left: 60 };
+            const width = 560 - margin.left - margin.right;
             const height = containerHeight - margin.top - margin.bottom;
 
             // Create SVG
@@ -472,7 +511,7 @@
                 .append('svg')
                 .attr('viewBox', `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
                 .attr('width', '100%')
-                .style('max-width', '450px')
+                .style('max-width', '540px')
                 .append('g')
                 .attr('transform', `translate(${margin.left},${margin.top})`);
 
@@ -483,7 +522,7 @@
             const padding = Math.max((maxVal - minVal) * 0.1, 1);
 
             const xScale = d3.scaleLinear()
-                .domain([0, 6])
+                .domain([0, maxIteration])
                 .range([0, width]);
 
             const yScale = d3.scaleLinear()
@@ -495,27 +534,27 @@
             // Add axes
             svg.append('g')
                 .attr('transform', `translate(0,${height})`)
-                .call(d3.axisBottom(xScale).ticks(7))
-                .style('font-size', '12px');
+                .call(d3.axisBottom(xScale).ticks(Math.min(maxIteration + 1, 12)).tickFormat(d3.format('d')))
+                .style('font-size', '13px');
 
             svg.append('g')
                 .call(d3.axisLeft(yScale).ticks(7))
-                .style('font-size', '12px');
+                .style('font-size', '13px');
 
             // Add axis labels
             svg.append('text')
                 .attr('x', width / 2)
-                .attr('y', height + 38)
+                .attr('y', height + 44)
                 .style('text-anchor', 'middle')
-                .style('font-size', '13px')
+                .style('font-size', '14px')
                 .text('Iteration');
 
             svg.append('text')
                 .attr('transform', 'rotate(-90)')
                 .attr('x', -height / 2)
-                .attr('y', -38)
+                .attr('y', -46)
                 .style('text-anchor', 'middle')
-                .style('font-size', '13px')
+                .style('font-size', '14px')
                 .text('Risk');
 
             // Create lines (initially hidden)
@@ -631,7 +670,7 @@
         // Initialize
         async function init() {
             await loadLandscape();
-            await loadTrajectory('PerfGDReparam', 'RGD_1d_0.2lr_10.json', 6); // Limit to 6 iterations (13 points) to match 2D data
+            await loadTrajectory('PerfGDReparam', 'RGD_1d_0.2lr_10.json', 11); // Extend the visible trajectory to the 11-iteration view
             
             document.getElementById('loading').style.display = 'none';
             document.querySelector('.controls').style.display = 'block';

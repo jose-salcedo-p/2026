@@ -19,11 +19,11 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             background: transparent;
             overflow-y: scroll;
-            height: 205vh; /* Exact height for scrolling - ends when animation completes */
+            height: 175vh;
         }
         
         #iteration-scroll-container {
-            height: 205vh; /* Matches body height - scroll ends when last point appears */
+            height: 175vh;
             position: relative;
         }
         
@@ -34,9 +34,9 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: space-between;
-            padding: 16px 0;
-            gap: 32px;
+            justify-content: center;
+            padding: 18px 0 24px;
+            gap: 18px;
         }
         
         #iteration-fixed-image {
@@ -49,8 +49,8 @@
         }
         
         #iteration-image {
-            max-width: 75%;
-            max-height: 28vh;
+            width: min(92%, 860px);
+            max-height: 34vh;
             height: auto;
             display: block;
         }
@@ -64,9 +64,9 @@
             margin-top: 0;
         }
         .instructions {
-            font-size: 12px;
+            font-size: 14px;
             color: #999;
-            margin-top: 8px;
+            margin-top: 0;
             font-style: italic;
         }
 
@@ -99,16 +99,48 @@
             const cacheBuster = new Date().getTime();
             const data = await d3.json(`./json/risk_iterations.json?v=${cacheBuster}`);
             const points = data.points;
+            const maxIteration = d3.max(points, d => d.iteration) ?? 0;
+            const totalElements = points.length + Math.max(points.length - 1, 0);
+            const scrollHeightVh = Math.max(175, 100 + (totalElements * 3));
+            document.body.style.height = `${scrollHeightVh}vh`;
+            const scrollContainer = document.getElementById('iteration-scroll-container');
+            if (scrollContainer) {
+                scrollContainer.style.height = `${scrollHeightVh}vh`;
+            }
 
             // Store references for progressive drawing
             let allLines = [];
             let allPoints = [];
             let allAnnotations = [];
 
+            function renderTextWithSubscripts(textEl, str) {
+                const x = textEl.attr('x');
+                const lines = str.split('\n');
+
+                lines.forEach((line, lineIndex) => {
+                    const lineTspan = textEl.append('tspan')
+                        .attr('x', x)
+                        .attr('dy', lineIndex === 0 ? 0 : '1.2em');
+
+                    const parts = line.split(/(<sub>[^<]+<\/sub>)/g);
+                    parts.forEach(part => {
+                        const subMatch = part.match(/<sub>([^<]+)<\/sub>/);
+                        if (subMatch) {
+                            lineTspan.append('tspan')
+                                .attr('baseline-shift', 'sub')
+                                .attr('font-size', '70%')
+                                .text(subMatch[1]);
+                        } else if (part) {
+                            lineTspan.append('tspan').text(part);
+                        }
+                    });
+                });
+            }
+
             // Set up dimensions
-            const containerHeight = 320;
-            const margin = { top: 0, right: 80, bottom: 50, left: 50 };
-            const width = 760 - margin.left - margin.right;
+            const containerHeight = 430;
+            const margin = { top: 10, right: 90, bottom: 56, left: 58 };
+            const width = 860 - margin.left - margin.right;
             const height = containerHeight - margin.top - margin.bottom;
 
             // Create SVG
@@ -116,7 +148,7 @@
                 .append('svg')
                 .attr('viewBox', `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
                 .attr('width', '100%')
-                .style('max-width', '680px')
+                .style('max-width', '840px')
                 .append('g')
                 .attr('transform', `translate(${margin.left},${margin.top})`);
 
@@ -127,7 +159,7 @@
             const padding = Math.max((maxVal - minVal) * 0.1, 1);
 
             const xScale = d3.scaleLinear()
-                .domain([0, 6])
+                .domain([0, maxIteration])
                 .range([0, width]);
 
             const yScale = d3.scaleLinear()
@@ -135,32 +167,34 @@
                 .range([height, 0]);
 
             // Add axes
-            const xAxis = d3.axisBottom(xScale).ticks(7);
+            const xAxis = d3.axisBottom(xScale)
+                .ticks(Math.min(maxIteration + 1, 12))
+                .tickFormat(d3.format('d'));
             const yAxis = d3.axisLeft(yScale).ticks(7);
 
             svg.append('g')
                 .attr('transform', `translate(0,${height})`)
                 .call(xAxis)
-                .style('font-size', '12px');
+                .style('font-size', '13px');
 
             svg.append('g')
                 .call(yAxis)
-                .style('font-size', '12px');
+                .style('font-size', '13px');
 
             // Add axis labels
             svg.append('text')
                 .attr('x', width / 2)
-                .attr('y', height + 40)
+                .attr('y', height + 46)
                 .style('text-anchor', 'middle')
-                .style('font-size', '12px')
+                .style('font-size', '14px')
                 .text('Iteration');
 
             svg.append('text')
                 .attr('transform', 'rotate(-90)')
                 .attr('x', -height / 2)
-                .attr('y', -32)
+                .attr('y', -40)
                 .style('text-anchor', 'middle')
-                .style('font-size', '12px')
+                .style('font-size', '14px')
                 .text('Risk');
 
             // Create lines (initially hidden)
@@ -214,27 +248,11 @@
                     const translateY = annotation.translateY || 0;
                     const textX = midX + 50 + translateX;
                     const textY = midY - 20 + translateY;
-                    
-                    // Convert <sub>X</sub> to SVG tspans
-                    function renderTextWithSubscripts(textEl, str) {
-                        const parts = str.split(/(<sub>[^<]+<\/sub>)/g);
-                        parts.forEach(part => {
-                            const subMatch = part.match(/<sub>([^<]+)<\/sub>/);
-                            if (subMatch) {
-                                textEl.append('tspan')
-                                    .attr('baseline-shift', 'sub')
-                                    .attr('font-size', '70%')
-                                    .text(subMatch[1]);
-                            } else if (part) {
-                                textEl.append('tspan').text(part);
-                            }
-                        });
-                    }
 
                     const textEl = annotationGroup.append('text')
                         .attr('x', textX)
                         .attr('y', textY)
-                        .style('font-size', '14px')
+                        .style('font-size', '16px')
                         .style('fill', pointColor);
                     renderTextWithSubscripts(textEl, annotation.text);
 
@@ -245,13 +263,12 @@
                     const unitY = dy / distance;
 
                     const arrowStartX = textX + unitX * 10;
-                    const arrowStartY = textY + unitY * 10;
+                    let arrowStartY = textY + unitY * 10;
                     const arrowEndX = midX - unitX * 5;
                     const arrowEndY = midY - unitY * 5;
 
                     if (point.iteration === 6) {
                         arrowStartY = arrowStartY - 7;
-                        console.log('here');
                     }
 
                     annotationGroup.append('path')
@@ -280,27 +297,11 @@
                     const translateY = annotation.translateY || 0;
                     const textX = xPos + 80 + translateX;
                     const textY = yPos - 30 + translateY;
-                    
-                    // Convert <sub>X</sub> to SVG tspans
-                    function renderTextWithSubscripts(textEl, str) {
-                        const parts = str.split(/(<sub>[^<]+<\/sub>)/g);
-                        parts.forEach(part => {
-                            const subMatch = part.match(/<sub>([^<]+)<\/sub>/);
-                            if (subMatch) {
-                                textEl.append('tspan')
-                                    .attr('baseline-shift', 'sub')
-                                    .attr('font-size', '70%')
-                                    .text(subMatch[1]);
-                            } else if (part) {
-                                textEl.append('tspan').text(part);
-                            }
-                        });
-                    }
 
                     const textEl = annotationGroup.append('text')
                         .attr('x', textX)
                         .attr('y', textY)
-                        .style('font-size', '14px')
+                        .style('font-size', '16px')
                         .style('font-style', 'italic');
                     renderTextWithSubscripts(textEl, annotation.text);
 
@@ -317,7 +318,6 @@
 
                     if (point.iteration === 6) {
                         arrowStartY = arrowStartY - 7;
-                        console.log('here');
                     }
 
 
@@ -387,8 +387,6 @@
                 }
 
                 const scrollProgress = Math.max(0, Math.min(1, -containerTop / (containerHeight - viewportHeight)));
-                // Total elements = points + lines, animation completes exactly at scroll end
-                const totalElements = allPoints.length + allLines.length;
                 const elementsToShow = Math.max(1, Math.floor(scrollProgress * totalElements) + 1);
 
                 let elementCount = 0;
@@ -422,9 +420,13 @@
                     }
                 });
 
-                // Update image simultaneously with graph (1:1 - cycles through 4 images)
+                // Spread the available frames across the full longer scroll sequence.
                 if (iterationImage) {
-                    const imageIndex = (elementsToShow - 1) % 4;
+                    const imageProgress = (elementsToShow - 1) / Math.max(1, totalElements - 1);
+                    const imageIndex = Math.min(
+                        iterationImages.length - 1,
+                        Math.floor(imageProgress * iterationImages.length)
+                    );
                     if (!iterationImage.src.endsWith(iterationImages[imageIndex].split('/').pop())) {
                         iterationImage.src = iterationImages[imageIndex];
                     }
@@ -438,5 +440,3 @@
     </script>
 </body>
 </html>
-
-

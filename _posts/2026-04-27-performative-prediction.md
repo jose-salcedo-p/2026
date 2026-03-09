@@ -133,14 +133,14 @@ Ultimately, we are, however, mostly interested in the risk of the model on the d
 
 $$ \mathcal{PR}(\theta) := \mathcal{DPR}(\theta, \theta) = \mathbb{E}_{(x,y) \sim \mathcal{D}(\theta)} [\ell(\theta; x, y)]. $$
 
-<div class="l-page-outset" style="display: flex; justify-content: center; align-items: center; padding: 40px 0; min-height: 105vh;">
-  <div style="background: #f2f2f2ff; border-radius: 40px; padding: 30px; width: 90%; height: 90%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
-    <iframe src="{{ 'assets/html/2026-04-27-performative-prediction/risk_iteration_scroll.html' | relative_url }}" 
+<div class="l-page-outset" style="display: flex; justify-content: center; align-items: center; padding: 20px 0 28px;">
+  <div style="background: #f2f2f2ff; border-radius: 32px; padding: 18px 20px; width: min(96%, 1120px); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+    <iframe src="{{ 'assets/html/2026-04-27-performative-prediction/risk_iteration_scroll.html' | relative_url }}?v=3" 
             frameborder="0" 
             scrolling="yes" 
             width="100%" 
-            height="100%" 
-            style="border: none; border-radius: 30px; background: transparent;">
+            height="760" 
+            style="border: none; border-radius: 24px; background: transparent; height: clamp(640px, 82vh, 760px);">
     </iframe>
   </div>
 </div>
@@ -161,13 +161,13 @@ Note that in this example, the model $\theta$ is the just the price deviation of
 
 Consider the case where your retailer company only sells one product, $z \in \mathbb{R}, \theta \in [-5,5]$. <span style="color:#8DA0CB">You train an initial model $\theta^{(1)}$ on the initial distribution $\mathcal{D}(\theta^{(0)})$. Your risk is then $\mathcal{DPR}(\theta^{(0)}, \theta^{(1)})$.</span> <span style="color:#E5C494">After deployment, the distribution changes to $\mathcal{D}(\theta^{(1)})$. Your risk is then $\mathcal{PR}(\theta^{(1)}) = \mathcal{DPR}(\theta^{(1)}, \theta^{(1)})$.</span> This pull towards the diagonal cross-section, i.e., the performative risk as $\mathcal{DPR}(\theta, \theta) = \mathcal{PR}(\theta)$, happens again at every step, creating a repeated cycle of updating the model and observing the induced distribution shift.
 
-<div class="l-screen" style="min-height: 105vh;">
-  <iframe src="{{ 'assets/html/2026-04-27-performative-prediction/decoupled_risk_landscape.html' | relative_url }}?v=3" 
+<div class="l-screen" style="display: flex; justify-content: center; padding: 12px 0 24px;">
+  <iframe src="{{ 'assets/html/2026-04-27-performative-prediction/decoupled_risk_landscape.html' | relative_url }}?v=7" 
           frameborder='0' 
           scrolling='no' 
           width="100%" 
-          height="100%" 
-          style="border: none; background: transparent; min-height: 90vh;">
+          height="740" 
+          style="border: none; background: #fff; border-radius: 24px; height: clamp(620px, 78vh, 740px); max-width: 1200px;">
   </iframe>
 </div>
 
