@@ -545,17 +545,6 @@ ninja.data = [{
             window.location.href = "/2026/blog/2026/pushing-meta-cl-methods/";
           
         },
-      },{id: "post-probabilistic-circuits-for-uncertainty-quantification",
-        
-          title: "Probabilistic Circuits for Uncertainty Quantification",
-        
-        description: "Deep learning models struggle with epistemic uncertainty quantification, often exhibiting blind confidence on out-of-distribution data. This work reviews Probabilistic Circuits (PCs) as a versatile framework for rigorous, tractable reasoning. PCs model the joint probability distribution and by enforcing structural constraints, specifically smoothness, decomposability, and determinism, they allow for the exact computation of marginals, conditionals, and moments in polynomial time without retraining. We discuss the suitability of PCs for Uncertainty Quantification, describing their advantages and highlighting their potential for tractable UQ in high-dimensional problems.",
-        section: "Posts",
-        handler: () => {
-          
-            window.location.href = "/2026/blog/2026/probabilistic-circuits-for-uncertainty-quantification/";
-          
-        },
       },{id: "post-extracting-model-precision-from-20-logprobs",
         
           title: "Extracting Model Precision from 20 Logprobs",
@@ -587,6 +576,17 @@ ninja.data = [{
         handler: () => {
           
             window.location.href = "/2026/blog/2026/philosophy-of-model-editing/";
+          
+        },
+      },{id: "post-performative-prediction-made-practical",
+        
+          title: "Performative Prediction made practical",
+        
+        description: "Performative Prediction studies settings where deploying a model induces a distribution shift in the data with the aim of building robust and good-peforming models under these post-deployment effects. Most existing work in this area is theoretical and relies on strict assumptions to converge to those models, which makes the resulting techniques difficult to apply in practice and limits their accessibility to the broader Machine Learning (ML) community. In this blog post, we use visualization techniques 1) to provide an intuitive explanation of Performative Prediction and 2) to extract practical insights for studying convergence when theoretical assumptions do not hold.",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/2026/blog/2026/performative-prediction/";
           
         },
       },{id: "post-there-is-no-in-timeseries-rethinking-tsfm-through-the-lens-of-invariance",
