@@ -688,9 +688,9 @@ ninja.data = [{
             window.location.href = "/2026/blog/2026/mislead-lm/";
           
         },
-      },{id: "post-misalignments-and-rl-failure-modes-in-the-early-stage-of-superintelligence",
+      },{id: "post-misalignment-patterns-and-rl-failure-modes-in-frontier-llms",
         
-          title: "Misalignments and RL Failure Modes in the Early Stage of Superintelligence",
+          title: "Misalignment Patterns and RL Failure Modes in Frontier LLMs",
         
         description: "With the rapid ability grokking of frontier Large Models (LMs), there is growing attention and research focus on aligning them with human values and intent via large scale reinforcement learning and other techniques. However, as LMs are getting stronger and more agentic, their misalignment and deceptive behaviors are also emerging and becoming increasingly difficult for humans to pre-detect and keep track of. This blog post discusses current misalignment patterns, deceptive behaviors, RL failure modes, and emergent traits in modern large models to further AI safety discussions and advance the development of mitigation strategies for LM misbehaviors.",
         section: "Posts",
