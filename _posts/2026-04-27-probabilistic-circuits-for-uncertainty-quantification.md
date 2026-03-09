@@ -77,14 +77,9 @@ benchmarks to high-stakes deployment in healthcare, autonomous navigation, and
 climate modeling, a significant limitation has emerged: the inability to reliably
 quantify what the model does not know.
 
-Standard deep learning architectures, despite their expressiveness, often suffer
-from ''blind confidence''. They act as black-box function approximators that map
-inputs to outputs without maintaining a rigorous representation of the
-underlying joint probability distribution. Consequently, when presented with
-out-of-distribution (OOD) data, such as a rare physiological anomaly in a patient
-or an unprecedented weather pattern, these models frequently yield predictions
-with confusingly high confidence. This phenomenon represents a challenge of
-epistemic uncertainty quantification (UQ).
+Standard deterministic deep learning architectures, despite their expressiveness, often suffer from overconfidence when evaluated on out-of-distribution (OOD) data<d-cite
+key="nguyen_deep_2015,hendrycks_baseline_2016"></d-cite>. Because they typically act as point-estimate function approximators rather than maintaining a rigorous representation of the underlying joint probability distribution, they can yield highly confident predictions even when presented with unfamiliar inputs, such as a rare physiological anomaly or an unprecedented weather pattern. While various probabilistic deep learning methods have been developed to mitigate this<d-cite
+key="gal_dropout_2016,lakshminarayanan_simple_2017"></d-cite>, reliably and efficiently quantifying this reducible, epistemic uncertainty remains a fundamental challenge.
 
 Uncertainty is generally categorized into two distinct forms: aleatoric
 uncertainty, which is irreducible and stems from the inherent stochasticity of
