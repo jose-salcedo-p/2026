@@ -69,12 +69,12 @@ _styles: >
 ## Epistemic Uncertainty in Today's Machine Learning
 
 The trajectory of artificial intelligence over the last decade has been defined
-by a relentless pursuit of predictive accuracy, driven largely by the scaling of
+by a strong focus on predictive accuracy, driven largely by the scaling of
 deep neural networks. From Large Language Models (LLMs) to generative diffusion
 systems, the capacity of these models to approximate complex functions is
 undeniable. However, as these systems migrate from controlled academic
 benchmarks to high-stakes deployment in healthcare, autonomous navigation, and
-climate modeling, a critical deficiency has emerged: the inability to reliably
+climate modeling, a significant limitation has emerged: the inability to reliably
 quantify what the model does not know.
 
 Standard deep learning architectures, despite their expressiveness, often suffer
@@ -114,19 +114,18 @@ variance and computational overhead<d-cite
 key="ventola_probabilistic_2023,gal_dropout_2016"></d-cite>. They provide
 approximations of the posterior, not exact evaluations.   
 
-This report posits that Probabilistic Circuits offer a transformative solution
-to this epistemic challenge. Unlike standard neural networks, PCs are designed
+This report posits that Probabilistic Circuits offer a principled framework to address this epistemic challenge. Unlike standard neural networks, PCs are designed
 not merely to predict, but to represent the joint probability distribution of
 the data as a computational graph. Crucially, they do so while guaranteeing
 tractability. Through strict structural properties, i.e.,smoothness,
 decomposability, and determinism, PCs enable the exact computation of marginals,
 conditionals, and moments in polynomial time<d-cite
 key="choi_probabilistic_2020a,peharz_probabilistic_2023"></d-cite>. This capability
-fundamentally alters the UQ landscape, moving from approximate guesses of
+provides a rigorous alternative to empirical UQ methods, moving from approximate guesses of
 uncertainty to rigorous, mathematically guaranteed derivations.   
 
 The following sections explore the **theoretical** mechanics that enable
-tractability, the architectural revolutions that have allowed PCs to **scale to
+tractability, the architectural advancements that have allowed PCs to **scale to
 high-dimensional data**, and the **application** of PCs to complex problems. 
 
 PCs are no longer just a theoretical curiosity but a valuable component of the
@@ -310,7 +309,7 @@ the belief given partial evidence.
 ### Tractable Dropout Inference 
 
 Recent work has bridged the gap between the popular UQ technique of MC Dropout
-and the rigorous world of PCs. MC Dropout estimates uncertainty in neural
+and the tractable framework of PCs. MC Dropout estimates uncertainty in neural
 networks by randomly dropping units during inference and measuring the variance
 of the predictions. While effective, it is computationally expensive (requiring
 multiple forward passes) and yields only an empirical approximation.
@@ -601,7 +600,7 @@ post-hoc uncertainty calibration.
 
 ### Multi-Token Prediction with Probabilistic Circuits 
 
-Another interesting application and perhaps the most high-impact application of
+Another interesting and highly relevant application of
 PCs in 2025 involves their integration into the training and inference of Large
 Language Models (LLMs), specifically in the domain of Multi-Token Prediction
 (MTP).
@@ -634,7 +633,7 @@ PCs are uniquely suited for this task because they offer a tractable mechanism
 to model complex dependencies between future tokens (e.g., capturing that "San"
 strongly implies "Francisco") without the computational overhead of a full
 Transformer. A PC can evaluate the likelihood of candidate sequences with
-extreme efficiency.
+high computational efficiency.
 
 <div class="row mt-3">
     <div class="col-sm mt-3 mt-md-0">
