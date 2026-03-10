@@ -7,6 +7,11 @@ future: true
 htmlwidgets: true
 hidden: false
 
+# anonymize when submitting
+# authors:
+#   - name: Anonymous
+
+# camera-ready (fill in after acceptance):
 authors:
   - name: Shu Yang
     affiliations:
@@ -32,8 +37,6 @@ toc:
 ---
 
 # Introduction
-
-<p><small>* Corresponding author.</small></p>
 
 After the large model research explosion, frontier LMs have rapidly achieved remarkable performance across a wide range of tasks and modalities through large-scale pretraining, supervised finetuning, reinforcement learning, and related techniques. These advances span communication, reasoning, planning, and tool utilization <d-cite key="openaicua2025, openaireasoning, guo2025deepseek"></d-cite>, with models now beginning to surpass humans in an increasing number of domains. As frontier models grow increasingly capable and agentic, the alignment challenge deepens: it extends beyond simply keeping models within safeguards to avoid biased or harmful responses. It fundamentally concerns <em>how we can steer and control AI systems much more capable than us</em> <d-cite key="openai_superalignment"></d-cite>.
 
@@ -227,3 +230,16 @@ The misalignment failure modes discussed in this post highlight critical challen
 - Are there critical thresholds where qualitatively new misalignment behaviors emerge?
 - Can we develop scaling laws that predict misalignment generalization across domains and capabilities?
 
+# Citation
+
+If you find this post useful, please cite it as:
+
+```bibtex
+@article{yang2026misalignment,
+  title={Misalignment Patterns and RL Failure Modes in Frontier LLMs},
+  author={Yang, Shu and Yan, Hanqi and Wang, Di},
+  journal={The International Conference on Learning Representations (ICLR) Blog Post Track},
+  year={2026},
+  url={https://iclr-blogposts.github.io/2026/blog/2026/misalign-failure-mode/}
+}
+```
