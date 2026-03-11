@@ -14,7 +14,7 @@ mermaid:
 
 # Anonymize when submitting
 authors:
-  - name: Anonymous
+  - name: Chieh-Hsin Lai, Yang Song, Dongjun Kim, Yuki Mitsufuji, Stefano Ermon
 
 # must be the exact same name as your blogpost
 bibliography: 2026-04-27-tracing-principles-behind-modern-diffusion-models.bib
