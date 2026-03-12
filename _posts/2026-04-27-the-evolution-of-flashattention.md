@@ -32,24 +32,22 @@ toc:
 The fundamental concept that underpins the transformer architecture is **Attention**. This was originally developed as an enhancement to RNNs for machine translation <d-cite key="bahdanau2016neuralmachinetranslationjointly"> </d-cite>.
 However, in 2017, Vaswani et al. <d-cite key="vaswani2023attentionneed"></d-cite> showed that significantly improved performance could be obtained by eliminating the recurrence structure and instead focusing exclusively on the attention mechanism. 
 
-The importance of this mechanism can be explained with the help of the following example
+The importance of this mechanism can be explained with the help of the following example:
 
 {% include figure.liquid path="assets/img/2026-04-27-the-evolution-of-flashattention/Figure_1.jpg" class="img-fluid rounded z-depth-1" caption="Attention weights showing how the model resolves ambiguity in word meaning through context. The arrows indicate strong attention connections between 'bank' and contextually relevant words." %}
 
 Consider the sentence **"I swam across the river to get to the other bank."** The word "**bank**" has multiple meanings—it could refer to a financial institution or a riverbank. The attention mechanism helps the model understand context by weighing relationships between words. In this case, the model attends strongly to words like "swam," "across," and "river," which provide contextual clues that "bank" refers to a riverbank rather than a financial institution.
 
 
-Therefore, the Attention mechanism has become a critical mechanism driving the growth of Large Language Models. Over the years, several variants of the attention mechanism have been proposed such as Multi Query Attention (MQA) (cite), Grouped-Query Attention (GQA), Multi-Head Latent Attention (MLA), etc. For instance, here's a non-exhaustive taxonomy of efficient attention mechanisms
+Therefore, the Attention mechanism has become a critical mechanism driving the growth of Large Language Models. Over the years, several variants of the attention mechanism have been proposed such as Multi Query Attention (MQA) <d-cite key='shazeer2019fasttransformerdecodingwritehead'></d-cite>, Grouped-Query Attention (GQA), Multi-Head Latent Attention (MLA), etc. For instance, here's a non-exhaustive taxonomy of efficient attention mechanisms
 
-{% include figure.liquid path="assets/img/2026-04-27-the-evolution-of-flashattention/Figure_0.png" class="img-fluid rounded z-depth-1" caption="Figure adapted from <d-cite key='sun2025efficient'></d-cite>" %}
-
-
-
-However, the transformer's attention mechanism has a limitation: it scales quadratically both in time and memory with sequence length, resulting in $O(n^2 \cdot d_{\text{model}})$ time complexity and $O(n^2)$ memory complexity. For example, a 2,048-token sequence requires 16 MB of memory for the attention matrix; at 16,384 tokens, this increases to 1GB per layer. A mathematical proof is presented in Appendix A. This quadratic scaling makes it prohibitive for processing long sequences beyond 8K-16K tokens without specialized optimizations <d-cite key="keles2022computationalcomplexityselfattention"></d-cite>. While many works aim for sub-quadratic attention using approximations, including Linformer <d-cite key="wang2020linformerselfattentionlinearcomplexity"></d-cite>, Performer <d-cite key="choromanski2022rethinkingattentionperformers"></d-cite>, and Reformer <d-cite key="kitaev2020reformerefficienttransformer"></d-cite>, these methods have seen limited use in large language models. These are approximate attention methods that reduce cost through low-rank projections, kernel approximations, or sparse routing. These assumptions improve asymptotic complexity, but they introduce accuracy and hardware-efficiency tradeoffs, so large-scale models still rely on exact attention.
+{% include figure.liquid path="assets/img/2026-04-27-the-evolution-of-flashattention/Figure_0.png" class="img-fluid rounded z-depth-1" zoomable=true caption="Figure adapted from <d-cite key='sun2025efficient'></d-cite>" %}
 
 
+However, the transformer's attention mechanism has a limitation: it scales quadratically both in time and memory with the sequence (context) length $N$, resulting in $O(N^2 \cdot d_{\text{model}})$ time complexity and $O(N^2)$ memory complexity. We use $N$ to denote the sequence length throughout this post. For example, a 2,048-token sequence requires 16 MB of memory for the attention matrix; at 16,384 tokens, this increases to 1GB per layer. A mathematical analysis is presented in [Appendix A](#appendix-a-standard-attention-complexity). This quadratic scaling makes it prohibitive for processing long sequences beyond 8K-16K tokens without specialized optimizations <d-cite key="keles2022computationalcomplexityselfattention"></d-cite>. While many works aim for sub-quadratic attention using approximations, including Linformer <d-cite key="wang2020linformerselfattentionlinearcomplexity"></d-cite>, Performer <d-cite key="choromanski2022rethinkingattentionperformers"></d-cite>, and Reformer <d-cite key="kitaev2020reformerefficienttransformer"></d-cite>, these methods have seen limited use in large language models. These are approximate attention methods that reduce cost through low-rank projections, kernel approximations, or sparse routing. These assumptions improve asymptotic complexity, but they introduce accuracy and hardware-efficiency tradeoffs, so large-scale models still rely on exact attention.
 
-The FlashAttention series by Tri Dao <d-cite key="dao2022flashattention"></d-cite> <d-cite key="dao2023flashattention2"></d-cite><d-cite key="shah2024flashattention3"></d-cite>  looks at the attention bottleneck from a systems angle. Instead of approximating attention and hurting model quality, the idea is to rethink how attention moves data through the GPU. Modern GPUs have a very uneven memory hierarchy, so the cost of moving data often dominates the cost of doing the math. FlashAttention reduces this movement and gets closer to the limits of the hardware. In this blog, we walk through how this idea has evolved. FlashAttention v1 introduced **tiled exact attention**. FlashAttention v2 improved how work is split across the GPU. FlashAttention v3 added **warp specialization**, **asynchrony**, and **low precision** on Hopper to push utilization even higher. We also refer to what is known about FlashAttention 4, though an official paper is not public yet.
+
+The FlashAttention series by Tri Dao <d-cite key="dao2022flashattention"></d-cite> <d-cite key="dao2023flashattention2"></d-cite><d-cite key="NEURIPS2024_7ede97c3"></d-cite>  looks at the attention bottleneck from a systems angle. Instead of approximating attention and hurting model quality, the idea is to rethink how attention moves data through the GPU. Modern GPUs have a very uneven memory hierarchy, so the cost of moving data often dominates the cost of doing the math. FlashAttention reduces this movement and gets closer to the limits of the hardware. In this blog, we walk through how this idea has evolved. FlashAttention v1 introduced **tiled exact attention**. FlashAttention v2 improved how work is split across the GPU. FlashAttention v3 added **warp specialization**, **asynchrony**, and low precision on the Hopper GPU to push utilization even higher. We also refer to what is known about FlashAttention 4, though an official paper is not public yet.
 
 
 ## Background
@@ -61,10 +59,12 @@ The FlashAttention series by Tri Dao <d-cite key="dao2022flashattention"></d-cit
 Every modern processor faces the same fundamental challenge: fast storage is expensive and small, while large storage is slow and cheap. 
 Modern GPUs organize memory into a hierarchical form which has five distinct levels, each with different characteristics, different access patterns, and different implications for your code. Starting from the fastest and smallest and working towards the slowest and largest, these levels are: registers, shared memory, L1 cache, L2 cache, and global memory (as shown in the above Figure). At the top of the memory hierarchy sit registers, the fastest storage available on a GPU. Each thread running on the GPU has access to a private set of registers - typically up to 255 registers per thread on modern NVIDIA architectures. These registers feed directly into the computational units. When a thread performs an arithmetic operation, the operands come from registers and the result goes back to registers. There is no separate "register access" operation visible to the programmer; registers are simply where the active data lives. The register file on a single Streaming Multiprocessor contains 65,536 registers with each register holding 32 bits. This gives 256 kilobytes of register storage per SM, and these registers are dynamically shared among all threads running on that SM
 
-Unlike registers, which are private to each individual thread, shared memory (SRAM) is shared among all threads in a thread block. It is the primary mechanism for threads to cooperate and communicate and is **explicitly managed by the programmer rather than automatically managed by the compiler**. Shared memory provides a staging area for data that multiple threads need to access. Rather than having each thread read the same value from slow global memory, one thread can read it once into shared memory, synchronize with the other threads, and then all threads can read from fast shared memory. Secondly, it enables algorithms that require threads to exchange data. This is used explicitly by FlashAttention. 
+Unlike registers, which are private to each individual thread, shared memory (SRAM) is shared among all threads in a **thread block**. NVIDIA GPUs organize parallel work in a hierarchy: individual **threads** are grouped into **warps** of 32 threads that execute in lockstep, warps are grouped into **thread blocks** (also called cooperative thread arrays) that are scheduled onto a single Streaming Multiprocessor (SM) and share its SRAM, and the full collection of thread blocks forms the **grid** launched by a kernel. Shared memory is the primary mechanism for threads within a block to cooperate and communicate and is **explicitly managed by the programmer rather than automatically managed by the compiler**. Shared memory provides a staging area for data that multiple threads need to access. Rather than having each thread read the same value from slow global memory, one thread can read it once into shared memory, synchronize with the other threads, and then all threads can read from fast shared memory. Secondly, it enables algorithms that require threads to exchange data. This is used explicitly by FlashAttention. 
 
 
-At the bottom of the hierarchy sits global memory - the large DRAM pool that provides the bulk of a GPU's storage capacity. An H100 for example, has 80GBs of HBM memory, operating at around 3,000 gigabytes per second of bandwidth. This is where your input data starts, where your output data goes, and where any persistent state lives. It is also by far the slowest level of hierarchy, with individual access latencies reaching 400 to 800 clock cycles depending on architecture and access pattern.
+At the bottom of the hierarchy sits global memory - the large DRAM pool that provides the bulk of a GPU's storage capacity. An H100 for example, has 80GBs of HBM memory, operating at around 3,000 gigabytes per second of bandwidth. This is where your input data starts, where your output data goes, and where any persistent state lives. In frameworks like PyTorch, when a tensor is moved to the GPU (e.g., via `.cuda()` or `.to(device)`), it is placed in global memory (HBM); from there, GPU kernels load it into faster memory levels as needed. It is also by far the slowest level of hierarchy, with individual access latencies reaching 400 to 800 clock cycles depending on architecture and access pattern.
+
+*Table: Representative GPU memory hierarchy for the NVIDIA A100 (Ampere architecture) <d-cite key="nvidia2020a100"></d-cite>. Hopper (H100) increases SRAM to 256 KB/SM and HBM bandwidth to ~3.35 TB/s <d-cite key="nvidia2022h100"></d-cite>.*
 
 | Memory Level | Capacity | Bandwidth | Latency | Programmer Control |
 |:-------------|:---------|:----------|:--------|:-------------------|
@@ -78,19 +78,18 @@ When we look at the GPU memory hierarchy in detail, we see a sharp difference in
 
 ### Attention is memory bound despite $O(N^{2})$ compute
 
-The efficiency of a kernel is governed by its arithmetic intensity, defined as the number of floating-point operations (FLOPs) performed per byte of memory access. Arithmetic Intensity is commonly used to measure whether operations can be classified as either compute-bound or memory-bound. A process is memory-bound when the execution speed is limited by how fast data can be moved between memory (HBM/RAM) and the processor cores, rather than by how fast the cores can compute. Typical examples include elementwise operations such as activation, dropout and reduction operations such as sum, softmax, batch norm, layer norm.
-A process is compute-bound when the execution speed is limited by the raw processing power (FLOPS) of the cores such as Matrix Multiplication, Convolution 
+The efficiency of a kernel is governed by its arithmetic intensity, defined as the number of floating-point operations (FLOPs) performed per byte of memory access. This concept is formalized by the **Roofline model** <d-cite key="williams2009roofline"></d-cite>, which plots attainable performance as a function of arithmetic intensity. The model defines a hardware-specific ridge point $I_{\text{crit}} = \frac{\text{Peak FLOP/s}}{\text{Peak Bandwidth}}$; operations below this threshold are *memory-bound* (bottlenecked by data movement), and operations above it are *compute-bound* (bottlenecked by processing power). For an NVIDIA A100 GPU using FP32 (single-precision) scalar operations on CUDA cores (19.5 TFLOPS peak, 1.555 TB/s HBM bandwidth), $I_{\text{crit}} \approx 12.5$ FLOPs/Byte. This is the relevant threshold for non-matrix-multiply operations such as softmax, which execute element-wise FP32 arithmetic on CUDA cores rather than Tensor Cores. Typical memory-bound operations include elementwise operations such as activation, dropout and reduction operations such as sum, softmax, batch norm, layer norm. Typical compute-bound operations include Matrix Multiplication and Convolution.
 
 $$
 \text{Arithmetic Intensity} = \frac{\text{FLOPs}}{\text{Bytes Accessed}}
 $$
 
-Standard Attention involves three primary stages
+Standard Attention operates on three input matrices: the queries $Q \in \mathbb{R}^{N \times d}$, keys $K \in \mathbb{R}^{N \times d}$, and values $V \in \mathbb{R}^{N \times d}$, where $N$ is the sequence length and $d$ is the head dimension. It involves three primary stages
 1. Matrix Multiplication: $ S = Q K^T $
 2. Softmax: $ P = \text{softmax}(S) $
 3. Matrix Multiplication: $ O = P V $
 
-The matrix multiplications ($QK^T$ and $PV$) are compute-bound operations with high arithmetic intensity ($O(N^2 d)$ FLOPs vs $O(N^2)$ IO). However, the intermediate Softmax operation is memory-bound. It requires reading the entire $N \times N$ matrix $S$ from HBM, performing reduction operations, and writing the resulting $P$ matrix back to HBM. This $O(N^2)$ memory traffic saturates the HBM bandwidth, leaving the powerful Tensor Cores idle. (Detailed Proof provided in Appendix B)
+The matrix multiplications ($QK^T$ and $PV$) are compute-bound operations with high arithmetic intensity ($O(N^2 d)$ FLOPs vs $O(N^2)$ IO). However, the intermediate Softmax operation is memory-bound. It requires reading the entire $N \times N$ matrix $S$ from HBM, performing reduction operations, and writing the resulting $P$ matrix back to HBM. This $O(N^2)$ memory traffic saturates the HBM bandwidth, leaving the powerful Tensor Cores idle. Tensor Cores are specialized hardware units on NVIDIA GPUs designed to accelerate matrix multiply-accumulate operations, delivering an order of magnitude higher throughput than standard CUDA cores for these operations. (Detailed analysis provided in [Appendix B](#appendix-b-memory-bound-analysis))
 
 
 ## FlashAttention V1 
@@ -99,7 +98,7 @@ One of the hardware-efficient mechanisms now widely adopted across different pro
 
 FlashAttention addresses the dual challenges of speed and memory consumption in transformers, especially on long sequences, by rethinking attention algorithms through the lens of GPU memory hierarchy awareness. The key insight is minimizing data movement between high-bandwidth memory (HBM) and on-chip SRAM.
 
-{% include figure.liquid path="assets/img/2026-04-27-the-evolution-of-flashattention/Figure_3.png" class="img-fluid rounded z-depth-1" caption="Standard execution loads data from HBM for every step. Kernel fusion and tiling keep data in fast memory longer, reducing memory traffic and improving throughput." %}
+{% include figure.liquid path="assets/img/2026-04-27-the-evolution-of-flashattention/Figure_3.png" class="img-fluid rounded z-depth-1" caption="Standard execution loads data from HBM for every step. Kernel fusion and tiling keep data in fast memory longer, reducing memory traffic and improving throughput. Figure adapted from Fig. 1 of Dao et al. <d-cite key='dao2022flashattention'></d-cite>." %}
 
 FlashAttention v1, published at Neural Information Processing Systems 2022 by Tri Dao and collaborators, introduced two key innovations: **tiled** attention that processes blocks of queries, keys, and values entirely in SRAM, and an **online softmax algorithm** that computes exact softmax incrementally without materializing the full attention matrix.
 
@@ -186,9 +185,11 @@ $$
 
 We can define the correction factor $\alpha = e^{m_{old} - m_{new}}$. This is the **rescaling equation** for online softmax. It allows us to update the running sum using only the previous statistics ($m_{old}$ and $\ell_{old}$) and the new block statistics, without ever loading the earlier blocks from HBM again. The exponential correction terms ensure numerical stability throughout the incremental computation by properly rescaling all exponentials relative to the current global maximum. This reduces the operation from 3 passes to 2 passes <d-cite key="dukhan2020two"> </d-cite>
 
+With the online softmax recurrence in hand, we now have all the ingredients needed to build an IO-aware attention algorithm. The rescaling equation above lets us process $K, V$ one block at a time and fold each block's contribution into a running output — without ever writing the $N \times N$ attention matrix to HBM. The forward pass below shows exactly how FlashAttention orchestrates this block-by-block computation on the GPU.
+
 ### Forward Pass
 
-{% include figure.liquid path="assets/img/2026-04-27-the-evolution-of-flashattention/Figure_4.png" class="img-fluid rounded z-depth-1" caption="Algorithm for FlashAttention Forward Pass. The algorithm partitions inputs into blocks that fit in SRAM, computes attention incrementally using online softmax, and updates running statistics to avoid materializing the full attention matrix in HBM." %}
+{% include figure.liquid path="assets/img/2026-04-27-the-evolution-of-flashattention/Figure_4.png" class="img-fluid rounded z-depth-1" caption="Algorithm for FlashAttention Forward Pass. The algorithm partitions inputs into blocks that fit in SRAM, computes attention incrementally using online softmax, and updates running statistics to avoid materializing the full attention matrix in HBM. Reproduced from Algorithm 1 of Dao et al. <d-cite key='dao2022flashattention'></d-cite>." %}
 
 For each attention head, FlashAttention reduces memory reads and writes by tiling. It loads small blocks of queries, keys, and values from GPU HBM into fast on-chip SRAM, computes attention for that block, and updates the output before moving on to the next block. This limits how often data moves between slow and fast memory, which is the main bottleneck on modern GPUs. Cutting this movement often gives a 2–4× speedup in practice.
 
@@ -265,10 +266,23 @@ In practice, to avoid numerical instability from dividing by $\ell_i$ at every s
 
 {% include figure.liquid path="assets/img/2026-04-27-the-evolution-of-flashattention/Figure_7.png" class="img-fluid rounded z-depth-1" caption="Blockwise computation of attention using online softmax. Q remains in HBM while K and V are streamed in blocks. For each block, partial scores S(t) and exponentials A(t) are computed in SRAM. The running softmax denominator is updated across blocks, and partial outputs O(t) are rescaled and accumulated to form the final output." %}
 
+#### GPU Parallelism in FlashAttention V1
+
+In FlashAttention v1, the CUDA kernel is launched with one **thread block per attention head**, for a grid of $B \times H$ blocks (batch size $\times$ number of heads). Each thread block is scheduled onto a single Streaming Multiprocessor (SM) and **cooperatively** processes the entire tiled attention computation for its assigned head — there is no further partitioning of work across thread blocks within a head.
+
+Within a thread block, all warps (groups of 32 threads) collaborate on the same pair of $(Q_i, K_j)$ tiles. The work is divided as follows:
+
+- **HBM ↔ SRAM loads:** All warps in the block participate in loading $K_j$, $V_j$, $Q_i$, and the running statistics from HBM into shared memory (SRAM), using coalesced memory accesses for maximum bandwidth.
+- **MatMul ($S_{ij} = Q_i K_j^\top$ and $\tilde{V}_{ij} = \tilde{P}_{ij} V_j$):** The matrix multiplications are split across warps, with each warp computing a subset of rows or tiles of the result using Tensor Core `mma` (matrix-multiply-accumulate) instructions. All warps read from the shared $K_j / V_j$ tiles in SRAM.
+- **Softmax & statistics:** After computing $S_{ij}$, all warps **synchronize** (via `__syncthreads()`), and the row-wise max, exponentiation, and row-wise sum are computed cooperatively — each warp handles a subset of rows. A second synchronization barrier follows before the output update proceeds.
+- **Output accumulation & write-back:** Each warp updates its assigned rows of $O_i$ and writes the results back to HBM.
+
+Because all warps within a block share the same $K_j / V_j$ tiles in SRAM, this scheme avoids redundant HBM reads. However, it also means that the **entire sequential iteration** over the outer loop ($j = 1, \dots, T_c$) and inner loop ($i = 1, \dots, T_r$) is carried out by a single thread block. No parallelism is exploited *along the sequence dimension* — the sequence-length loops are fully serial within each block. This becomes a significant occupancy bottleneck when $B \times H$ is small, as discussed in the FlashAttention-2 section below.
+
 
 ### Complexity Analysis
 
-The efficiency of FlashAttention is theoretically grounded in its IO complexity. We analyze the number of HBM accesses required by comparing standard attention with FlashAttention.
+The efficiency of FlashAttention is theoretically grounded in its IO complexity. We analyze the number of HBM accesses using a **two-level external memory model**: a slow memory (HBM) of unbounded size, and a fast memory (SRAM) of size $M$ words. The cost metric is the number of words transferred between HBM and SRAM. This is the same model used in classical cache complexity analysis <d-cite key="aggarwal1988io"></d-cite> and in the Red-Blue Pebble Game framework <d-cite key="demaine2018red"></d-cite> that Dao et al. employ for their lower-bound proof.
 
 #### Standard Attention IO Complexity
 
@@ -284,7 +298,9 @@ For standard attention, the HBM accesses are:
 - Read $P$ and $V$: $O(N^2) + O(Nd)$
 - Write $O = PV$: $O(Nd)$
 
-**Total:** $\Theta(N^2)$ HBM accesses (assuming $N \gg d$)
+**Total:** $\Theta(Nd + N^2) = \Theta(N^2)$ HBM accesses (assuming $N \gg d$).
+
+Note that this complexity is **independent of $M$**: the standard implementation does not exploit SRAM to reduce data movement. Each kernel materializes the full $N \times N$ intermediate matrix to HBM, so no amount of fast memory avoids the quadratic traffic.
 
 #### FlashAttention IO Complexity
 
@@ -306,11 +322,11 @@ $$
 
 **Theorem:** For sequence length $N$, head dimension $d$, and SRAM size $M$, FlashAttention requires $O(N^2 d^2 M^{-1})$ HBM accesses.
 
-Since $d^2$ is typically much smaller than $M$ (e.g., $d=64 \implies d^2=4096$, while $M \approx 10^5$ bytes), the ratio $d^2/M \ll 1$. Thus, FlashAttention provides a significant reduction in HBM accesses compared to standard attention's $O(N^2)$ complexity.
+The key factor is the ratio $d^2/M$. Since $d^2$ is typically much smaller than $M$ (e.g., $d=64 \implies d^2=4096$, while SRAM size $M \approx 10^5$ bytes on an A100), we have $d^2/M \ll 1$. By tiling the computation to fit within the fast memory of size $M$, FlashAttention trades extra FLOPs (recomputation) for drastically fewer HBM accesses — reducing the $M$-independent $\Theta(N^2)$ of standard attention to $O(N^2 d^2 M^{-1})$, a factor of $M/d^2$ improvement.
 
 #### Lower Bound and Optimality
 
-Dao et al. prove that this complexity is **asymptotically optimal**. <d-cite key="dao2022flashattention"></d-cite> The proof relies on the "Red-Blue Pebble Game," a standard model for analyzing memory hierarchy complexity <d-cite key="demaine2018red"></d-cite>. The attention computation graph involves computing $N^2$ pairwise interactions. To compute these interactions with a limited cache of size $M$, any algorithm must re-stream inputs multiple times. It has been proven that any algorithm computing exact attention must incur $\Omega(N^2 d^2 M^{-1})$ memory accesses. This confirms that FlashAttention is not just an improvement but **IO-optimal** for exact attention computation.
+Dao et al. prove that this complexity is **asymptotically optimal** within the two-level external memory model defined above. <d-cite key="dao2022flashattention"></d-cite> The proof uses the Red-Blue Pebble Game — a combinatorial framework where "blue pebbles" represent HBM-resident data and "red pebbles" represent data loaded into SRAM (of size $M$). A computation step can only fire when all its operands hold red pebbles, and each blue$\leftrightarrow$red pebble transfer counts as one IO. Under this model, the attention computation graph involves $N^2$ pairwise interactions. To compute these interactions with a fast memory of size $M$, any algorithm must re-stream inputs multiple times. Dao et al. show that any algorithm computing exact attention must incur $\Omega(N^2 d^2 M^{-1})$ memory accesses, confirming that FlashAttention is not just an improvement but **IO-optimal** for exact attention computation.
 
 #### Complexity Comparison with Standard Attention
 
@@ -526,9 +542,9 @@ FlashAttention-2, released in July 2023, achieves a ~2x speedup over v1 by addre
 
 #### Optimization 1: Reducing Non-Matmul FLOPs
 
-FlashAttention-2 introduces **algebraic simplifications** to minimize non-matrix-multiply operations. While matrix multiplications (GEMMs) run on specialized Tensor Cores, operations like `exp`, `sum`, and `division` run on the Special Function Units (SFUs) or CUDA cores, which are much slower.
+FlashAttention-2 introduces **algebraic simplifications** to minimize non-matrix-multiply operations. While matrix multiplications (GEMMs) run on specialized Tensor Cores, operations like exp, sum, and division run on the Special Function Units (SFUs) or CUDA cores, which are much slower. At the assembly level, these operations are dispatched via MUFU (Multi-Function Unit) instructions (e.g., MUFU.EX2 for exponentials) — SFU and MUFU refer to the same hardware unit at different abstraction levels. We use both terms in this post: SFU when discussing the architectural view, and MUFU when referring to instruction-level scheduling in FA3 and FA4.
 
-{% include figure.liquid path="assets/img/2026-04-27-the-evolution-of-flashattention/Figure_12.png" class="img-fluid rounded z-depth-1" caption="NVIDIA A100 Streaming Multiprocessor (SM) Architecture. Note the specialized Tensor Cores for matrix math vs. SFUs for activation functions." %}
+{% include figure.liquid path="assets/img/2026-04-27-the-evolution-of-flashattention/Figure_12.png" class="img-fluid rounded z-depth-1" caption="NVIDIA A100 Streaming Multiprocessor (SM) Architecture. Note the specialized Tensor Cores for matrix math vs. SFUs for activation functions. Figure adapted from the NVIDIA A100 architecture whitepaper <d-cite key='nvidia2020a100'></d-cite>." %}
 
 **1. Deferring Normalization:**
 In FlashAttention v1, the output matrix $O$ is rescaled at every iteration to maintain numerical stability:
@@ -575,7 +591,7 @@ This approach easily saturates the 108 SMs of an A100, even with a batch size of
 **Improved Warp Partitioning:**
 A major innovation in v2 is parallelizing across the sequence dimension. Instead of one thread block handling one $(i,j)$ pair at a time, FlashAttention-2 splits the work of a single attention head into multiple thread blocks and warps.
 
-{% include figure.liquid path="assets/img/2026-04-27-the-evolution-of-flashattention/Figure_15.png" class="img-fluid rounded z-depth-1" caption="Comparison of Warp Partitioning: Split-K (FA1) vs Split-Q (FA2)" %}
+{% include figure.liquid path="assets/img/2026-04-27-the-evolution-of-flashattention/Figure_15.png" class="img-fluid rounded z-depth-1" caption="Comparison of Warp Partitioning: Split-K (FA1) vs Split-Q (FA2). Figure adapted from Dao <d-cite key='dao2023flashattention2'></d-cite>." %}
 
 FlashAttention v1 used a "Split-K" scheme where 4 warps each computed a slice of $K^{T}$ and then synchronized to aggregate results. This required writing intermediate results to shared memory, barrier synchronization across warps, and reading/summing partial results.
 
@@ -619,14 +635,14 @@ While the backward pass remains slower than the forward pass (due to more FLOPs 
 
 ## FlashAttention V3
 
-FlashAttention-3 (FA3), presented at NeurIPS 2024, represents a shift in how attention kernels interact with GPU hardware. While FA1 and FA2 focused on memory hierarchy optimization (tiling) and parallelism, FA3 was designed specifically to exploit the asynchronous execution model of NVIDIA's Hopper (H100) architecture.
+FlashAttention-3 (FA3), presented at NeurIPS 2024, represents a shift in how attention kernels interact with GPU hardware. While FA1 and FA2 focused on memory hierarchy optimization (tiling) and parallelism, FA3 was designed specifically to exploit the asynchronous execution model of NVIDIA's Hopper GPU (H100) architecture.
 
-### Shortcomings in FA1 and FA2 on Hopper
+### Shortcomings in FA1 and FA2 on Hopper GPU
 
-Despite their success, FA1 and FA2 left performance potential on the table when running on modern hardware. FA2 achieves only ~35% of the theoretical maximum FLOPS on H100 GPUs, compared to 80-90% for optimized GEMM kernels <d-cite key="flashattention3"></d-cite>. This gap stems from three main issues:
+Despite their success, FA1 and FA2 left performance potential on the table when running on modern hardware. FA2 achieves only ~35% of the theoretical maximum FLOPS on H100 GPUs, compared to 80-90% for optimized GEMM kernels <d-cite key="NEURIPS2024_7ede97c3"></d-cite>. This gap stems from three main issues:
 
-1.  **Synchronous Execution Model:** FA2 used Ampere's `mma.sync` instruction. Hopper's new **WGMMA** (Warp-Group Matrix Multiply-Accumulate) instruction achieves 50% higher throughput but requires asynchronous programming.
-2.  **No Producer-Consumer Overlap:** FA2's data loading and computation were serialized. Hopper's **TMA** (Tensor Memory Accelerator) enables loading the next tile while computing on the current one.
+1.  **Synchronous Execution Model:** FA2 used Ampere's `mma.sync` instruction. Hopper GPU's new **WGMMA** (Warp-Group Matrix Multiply-Accumulate) instruction achieves 50% higher throughput but requires asynchronous programming.
+2.  **No Producer-Consumer Overlap:** FA2's data loading and computation were serialized. Hopper GPU's **TMA** (Tensor Memory Accelerator) enables loading the next tile while computing on the current one.
 3.  **Non-GEMM Bottleneck:** H100's Tensor Cores deliver 989 TFLOPS for FP16 matmul but only 3.9 TFLOPS for special functions (exponential). This 256× throughput gap means softmax can consume ~50% of execution time despite having far fewer FLOPs.
 
 ### Improvements over FA1 & FA2
@@ -635,7 +651,7 @@ FlashAttention-3 addresses these bottlenecks through three key innovations: Warp
 
 #### 1. Warp Specialization: Producer-Consumer Model
 
-FA3 splits the warps in a thread block into two specialized groups with distinct responsibilities, leveraging Hopper's asynchronous nature:
+FA3 splits the warps in a thread block into two specialized groups with distinct responsibilities, leveraging Hopper GPU's asynchronous nature:
 
 *   **Producer Warps:** exclusively issue TMA instructions to load data from global memory into a **circular buffer** in shared memory. Since TMA is asynchronous, a single warp can keep the memory pipeline full. For a deeper dive into TMA, see the CUTLASS tutorial <d-cite key="cutlass-tma"></d-cite> or Modal's hardware glossary <d-cite key="modal-tma"></d-cite>.
 *   **Consumer Warps:** exclusively execute WGMMA and softmax instructions. They never issue memory loads.
@@ -651,25 +667,51 @@ To break the sequential dependency bottleneck ($GEMM \rightarrow Softmax \righta
 *   **Simultaneously:** Warpgroup 2 executes the low-throughput Softmax for block $j-1$ on the Multi-Function Unit (MUFU), which is separate from Tensor Cores.
 
 **Intra-Warpgroup Pipelining (2-Stage Pipeline):**
-Beyond producer-consumer overlap, FA3 pipelines execution *within* each consumer warpgroup. By reordering instructions, the WGMMA for the next iteration can be issued before the Softmax of the current iteration completes. This **2-stage pipeline** hides the latency of the non-GEMM operations and is the precursor to the more complex 5-stage pipeline seen in FA4.
+Beyond the inter-warpgroup pingpong overlap, FA3 also pipelines execution *within* each consumer warpgroup. Recall that each iteration of the inner loop performs three steps in sequence:
+
+1. **GEMM-1:** $S_j = Q_i K_j^\top$ (on Tensor Cores via WGMMA)
+2. **Softmax:** $\tilde{P}_j = \text{softmax}(S_j)$ (on MUFU/SFU — exp, max, sum, div)
+3. **GEMM-2:** $O_i \mathrel{+}= \tilde{P}_j V_j$ (on Tensor Cores via WGMMA)
+
+In a naïve schedule, these execute strictly back-to-back: GEMM-1$_j$ → Softmax$_j$ → GEMM-2$_j$ → GEMM-1$_{j+1}$ → …, leaving the Tensor Cores idle during every Softmax phase. The key insight is that **WGMMA instructions are asynchronous** — once issued, they execute on the Tensor Cores while the warp is free to issue other non-Tensor-Core instructions. FA3 exploits this by reordering the instruction stream so that the Softmax of the *current* iteration overlaps with the GEMM-1 of the *next* iteration:
+
+| Time slot | Tensor Cores | MUFU (SFU) |
+|:----------|:-------------|:-----------|
+| $t_1$ | GEMM-1$_j$ | *(idle)* |
+| $t_2$ | GEMM-1$_{j+1}$ | Softmax$_j$ |
+| $t_3$ | GEMM-2$_j$ | *(idle)* |
+| $t_4$ | GEMM-1$_{j+2}$ | Softmax$_{j+1}$ |
+| $t_5$ | GEMM-2$_{j+1}$ | *(idle)* |
+
+Concretely, the instruction reordering works as follows: after issuing GEMM-1$_j$ (an async WGMMA), the warpgroup immediately issues the MUFU instructions for Softmax$_j$ (exp, row-max, row-sum) without waiting for GEMM-1$_j$ to retire — WGMMA results are not needed until GEMM-2$_j$. In the same time window, the warpgroup also issues GEMM-1$_{j+1}$ using the *already-loaded* $K_{j+1}$ tile (pre-fetched by the producer warp). Only when Softmax$_j$ completes and $\tilde{P}_j$ is ready does the warpgroup issue GEMM-2$_j$, consuming both the softmax output and $V_j$. This creates a **2-stage software pipeline** where two iterations of the loop are in flight simultaneously — one in the "softmax + GEMM-1" phase, and one in the "GEMM-2" phase. The result is that Tensor Core idle time during softmax is largely eliminated, and MUFU latency is hidden behind the next GEMM-1. This is the precursor to the more complex 5-stage pipeline seen in FA4.
 
 #### 3. Low-Precision with Block Quantization
 
 FA3 is the first to effectively utilize FP8 (8-bit floating point) for attention. However, this introduces two challenges:
 
-**Challenge 1: Layout Constraints.** FP8 WGMMA requires operands in K-major format. However, for the second GEMM ($P \times V$), $V$ is typically row-major.
+**Challenge 1: Layout Constraints.** FP8 WGMMA requires operands in **K-major format** — meaning the matrix must be laid out in memory so that elements along the *contraction dimension* (the $K$-dimension, i.e., the dimension being summed over in the matrix multiply) are contiguous in memory. For the first GEMM $S = QK^\top$, the contraction dimension is $d$ (the head dimension), and $K$ is naturally stored with $d$ contiguous, so no transposition is needed. For the second GEMM $O = PV$, the contraction dimension is the sequence dimension $N$. However, $V$ is typically stored in row-major order (with $d$ contiguous per row), which places the wrong dimension contiguous for the Tensor Core instruction. This mismatch means $V$ cannot be fed directly to the FP8 WGMMA without a layout change.
 *   **Solution:** FA3 performs an **in-kernel transpose** using `ldmatrix`/`stmatrix` instructions in the producer warpgroup, overlapped with the preceding GEMMs.
 
 **Challenge 2: Quantization Error.** FP8 (E4M3) has only 3 mantissa bits, making it sensitive to outliers.
 
+<div class="col-sm-8 mx-auto">
 {% include figure.liquid path="assets/img/2026-04-27-the-evolution-of-flashattention/Figure_13.png" class="img-fluid rounded z-depth-1" caption="FP8 E5M2 Format Structure" %}
 {% include figure.liquid path="assets/img/2026-04-27-the-evolution-of-flashattention/Figure_14.png" class="img-fluid rounded z-depth-1" caption="FP8 E5M2 Calculation Example" %}
+</div>
 
 *   **Solution:** FA3 uses **Block Quantization** (per-block scaling factors) and **Incoherent Processing** (Hadamard transform) to spread outliers.
 
-$$
-\mathbf{Q}_{\text{quant}}^{(i)} = \text{quantize}(\mathbf{Q}^{(i)}, \text{scale}^{(i)})
-$$
+    Block quantization works by computing a separate scaling factor for each tile of the $Q$, $K$, and $V$ matrices before quantizing them to FP8:
+
+    $$
+    \mathbf{Q}_{\text{quant}}^{(i)} = \text{quantize}(\mathbf{Q}^{(i)}, \text{scale}^{(i)})
+    $$
+
+    Because each tile is scaled independently, a single outlier in one tile does not consume the dynamic range for all other tiles. After the FP8 GEMM produces a result, the output is rescaled by the product of the input scaling factors to recover the correct magnitude.
+
+    This is implemented **entirely in software** — the scaling, quantization, GEMM, and rescaling are all orchestrated within the FA3 CUDA kernel on **Hopper (H100)**, which has no hardware microscaling support.
+
+> **Hardware microscaling on Blackwell:** NVIDIA's Blackwell architecture introduces **hardware-native microscaling** (the [MX format family](https://www.opencompute.org/documents/ocp-microscaling-formats-mx-v1-0-spec-final-pdf): MXFP8, MXFP6, MXFP4) where per-block scale factors are consumed directly by the Tensor Cores, avoiding the software overhead. However, FA4 on Blackwell does **not yet utilize FP4 or native microscaling** — this remains a future optimization opportunity. For more detail, see the [OCP Microscaling Specification](https://www.opencompute.org/documents/ocp-microscaling-formats-mx-v1-0-spec-final-pdf) and NVIDIA's [Blackwell architecture whitepaper](https://images.nvidia.com/aem-dam/Solutions/geforce/blackwell/nvidia-rtx-blackwell-gpu-architecture.pdf) <d-cite key="nvidia-blackwell-brief"></d-cite>.
 
 ### Performance Results
 
@@ -776,6 +818,10 @@ Third, hardware-algorithm co-design requires specialization at the warp level. F
 
 Finally, numerical precision is a tunable parameter, not a fixed constraint. FlashAttention-3's block quantization and FA4's software-based exponential approximation demonstrate that carefully managed low-precision computation can maintain accuracy while improving throughput. Future algorithms might adaptively select precision per-operation based on numerical sensitivity analysis, potentially using FP8 or FP4 for matmuls while maintaining higher precision only where gradients demand it.
 
+However, these principles come with a sobering caveat: the usability wall remains high. Writing a custom attention kernel that achieves even 50% of hardware peak requires deep expertise in GPU memory hierarchies, warp scheduling, Tensor Core constraints, and low-level CUDA or PTX programming. This excludes most ML researchers from contributing to or modifying these kernels directly. Tools like Triton <d-cite key="tillet2019triton"></d-cite>, ThunderKittens <d-cite key="spector2024thunderkittenssimplefastadorable"></d-cite>, and CuTe aim to lower this barrier by providing higher-level abstractions, but a significant gap remains between algorithm design on paper and efficient GPU implementation. Closing this gap—through better DSLs, compilers, or automated tuning—is as important as the algorithmic advances themselves.
+
+A related concern is the risk of permanent vendor lock-in. The optimizations in FA3 and FA4 rely heavily on NVIDIA-specific features: TMA, WGMMA, Tensor Memory, and architecture-specific warp scheduling. Code tuned for Hopper does not run on Ampere, let alone on AMD or Intel GPUs. This creates a tension between extracting peak performance and maintaining portability. Encouragingly, the ecosystem is beginning to diversify: AMD's ROCm stack now includes FlashAttention ports, and projects like AMD's Iris library <d-cite key="amd-iris"></d-cite> aim to provide competitive attention kernels for MI300X and future accelerators. Whether the field converges on portable abstractions or fragments into vendor-specific silos will shape who can participate in—and benefit from—the next generation of efficient attention.
+
 These principles point toward a future where attention mechanisms are not merely approximate variants of the standard formulation, but fundamentally redesigned algorithms that achieve exact results through hardware-conscious implementation strategies.
 
 ## Appendix A: Standard Attention Complexity
@@ -786,39 +832,39 @@ $$
 \text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V
 $$
 
-where inputs $Q, K \in \mathbb{R}^{n \times d_k}$ and $V \in \mathbb{R}^{n \times d_v}$ represent the query, key, and value matrices respectively. The computation proceeds in three sequential stages, each contributing to the overall computational cost.
+where inputs $Q, K \in \mathbb{R}^{N \times d_k}$ and $V \in \mathbb{R}^{N \times d_v}$ represent the query, key, and value matrices respectively. The computation proceeds in three sequential stages, each contributing to the overall computational cost.
 
-First, we compute the attention score matrix $S = \frac{QK^T}{\sqrt{d_k}}$. This operation involves a matrix multiplication between $Q$ and $K^T$, resulting in an $n \times n$ matrix. Since each of the $n^2$ entries requires a dot product of size $d_k$, the computational cost is proportional to the number of elements multiplied by the dimension size.
-
-$$
-\text{Time Complexity (Scores)} = O(n^2 d_k)
-$$
-
-Crucially, this step requires storing the intermediate matrix $S$, which scales quadratically with the sequence length $n$. This $O(n^2)$ memory requirement is the primary bottleneck for long sequences.
-
-Second, we apply the softmax function row-wise to normalize the scores. For each of the $n$ rows, we compute exponentials, sum them, and divide to normalize. As this is performed for every element in the $n \times n$ matrix, the cost is quadratic.
+First, we compute the attention score matrix $S = \frac{QK^T}{\sqrt{d_k}}$. This operation involves a matrix multiplication between $Q$ and $K^T$, resulting in an $N \times N$ matrix. Since each of the $N^2$ entries requires a dot product of size $d_k$, the computational cost is proportional to the number of elements multiplied by the dimension size.
 
 $$
-\text{Time Complexity (Softmax)} = O(n^2)
+\text{Time Complexity (Scores)} = O(N^2 d_k)
 $$
 
-Finally, we compute the weighted sum of values by multiplying the normalized probability matrix $P = \text{softmax}(S)$ with the value matrix $V$. This results in an output matrix of size $n \times d_v$. Similar to the first step, each of the $n \times d_v$ output elements requires a dot product of length $n$.
+Crucially, this step requires storing the intermediate matrix $S$, which scales quadratically with the sequence length $N$. This $O(N^2)$ memory requirement is the primary bottleneck for long sequences.
+
+Second, we apply the softmax function row-wise to normalize the scores. For each of the $N$ rows, we compute exponentials, sum them, and divide to normalize. As this is performed for every element in the $N \times N$ matrix, the cost is quadratic.
 
 $$
-\text{Time Complexity (Aggregation)} = O(n^2 d_v)
+\text{Time Complexity (Softmax)} = O(N^2)
+$$
+
+Finally, we compute the weighted sum of values by multiplying the normalized probability matrix $P = \text{softmax}(S)$ with the value matrix $V$. This results in an output matrix of size $N \times d_v$. Similar to the first step, each of the $N \times d_v$ output elements requires a dot product of length $N$.
+
+$$
+\text{Time Complexity (Aggregation)} = O(N^2 d_v)
 $$
 
 Summing these components gives the total time complexity:
 
 $$
-\text{Total Time} = O(n^2 d_k) + O(n^2) + O(n^2 d_v) = O(n^2(d_k + d_v))
+\text{Total Time} = O(N^2 d_k) + O(N^2) + O(N^2 d_v) = O(N^2(d_k + d_v))
 $$
 
-In typical Transformer architectures, the head dimensions $d_k$ and $d_v$ are proportional to the model dimension $d_{\text{model}}$. Thus, the complexity is often simplified to $O(n^2 d_{\text{model}})$.
+In typical Transformer architectures, the head dimensions $d_k$ and $d_v$ are proportional to the model dimension $d_{\text{model}}$. Thus, the complexity is often simplified to $O(N^2 d_{\text{model}})$.
 
 ### Scalability Implications
 
-The quadratic dependency on sequence length $n$ creates significant resource challenges as context length increases. The table below illustrates how computational cost and memory usage grow with sequence length, assuming a hidden dimension of $d=768$.
+The quadratic dependency on sequence length $N$ creates significant resource challenges as context length increases. The table below illustrates how computational cost and memory usage grow with sequence length, assuming a hidden dimension of $d=768$.
 
 | Sequence Length | Relative Compute Cost | Memory (GB) |
 | :-- | :-- | :-- |
@@ -830,14 +876,14 @@ The quadratic dependency on sequence length $n$ creates significant resource cha
 
 ### Theoretical Lower Bounds
 
-One might ask if it is possible to compute attention more efficiently than $O(n^2)$. Research grounded in the Strong Exponential Time Hypothesis (SETH) suggests that this quadratic cost is fundamental. Specifically, it has been proven that for any $\epsilon > 0$, computing the softmax dot-product attention requires $\Omega(n^{2-\epsilon})$ time.
+One might ask if it is possible to compute attention more efficiently than $O(N^2)$. Research grounded in the Strong Exponential Time Hypothesis (SETH) suggests that this quadratic cost is fundamental. SETH, introduced by Impagliazzo and Paturi, posits that there is no algorithm solving $k$-SAT in $O(2^{(1-\epsilon)n})$ time for all $k$. Under this assumption, Keles et al. <d-cite key="keles2022computationalcomplexityselfattention"></d-cite> proved that for any $\epsilon > 0$, computing the softmax dot-product attention requires $\Omega(N^{2-\epsilon})$ time.
 
-This lower bound holds for exact computation as well as for multiplicative and additive approximations. The proof relies on a reduction from the Orthogonal Vectors Problem (OVP). Intuitively, to accurately determine the attention distribution, the algorithm must evaluate pairwise interactions between query and key vectors. In high-dimensional spaces, distinguishing between orthogonal and nearly-orthogonal vectors requires checking all pairs, which establishes the $\Omega(n^2)$ barrier.
+This lower bound holds for exact computation as well as for multiplicative and additive approximations. The proof relies on a reduction from the Orthogonal Vectors Problem (OVP): given two sets of $N$ binary vectors, deciding whether any pair is orthogonal requires $\Omega(N^{2-\epsilon})$ time under SETH. Keles et al. show that an algorithm computing attention in truly sub-quadratic time could be used to solve OVP faster than SETH allows, by encoding the orthogonal vectors as queries and keys. Intuitively, to accurately determine the attention distribution, the algorithm must evaluate pairwise interactions between query and key vectors. In high-dimensional spaces, distinguishing between orthogonal and nearly-orthogonal vectors requires checking all pairs, which establishes the $\Omega(N^2)$ barrier.
 
 
-## Appendix B: Memory Bound Proof
+## Appendix B: Memory Bound Analysis
 
-We prove that standard attention is memory-bound by analyzing the Arithmetic Intensity ($AI$) of its components. An operation is memory-bound if its $AI$ is lower than the hardware's critical threshold ($I_{crit}$). For an NVIDIA A100, $I_{crit} \approx 12.5$ FLOPs/Byte.
+We show that standard attention is memory-bound by analyzing the Arithmetic Intensity ($AI$) of its components. An operation is memory-bound if its $AI$ is lower than the hardware's critical threshold ($I_{crit}$). For an NVIDIA A100 using FP32 scalar operations on CUDA cores (19.5 TFLOPS peak, 1.555 TB/s HBM bandwidth), $I_{crit} \approx 12.5$ FLOPs/Byte.
 
 Standard attention consists of three kernels:
 1.  **MatMul 1 ($S = QK^T$):** Compute-bound ($AI \approx 64$ for $d=64$).
@@ -846,14 +892,24 @@ Standard attention consists of three kernels:
 
 **Analysis of the Softmax Kernel:**
 
-*   **Compute:** Softmax performs element-wise operations (exp, sum, div) on the $N \times N$ matrix. This requires approximately 5 FLOPs per element.
-    $$ \text{FLOPs} \approx 5N^2 $$
-*   **Memory:** The kernel must read the full matrix $S$ from HBM and write the full matrix $P$ back to HBM. For FP16 precision ($P=2$ bytes), the data movement is:
-    $$ \text{Bytes} = 2 \times (N^2 \text{ read} + N^2 \text{ write}) = 4N^2 $$
+A numerically stable (safe) softmax implementation requires **3 separate passes** over each row of the $N \times N$ attention matrix $S$:
+
+1.  **Pass 1 — Row-max:** Read $S$ to compute $m_i = \max_j S_{ij}$ for each row (for numerical stability).
+2.  **Pass 2 — Exp & sum:** Read $S$ again, compute $e^{S_{ij} - m_i}$, and accumulate the row-wise sum $\ell_i = \sum_j e^{S_{ij} - m_i}$.
+3.  **Pass 3 — Normalize:** Read the unnormalized values and divide by $\ell_i$ to produce $P_{ij}$, then write $P$ back to HBM.
+
+Each pass reads the full $N \times N$ matrix from HBM, meaning the matrix is traversed **3 times** in total.
+
+*   **Compute:** Across these 3 passes the softmax performs element-wise operations (max, subtract, exp, sum, div) on the $N \times N$ matrix. These are FP32 scalar operations executed on CUDA cores (not Tensor Cores), requiring approximately 5 FLOPs per element.
+    $$ \text{FLOPs}_{\text{FP32}} \approx 5N^2 $$
+*   **Memory:** With 3 read passes and 1 final write of the $N \times N$ matrix in FP16 precision ($P=2$ bytes), the total data movement is:
+    $$ \text{Bytes} = 2 \times (3 \times N^2 \text{ read} + N^2 \text{ write}) = 8N^2 $$
 *   **Arithmetic Intensity:**
-    $$ AI_{\text{softmax}} = \frac{5N^2}{4N^2} = 1.25 \text{ FLOPs/Byte} $$
+    $$ AI_{\text{softmax}} = \frac{5N^2}{8N^2} = 0.625 \text{ FLOPs/Byte} $$
 
 **Conclusion:**
-Since $1.25 \ll 12.5$, the Softmax kernel is severely memory-bound. It forces the GPU compute cores to stall while waiting for $O(N^2)$ data to move to and from HBM. Therefore, despite the high compute complexity of the matrix multiplications, the intermediate materialization of the attention matrix creates a bandwidth bottleneck that limits overall performance.
+Since $0.625 \ll 12.5$, the Softmax kernel is severely memory-bound. The need for 3 separate passes over the $N \times N$ matrix amplifies the bandwidth pressure, forcing the GPU compute cores to stall while waiting for $O(N^2)$ data to move to and from HBM in each pass. Therefore, despite the high compute complexity of the matrix multiplications, the intermediate materialization of the attention matrix creates a bandwidth bottleneck that limits overall performance.
+
+> **Note on the $d \ll N$ assumption:** This analysis assumes the head dimension $d$ is much smaller than the sequence length $N$ (e.g., $d = 64$ or $128$ while $N$ can be $1024$ to $128{,}000$+). Under this regime, the $O(N^2)$ memory traffic from the Softmax kernel dominates the overall cost, making the operation memory-bound. If $d$ were comparable to $N$, the compute-bound MatMul kernels ($AI \propto d$) would dominate instead, and the bottleneck characterization would no longer hold.
 
 
