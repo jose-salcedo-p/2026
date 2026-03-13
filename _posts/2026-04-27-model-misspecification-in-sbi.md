@@ -39,6 +39,7 @@ toc:
   - name: Defining Model Misspecification
     subsections:
     - name: Model Misspecification in Simulation-Based Inference
+    - name: A Note on Prior Misspecification
   - name: Mitigating Model Misspecification in SBI
     subsections:
     - name: Learning Explicit Misspecification Models
@@ -186,26 +187,43 @@ distinguish between different sources of misspecification in the workflow:
    to inferences that reflect artifacts of the assumed prior rather than the true
    underlying process.
 
-Prior misspecification is a general challenge in Bayesian inference and can be addressed
-with standard Bayesian workflow tools like prior predictive checks <d-cite
-key="gelman_bayesian_2020"></d-cite>. While it has received less attention in the
-SBI-specific literature in general, there has been growing interest in this topic
-recently <d-cite
-key="wehenkel_addressing_2024,bockting_simulationbased_2024,bishop_learning_2025"></d-cite>.
+The remainder of this post focuses on simulator misspecification, which has received
+the most attention in the neural SBI literature. We briefly address prior
+misspecification below before turning to methods for detecting and mitigating simulator
+discrepancies.
 
-The methods reviewed below, and much of the recent literature on model misspecification
-in neural SBI, primarily address the first case: detecting and mitigating
-simulator-related misspecification. The remainder of this post provides an overview of
-these approaches.
+### A Note on Prior Misspecification
+
+Prior misspecification is a general challenge in Bayesian inference, but it is
+particularly consequential in amortized neural SBI: because the prior also serves as
+the training distribution for the neural network, a misspecified prior not only shifts
+the posterior but also degrades the network's ability to generalize to the relevant
+parameter region. 
+
+The most straight forward way to address this is prior predictive checks: comparing
+simulations drawn from the prior against observed data before training <d-cite
+key="gelman_bayesian_2020,deistler_simulationbased_2025a"></d-cite>. Beyond this
+diagnostic check, recent work has addressed prior specification more directly: Bockting
+et al. (2024) <d-cite key="bockting_simulationbased_2024"></d-cite> propose
+simulation-based prior elicitation methods that translate expert knowledge into
+well-calibrated priors, while Bishop et al. (2025) <d-cite
+key="bishop_learning_2025"></d-cite> learn minimally informative reference priors for
+settings where limited prior knowledge is available. When prior misspecification is
+discovered after training, post-hoc corrections are also possible: posterior samples can
+be reweighted by the ratio of new to old prior densities via importance weighting, and
+more recent methods such as PriorGuide <d-cite key="yang_priorguide_2025"></d-cite> use
+score-based guidance to adapt diffusion-based SBI posteriors to new priors at test time
+without retraining.
 
 ## Mitigating Model Misspecification in SBI
 
-Recent works have introduced a range of methods to address model misspecification in
-simulation-based inference (SBI). These approaches can be broadly categorized into four
-strategies: learning explicit mismatch models, detecting misspecification through
-learned summary statistics, learning misspecification-robust statistics, and aligning
-simulated and observed data using optimal transport. Each method has unique strengths
-and limitations, which we summarize below.
+Having established the landscape of misspecification in SBI, we now turn to recent
+methods for detecting and mitigating _simulator_ misspecification. These approaches can
+be broadly categorized into four strategies: learning explicit mismatch models,
+detecting misspecification through learned summary statistics, learning
+misspecification-robust statistics, and aligning simulated and observed data using
+optimal transport. Each method has unique strengths and limitations, which we summarize
+below.
 
 ### Learning Explicit Misspecification Models
 
