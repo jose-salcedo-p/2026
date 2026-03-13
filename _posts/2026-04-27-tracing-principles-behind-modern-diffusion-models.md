@@ -219,7 +219,7 @@ and only the shapes of the $(\alpha_t, \sigma_t)$ curves differ. The interactive
 
 <div style="margin: 24px 0;">
 <iframe 
-  src="{{ 'assets/html/noise_schedule_explorer.html' | relative_url }}"
+  src="{{ 'assets/html/2026-04-27-tracing-principles-behind-modern-diffusion-models/noise_schedule_explorer.html' | relative_url }}"
   style="width: 100%; border: none; border-radius: 3px;"
   height="820"
   loading="lazy">
@@ -357,7 +357,7 @@ for random training examples $\mathbf{x}_0$. This new target is fully tractable,
 
 <div style="margin: 24px 0;">
 <iframe
-  src="{{ 'assets/html/ddpm_conditional_trick.html' | relative_url }}"
+  src="{{ 'assets/html/2026-04-27-tracing-principles-behind-modern-diffusion-models/ddpm_conditional_trick.html' | relative_url }}"
   style="width: 100%; border: none; border-radius: 3px;"
   height="580"
   loading="lazy">
@@ -434,7 +434,7 @@ Intuitively, the network sees a noisy sample $\mathbf{x}_t$ together with its no
 
 <div style="margin: 24px 0;">
 <iframe
-  src="{{ 'assets/html/ddpm_prediction_equiv.html' | relative_url }}"
+  src="{{ 'assets/html/2026-04-27-tracing-principles-behind-modern-diffusion-models/ddpm_prediction_equiv.html' | relative_url }}"
   style="width: 100%; border: none; border-radius: 3px;"
   height="580"
   loading="lazy">
@@ -464,7 +464,7 @@ where $$p_t$$ is the marginal density of noisy samples at time $$t$$. Intuitivel
 
 <div style="margin: 24px 0;">
 <iframe
-  src="{{ 'assets/html/score_landscape.html' | relative_url }}"
+  src="{{ 'assets/html/2026-04-27-tracing-principles-behind-modern-diffusion-models/score_landscape.html' | relative_url }}"
   style="width: 100%; border: none; border-radius: 3px;"
   height="580"
   loading="lazy">
@@ -535,7 +535,7 @@ and the local SDE description are just two equivalent views of the same forward 
 
 <div style="margin: 24px 0;">
 <iframe
-  src="{{ 'assets/html/score_global_vs_local.html' | relative_url }}"
+  src="{{ 'assets/html/2026-04-27-tracing-principles-behind-modern-diffusion-models/score_global_vs_local.html' | relative_url }}"
   style="width: 100%; border: none; border-radius: 3px;"
   height="580"
   loading="lazy">
@@ -666,7 +666,7 @@ One subtle point is worth emphasizing. The reverse-time SDE should *not* be unde
 
 <div style="margin: 24px 0;">
 <iframe
-  src="{{ 'assets/html/score_sde_three_dynamics.html' | relative_url }}"
+  src="{{ 'assets/html/2026-04-27-tracing-principles-behind-modern-diffusion-models/score_sde_three_dynamics.html' | relative_url }}"
   style="width: 100%; border: none; border-radius: 3px;"
   height="580"
   loading="lazy">
@@ -772,7 +772,7 @@ This average is a *nonlinear* function of $\mathbf{x}$ that changes with $t$. As
 <!-- WIDGET: embed the HTML file via iframe -->
 <div style="margin: 24px 0;">
 <iframe
-  src="{{ 'assets/html/conditional_vs_marginal_paths.html' | relative_url }}"
+  src="{{ 'assets/html/2026-04-27-tracing-principles-behind-modern-diffusion-models/conditional_vs_marginal_paths.html' | relative_url }}"
   style="width: 100%; border: none; border-radius: 3px;"
   height="620"
   loading="lazy">
@@ -859,7 +859,7 @@ In both cases, repeating the update from $$t=T$$ down to $$t=0$$ yields a data-l
 
 <div style="margin: 24px 0;">
 <iframe
-  src="{{ 'assets/html/euler_vs_heun_solver.html' | relative_url }}"
+  src="{{ 'assets/html/2026-04-27-tracing-principles-behind-modern-diffusion-models/euler_vs_heun_solver.html' | relative_url }}"
   style="width: 100%; border: none; border-radius: 3px;"
   height="560"
   loading="lazy">
@@ -897,7 +897,7 @@ So, while different papers choose different training targets, they are largely *
 
 <div style="margin: 24px 0;">
 <iframe
-  src="{{ 'assets/html/four_predictions.html' | relative_url }}"
+  src="{{ 'assets/html/2026-04-27-tracing-principles-behind-modern-diffusion-models/four_predictions.html' | relative_url }}"
   style="width: 100%; border: none; border-radius: 3px;"
   height="580"
   loading="lazy">
@@ -1104,7 +1104,7 @@ That "more in than out" statement is exactly what the $$-\nabla\!\cdot \mathbf{J
 Below, we illustrate the change-of-variable story for deforming point clouds and densities between the data distribution and a Gaussian noise prior: from one large function jump, to many layered function jumps, and finally to the continuous limit described by the continuity equation:
 
 <div style="margin: 24px 0;">
-<iframe src="{{ 'assets/html/cov_2d_map.html' | relative_url }}"
+<iframe src="{{ 'assets/html/2026-04-27-tracing-principles-behind-modern-diffusion-models/cov_2d_map.html' | relative_url }}"
   style="width:100%;border:none;border-radius:3px" height="640" loading="lazy"></iframe>
 </div>
 
@@ -1150,7 +1150,7 @@ This equation is the formal way to say: drift moves the probability cloud, and G
 
 
 <div style="margin: 24px 0;">
-<iframe src="{{ 'assets/html/fokker_planck.html' | relative_url }}"
+<iframe src="{{ 'assets/html/2026-04-27-tracing-principles-behind-modern-diffusion-models/fokker_planck.html' | relative_url }}"
   style="width:100%;border:none;border-radius:3px" height="640" loading="lazy"></iframe>
 </div>
 
@@ -1477,7 +1477,7 @@ $$
 
 
 <div style="margin: 24px 0;">
-<iframe src="{{ 'assets/html/flow_map_models.html' | relative_url }}"
+<iframe src="{{ 'assets/html/2026-04-27-tracing-principles-behind-modern-diffusion-models/flow_map_models.html' | relative_url }}"
   style="width:100%;border:none;border-radius:3px" height="640" loading="lazy"></iframe>
 </div>
 
