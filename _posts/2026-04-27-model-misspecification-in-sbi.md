@@ -24,7 +24,7 @@ mermaid:
 
 # Anonymize when submitting
 authors:
-  - name: Jan Teusen (né Boelts), appliedAI Institute for Europe
+  - name: Jan Teusen (né Boelts), appliedAI Institute for Europe, Munich, Germany
 
 # must be the exact same name as your blogpost
 bibliography: 2026-04-27-model-misspecification-in-sbi.bib
