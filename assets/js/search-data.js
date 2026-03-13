@@ -314,17 +314,6 @@ ninja.data = [{
             window.location.href = "/2026/blog/2026/trade-offs-in-llm-compute-for-reasoning-intensive-information-retrieval/";
           
         },
-      },{id: "post-tracing-the-principles-behind-modern-diffusion-models",
-        
-          title: "Tracing the Principles Behind Modern Diffusion Models",
-        
-        description: "Diffusion models can feel like a jungle of acronyms, but the core idea is simple: start from noise and gradually move a cloud of samples until it looks like real data. This post gives an intuition-first tour showing that DDPMs, score-based models, and flow matching are the same recipe with different prediction targets, all rooted in the change-of-variable rule from calculus and powered by one shared “conditional trick” that turns learning into supervised regression. Finally, we zoom out to the speed problem and show how flow map models aim to replace many tiny denoising steps with a few big, accurate jumps toward real-time generation.",
-        section: "Posts",
-        handler: () => {
-          
-            window.location.href = "/2026/blog/2026/tracing-principles-behind-modern-diffusion-models/";
-          
-        },
       },{id: "post-the-information-shadow-why-there-are-things-llms-can-never-ever-know",
         
           title: "The Information Shadow - Why There Are Things LLMs Can Never, Ever Know...",
