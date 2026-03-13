@@ -24,7 +24,7 @@ mermaid:
 
 # Anonymize when submitting
 authors:
-  - name: Anonymous
+  - name: Jan Teusen (né Boelts), appliedAI Institute for Europe
 
 # must be the exact same name as your blogpost
 bibliography: 2026-04-27-model-misspecification-in-sbi.bib
@@ -97,10 +97,10 @@ characteristic weekly oscillations (Figure 1).
 </div>
 <div class="caption">
   <strong>Figure 1:</strong> SIR model with weekend reporting delay.
-  <strong>A</strong>: Schematic SIR model and misspecification: a fraction α of weekend infections is reported on Monday.
-  <strong>B</strong>: Example epidemic trajectory showing true S, I, R curves and observed infections with a weekend delay.
-  <strong>C</strong>: SBI posterior samples for $(\beta, \gamma)$ for clean data (α = 0%, blue) and misspecified data (α=20%, orange), with true parameters marked.
-  <strong>D</strong>: Posterior predictive checks for both cases, illustrating how misspecification shifts and distorts the inferred dynamics. Results generated using the <a href="https://sbi.readthedocs.io/">sbi</a><d-cite key="boelts_sbi_2025"></d-cite> package and SIR specifications from Cannon et al..
+  <strong>A</strong>: Schematic of the SIR compartment model and the weekend reporting delay misspecification: a fraction $\alpha$ of weekend infections is delayed and reported on Monday.
+  <strong>B</strong>: Example epidemic trajectory (top: susceptible and recovered; bottom: assumed vs. observed infections with $\alpha = 25\%$).
+  <strong>C</strong>: Posterior over $(\beta, \gamma)$ under clean ($\alpha = 0$) and misspecified ($\alpha = 25\%$) observations, with true parameters marked.
+  <strong>D</strong>: Posterior predictive checks (top: clean; bottom: misspecified), showing how the misspecified posterior fails to capture the observed dynamics. Results generated using the <a href="https://sbi.readthedocs.io/">sbi</a><d-cite key="boelts_sbi_2025"></d-cite> package and SIR specifications from Cannon et al..
 </div>
 
 To infer infection parameters from observed data, a common SBI approach would be using
