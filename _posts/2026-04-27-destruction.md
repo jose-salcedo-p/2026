@@ -9,8 +9,7 @@ hidden: true
 
 # Mermaid diagrams
 mermaid:
-    enabled: true
-    zoomable: false
+    enabled: false
 
 # Anonymize when submitting
 authors:
@@ -36,12 +35,6 @@ toc:
         - name: Beyond Markov
         - name: About the Diagrams
 
-# Style injection to make mermaid flowcharts readable during redaction.
-# Some more elegant solution should be used in an eventual accepted version.
-_styles: >
-  .mermaid svg {
-      max-width: 1200px !important;
-  }
 ---
 
 > Pourquoi faire simple quand on peut faire compliqué?
@@ -85,7 +78,7 @@ Using this definition, diffusion models can be seen as a special case of the tri
 - For BERT-like language models, it is the `[MASK]`ed tokens.
 - Some autoencoders rely on a representational bottleneck to withhold information.
 - Contrastive autoencoders withhold whether pairs of samples are somehow related (positive pairs) or not (negative pairs).
-- Denoising autoencoders add "noise" to samples, which destroys some of their informational content (i.e., withholding it).
+- Denoising autoencoders add "noise" to samples, which destroys some of their informational content (*i.e.*, withholding it).
 - Diffusion models use the destroying process to withhold information.<d-footnote>This typically involves some form of randomness, but here we do not make it a requirement.</d-footnote>
 
 You may notice a connection between the last two: that connection has already been made long ago.<d-cite key="kingma2021variational"></d-cite> 
@@ -143,7 +136,7 @@ My intuition goes as follows: if a successful reasoning trace summarizes some pr
 You may now think "Who are you to say how the model should or shouldn't reason! Remember The Bitter Lesson!"
 Fair enough, but here's my point: in the non-RL diffusion case, this expectation-over-decoding-order approach was grounded in sound theory, but we didn't do our homework before porting it to RL.
 We can justify it by its good empirical results, but we lost our theoretical grounding.
-*A priori*, the only path we may reward on-policy for a given generated sample is the one that was followed by the model while generating that sample.<d-footnote>In the end, the extent to which this "off-policy-ordering" matters (if at all) is a question to be resolved empirically. This implies biting the bullet and doing GRPO with a forward pass for each token in a trace (for both the original model and RLed one, to get ratios), and compare how test performances vary when using the same order as when the trace was generated, versus a new random one. Different downstream tasks may behave differently, and adding structure to the random decoding order (e.g., block decoding) may also affect the outcome.</d-footnote>
+*A priori*, the only path we may reward on-policy for a given generated sample is the one that was followed by the model while generating that sample.<d-footnote>In the end, the extent to which this "off-policy-ordering" matters (if at all) is a question to be resolved empirically. This implies biting the bullet and doing GRPO with a forward pass for each token in a trace (for both the original model and RLed one, to get ratios), and compare how test performances vary when using the same order as when the trace was generated, versus a new random one. Different downstream tasks may behave differently, and adding structure to the random decoding order (*e.g.*, block decoding) may also affect the outcome.</d-footnote>
 
 Ok, then how did we get that theoretical grounding in the non-RL case?
 Limiting ourselves to my strict definition at the beginning of this blogpost, we consider a specific data distribution and noising process, and there thus exists a single, ideal, typically untractable<d-footnote>This is why we have to train a neural network: we're learning a tractable function that approximates the untractable ideal one.</d-footnote> probability distribution for partially-destroyed data samples at different levels of destruction.
@@ -153,7 +146,7 @@ Within a given modeling paradigm, all concrete diffusion model implementations s
 Can we approach the RL problem with a diffusion model that satisfies this strict definition?
 Yes!
 By reframing it as conditioning,<d-cite key="yuan2023reward"></d-cite> which is the sole allowed control mechanism as per my definition.
-For now, concrete work on that front is still in an early stage, and competing approaches leveraging techniques ported from the autoregressive case (e.g., GRPO) have an head start.
+For now, concrete work on that front is still in an early stage, and competing approaches leveraging techniques ported from the autoregressive case (*e.g.*, GRPO) have an head start.
 Moreover, there is no guarantee that approaching RL by sticking to my strict definition of diffusion has real advantages in the long run.
 Nonetheless, I think that the fact we *can* suffices to justify additional exploratory efforts.
 
@@ -208,58 +201,16 @@ This section provides a diagrammatic introduction to "destroying" and "generatin
 
 As is tradition in information theory, we consider two characters, Alice and Bob.
 Alice communicates one of 3 messages to Bob through a communication channel.
-A big arrow indicates the name of the channel itself, `Identity`, while smaller arrows indicate the action of that channel.
+An arrow like this $\rightarrow$ indicates the the channel itself, here `Identity`, while arrows like that $\mapsto$ indicate the specific action of that channel, *i.e.*, what message does Bob receive for each message that Alice may utter.
 
-```mermaid
-flowchart LR
-    subgraph A
-        a0[0]
-        a1[1]
-        a2[2]
-    end
-    subgraph B
-        b0[0]
-        b1[1]
-        b2[2]
-    end
-    a0 --> b0
-    a1 --> b1
-    a2 --> b2
-
-    A ==Identity==> B
-
-    LeftMarginHack:::phantom ~~~ a0
-    b0 ~~~ RightMarginHack:::phantom
-    classDef phantom display: none;
-```
+{% include figure.liquid path="assets/img/2026-04-27-destruction/A012_Identity_B012.png" class="img-fluid" %}
 
 In the above situation, Bob gets exactly the message that Alice tried to convey.
-The information communicated by Alice is thus preserved (i.e., neither created nor destroyed) by the `Identity` communication channel: it is an important (albeit boring) channel.
+The information communicated by Alice is thus preserved (*i.e.*, neither created nor destroyed) by the `Identity` communication channel: it is an important (albeit boring) channel.
 
 Ok, now let's try a different channel, which I'll call `Cypher`.
 
-```mermaid
-flowchart LR
-    subgraph A
-        a0[0]
-        a1[1]
-        a2[2]
-    end
-    subgraph B
-        b1[1]
-        b2[2]
-        b0[0]
-    end
-    a0 --> b1
-    a1 --> b2
-    a2 --> b0
-
-    A ==Cypher==> B
-
-    LeftMarginHack:::phantom ~~~ a0
-    b0 ~~~ RightMarginHack:::phantom
-    classDef phantom display: none;
-```
+{% include figure.liquid path="assets/img/2026-04-27-destruction/A012_Cypher_B012.png" class="img-fluid" %}
 
 Here Bob gets a different number than the one Alice intended to send.
 Does this mean that `Cypher` destroys information?
@@ -275,7 +226,7 @@ $$
 
 There are many kinds of things that Bob could learn from such data.
 First, he may hypothesize that Alice is more likely to give the message $0$ than she is to say $1$ or $2$.
-In doing so, Bob would be building a mental model of an Imaginary-Alice $A'$, i.e., trying to learn the probability distribution $\textup{P}^\theta(A')$ so that it matches the real $\textup{P}(A)$.
+In doing so, Bob would be building a mental model of an Imaginary-Alice $A'$, *i.e.*, trying to learn the probability distribution $\textup{P}^\theta(A')$ so that it matches the real $\textup{P}(A)$.
 And ultimately, this is exactly what generative modeling is about: learn how to sample from a $\textup{P}^\theta(A')$ that approximates as best as we can the data distribution $\textup{P}(A)$.
 
 Doing so may be realistic for $3$ messages, but what if Alice had more range, say, $10^{678000}$ possible unique messages?<d-footnote>GPT OSS 120B's vocabulary size powered to its context length.</d-footnote>
@@ -283,153 +234,35 @@ This direct approach won't scale, which is why the next section will consider a 
 For now, it suffices to say that Bob is just a step in a long chain of messages, followed by Carol, David, *etc.*
 If each step is easier to model/learn than the previous one, we'll be making progress toward our ultimate goal.
 
-So, Bob should focus on figuring out the `Cypher` channel, i.e., learn a probability distribution $\textup{P}^{\theta}(A \vert B)$
+So, Bob should focus on figuring out the `Cypher` channel, *i.e.*, learn a probability distribution $\textup{P}^{\theta}(A \vert B)$
 that approximates $\textup{P}(A \vert B)$.
 
-```mermaid
-flowchart LR
-    subgraph A
-        a0[0]
-        a1[1]
-        a2[2]
-    end
-    subgraph B
-        b1[1]
-        b2[2]
-        b0[0]
-    end
-    subgraph Ap["A'"]
-        ap0[0]
-        ap1[1]
-        ap2[2]
-    end
-    a0 --> b1 --> ap0
-    a1 --> b2 --> ap1
-    a2 --> b0 --> ap2
-
-    A ==Cypher==> B
-    B ==Decrypt==> Ap
-    A ==Identity==> Ap
-
-    LeftMarginHack:::phantom ~~~ a0
-    ap0 ~~~ RightMarginHack:::phantom
-    classDef phantom display: none;
-```
+{% include figure.liquid path="assets/img/2026-04-27-destruction/A012_Cypher_B012_Decrypt_Ap012.png" class="img-fluid" %}
 
 There exists a `Decrypt` channel that, applied on the output of the `Cypher`, gives the `Identity`.
 If Bob is a good Bayesian, he will never be *absolutely sure* that he figured it out, but whatever his priors were<d-footnote>Well, within reason, assuming that Bob has a minimal pragmatism and/or understanding of the world...</d-footnote> for the probability distribution from which the `Cypher` channel was sampled, there is a point at which `Decrypt` will become his leading hypothesis as to what $\textup{P}^\theta(A' \vert B)$ should be.
 And from that point on, his confidence in that hypothesis will keep increasing as more data is gathered.
 
 The existence of a `Decrypt` that reverses the action of `Cypher` proves that `Cypher` does not destroy information.
-And because we could do the opposite, i.e., reverse the action of `Decrypt` by applying `Cypher`, we know that `Cypher` does not generate information either.
+And because we could do the opposite, *i.e.*, reverse the action of `Decrypt` by applying `Cypher`, we know that `Cypher` does not generate information either.
 Just like `Identity`, `Cypher` preserves information.
 What does this mean?
 It means that `Cypher` is a useless channel for our divide-and-conquer aims: learning a $\textup{P}^\theta(B')$ that approaches $\textup{P}(B)$ is as hard as learning a $\textup{P}^\theta(A')$ that approaches $\textup{P}^\theta(A)$.
 
 Ok, maybe what we need is a noisy channel?
 
-```mermaid
-flowchart LR
-    subgraph A
-        a0[0]
-        a1[1]
-        a2[2]
-    end
-    subgraph B
-        b0[0]
-        b1[1]
-        b2[2]
-        b3[3]
-        b4[4]
-        b5[5]
-    end
-    a0 --head--> b0
-    a0 --tail--> b3
-    a1 --head--> b1
-    a1 --tail--> b4
-    a2 --head--> b2
-    a2 --tail--> b5
-
-    A ==Product==> B
-
-    LeftMarginHack:::phantom ~~~ a0
-    b0 ~~~ RightMarginHack:::phantom
-    classDef phantom display: none;
-```
+{% include figure.liquid path="assets/img/2026-04-27-destruction/A012_Product_B012.png" class="img-fluid" %}
 
 Here the `Product`<d-footnote>This name is a reference to category theory; please see the very last section for why.</d-footnote> channel flips a coin, and this affects what message Bob receives.
+Notice that I represented `Product` using an harpoon<d-footnote>Whether the harpoon's "barb" points up or down is purely aesthetic.</d-footnote> $\rightharpoonup$ instead of an arrow $\rightarrow$, because I reserve arrows for deterministic functions (and `Product` isn't one).
 Does `Product` destroy information?
 
-```mermaid
-flowchart LR
-    subgraph A
-        a0[0]
-        a1[1]
-        a2[2]
-    end
-    subgraph B
-        b0[0]
-        b1[1]
-        b2[2]
-        b3[3]
-        b4[4]
-        b5[5]
-    end
-    subgraph Ap["A'"]
-        ap0[0]
-        ap1[1]
-        ap2[2]
-    end
-    a0 --head--> b0 --> ap0
-    a0 --tail--> b3 --> ap0
-    a1 --head--> b1 --> ap1
-    a1 --tail--> b4 --> ap1
-    a2 --head--> b2 --> ap2
-    a2 --tail--> b5 --> ap2
-
-    A ==Product==> B ==Project==> Ap
-    A ==Identity==> Ap
-
-    LeftMarginHack:::phantom ~~~ a0
-    ap0 ~~~ RightMarginHack:::phantom
-    classDef phantom display: none;
-```
+{% include figure.liquid path="assets/img/2026-04-27-destruction/A012_Product_B012_Project_Ap012.png" class="img-fluid" %}
 
 No: there exists a `Project` channel that undoes the action of `Product`.
 Does it generate information?
 
-```mermaid
-flowchart LR
-    subgraph A
-        a0[0]
-        a1[1]
-        a2[2]
-    end
-    subgraph B
-        b0[0]
-        b3[3]
-        b1[1]
-        b4[4]
-        b2[2]
-        b5[5]
-    end
-    subgraph Coin
-        head
-        tail
-    end
-    a0 --head--> b0 --> head
-    a0 --tail--> b3 --> tail
-    a1 --head--> b1 --> head
-    a1 --tail--> b4 --> tail
-    a2 --head--> b2 --> head
-    a2 --tail--> b5 --> tail
-
-    A ==Product==> B ==Project'==> Coin
-
-    LeftMarginHack:::phantom ~~~ a0
-    head ~~~ RightMarginHack:::phantom
-    classDef phantom display: none;
-```
+{% include figure.liquid path="assets/img/2026-04-27-destruction/A012_Product_B012_Projectp_Coinht.png" class="img-fluid" %}
 
 Yes! Bob could use `Project'` to learn the outcome of the coin flip, an information that Alice is completely unaware of!
 
@@ -438,125 +271,31 @@ Therefore, `Product` is an even worse channel than `Cypher` for this divide-and-
 
 If noise isn't what we need, what is it?
 
-```mermaid
-flowchart LR
-    subgraph A
-        a0[0]
-        a1[1]
-        a2[2]
-    end
-    subgraph B
-        b0[0]
-        b1[1]
-    end
-    a0 --> b0
-    a1 --> b1
-    a2 --> b1
-
-    A ==Mash==> B
-
-    LeftMarginHack:::phantom ~~~ a0
-    b0 ~~~ RightMarginHack:::phantom
-    classDef phantom display: none;
-```
+{% include figure.liquid path="assets/img/2026-04-27-destruction/A012_Mash_B01.png" class="img-fluid" %}
 
 That's it!
 When Bob gets the message $1$, he can't tell with certainty whether Alice said $1$ or $2$.
 `Mash`ing different messages together is what destroys information, not noise.
 
-```mermaid
-flowchart LR
-    subgraph A
-        a0[0]
-        a1[1]
-        a2[2]
-    end
-    subgraph B
-        b0[0]
-        b1[1]
-    end
-    subgraph Ap["A'"]
-        ap0[0]
-        ap1[1]
-        ap2[2]
-    end
-    a0 --> b0 --> ap0
-    a2 --> b1 --> ap1
-    a1 --> b1 --> ap2
-
-    A ==Mash==> B ==Guess==> Ap
-    A -.B.- Ap
-
-    LeftMarginHack:::phantom ~~~ a0
-    ap0 ~~~ RightMarginHack:::phantom
-    classDef phantom display: none;
-```
+{% include figure.liquid path="assets/img/2026-04-27-destruction/A012_Mash_B01_Guess_Ap012_gB.png" class="img-fluid" %}
 
 When Bob gets the message $B=0$, he can simply assign $A'=0$.
 But when $B=1$, he must learn to `Guess` the message sent by an Imaginary-Alice $A'$ so that $\textup{P}^\theta(A'|B)$ is as close as possible to $\textup{P}(A|B)$.
 
-I indicate this last requirement using a dashed line, with the conditional $B$ added on the line.
+I indicate this last requirement using a "squiggly" line, with the conditional $|B$ annotating it.
 However, in many applications, we don't have a particular desire for $\textup{P}^\theta(A'|B) = \textup{P}(A|B)$, and we could be perfectly content with any $\textup{P}^\theta(A'|B)$ such that $\textup{P}^\theta(A') = \textup{P}(A)$.
-In those cases, I simply don't write anything on the dashed line.
+In those cases, I simply don't add any annotation to the squiggly line.
 
-```mermaid
-flowchart LR
-    subgraph A
-        a0[0]
-        a1[1]
-        a2[2]
-    end
-    subgraph B
-        b0[0]
-        b1[1]
-    end
-    subgraph Ap["A'"]
-        ap0[0]
-        ap1[1]
-        ap2[2]
-    end
-    a0 --> b0 --> ap0
-    a2 --> b1 --> ap0
-    a1 --> b1
-    b0 --> ap1
-    b1 --> ap1
-    b0 --> ap2
-    b1 --> ap2
+{% include figure.liquid path="assets/img/2026-04-27-destruction/A012_Mash_B01_Ap012_sim_A.png" class="img-fluid" %}
 
-    A -.- Ap
-    A ==Mash==> B ==> Ap
-    
+Note that I didn't name the arrow from Bob to the Imaginary-Alice, because I don't really care how Bob does it: as long as $\textup{P}^\theta(A') = \textup{P}(A)$, *i.e.*, the two people joined by an un-decorated squiggly line have the same marginal distribution, we're good.
 
-    LeftMarginHack:::phantom ~~~ a0
-    ap0 ~~~ RightMarginHack:::phantom
-    classDef phantom display: none;
-```
+And I may not even care about the details of the possible messages and how they relate, in which cases I simply ommit the "set" ellipses, the messages, and "maps to" arrows/harpoons between them.
 
-Note that I didn't name the arrow from Bob to the Imaginary-Alice, because I don't really care how Bob does it: as long as $\textup{P}^\theta(A') = \textup{P}(A)$, i.e., the two people joined by an un-decorated dashed line have the same marginal distribution, we're good.
-
-And I may not even care about the details of the possible messages and how they relate (small arrows).
-
-```mermaid
-flowchart LR
-    subgraph A
-        a0:::phantom
-    end
-    subgraph B
-        b0:::phantom
-    end
-    subgraph Ap["A'"]
-        ap0:::phantom
-    end
-    A ==> B ==> Ap
-    A -.- Ap
-
-    LeftMarginHack:::phantom ~~~ A
-    Ap ~~~ RightMarginHack:::phantom
-    classDef phantom display: none;
-```
+{% include figure.liquid path="assets/img/2026-04-27-destruction/A_B_Ap_sim_A.png" class="img-fluid" %}
 
 What does this picture tell us?
-Well, for a starter, because $A$ and $A'$ have the same marginal probability distribution, they must have the same information content (entropy)
+Well, for starters, the squiggly line tells us that $A$ and $A'$ have the same marginal probability distribution, so they must have the same information content (entropy)
 
 $$
 \textup{H}(A) = \textup{H}(A') .
@@ -566,7 +305,11 @@ How does $\textup{H}(B)$ relate to those two?
 We don't know: it could be higher, lower, or equal, depending on the details of those communication channels.
 One thing is clear though: as much information must be created/destroyed from $A$ to $B$ as is destroyed/created from $B$ to $A'$.
 
-This picture can tell us much more than that, because of the data processing inequality.
+Ok, so let's drop the squiggly line and see what else the diagram says.
+
+{% include figure.liquid path="assets/img/2026-04-27-destruction/A_B_Ap.png" class="img-fluid" %}
+
+This picture can be understood in the context of the data processing inequality.
 From Latham and Roudi<d-cite key="Latham2009"></d-cite>:
 
 > The Data Processing Inequality (DPI) states, loosely, that post-processing cannot increase information.
@@ -579,24 +322,6 @@ This "information about" can be measured with the mutual information; we write $
 $$
 \textup{I}(Y; X) = \textup{H}(Y) - \textup{H}(X | Y) = \textup{H}(X) - \textup{H}(Y | X)  , \qquad \textup{I}(Y; Y) = \textup{H}(Y) .
 $$
-
-```mermaid
-flowchart LR
-    subgraph A
-        a0:::phantom
-    end
-    subgraph B
-        b0:::phantom
-    end
-    subgraph Ap["A'"]
-        ap0:::phantom
-    end
-    A ==> B ==> Ap
-
-    LeftMarginHack:::phantom ~~~ A
-    Ap ~~~ RightMarginHack:::phantom
-    classDef phantom display: none;
-```
 
 Therefore, what the data processing inequality tells us is that
 
@@ -623,18 +348,7 @@ In the generation story, **you cannot know about what has not been decided yet.*
 These zoomed-out diagrams are a great way to consider general classes of problems.
 But ultimately, the generation/destruction of information happens at the zoomed-in, message level.
 
-```mermaid
-flowchart LR
-    focus[" "]
-    
-    leftt[" "] --> focus --> rightt[" "]
-    leftc:::phantom ~~~|"destroy"| focus ~~~|"generate"| rightc:::phantom
-    leftb[" "] --> focus --> rightb[" "]
-
-    LeftMarginHack:::phantom ~~~ leftt
-    rightb ~~~ RightMarginHack:::phantom
-    classDef phantom display: none;
-```
+{% include figure.liquid path="assets/img/2026-04-27-destruction/destroy_and_generate.png" class="img-fluid" %}
 
 - When different messages converge to the same message, information is **destroyed**.
 - When a given message can diverge into different messages, information is **generated**.
@@ -645,36 +359,9 @@ flowchart LR
 Let's continue from the `Mash` example in the previous section.
 Now suppose that Bob passes the message to Carol through the `Mash'` channel.
 
-```mermaid
-flowchart LR
-    subgraph A
-        a0[0]
-        a1[1]
-        a2[2]
-    end
-    subgraph B
-        b0[0]
-        b1[1]
-    end
-    subgraph C
-        c0[0]
-    end
-    subgraph Singleton[*]
-        singleton[" "]
-    end
-   
-    a0 --> b0 --> c0
-    a1 --> b1 --> c0
-    a2 --> b1
+{% include figure.liquid path="assets/img/2026-04-27-destruction/A_Mash_B_Mashp_C_sim_Singleton.png" class="img-fluid" %}
 
-    A ==Mash==> B ==Mash'==> C -.- Singleton
-
-    LeftMarginHack:::phantom ~~~ a0
-    singleton ~~~ RightMarginHack:::phantom
-    classDef phantom display: none;
-```
-
-Notice that Carol always gets the same message, which is called a singleton: I highlight this by linking her to a special "*" symbol using a dashed line.
+Notice that Carol always gets the same message, which is called a singleton: I highlight this by linking her to a special "*" symbol using a squiggly line.
 All singleton have no information: $\textup{H}(C) = 0$.
 
 But by the definition of mutual information, we must have $\textup{I}(A; C) \le \textup{H}(C) = 0$: Carol cannot know more about Alice than Carol knows at all, but Carol knows nothing, therefore Carol knows nothing about Alice.
@@ -684,112 +371,18 @@ We have divided a large task into smaller, simpler ones, until all that was left
 
 Now unto the "conquer" part of divide-and-conquer.
 
-```mermaid
-flowchart LR
-    subgraph A
-        a0:::phantom
-    end
-    subgraph B
-        b0:::phantom
-    end
-    subgraph Ap["A'"]
-        ap0:::phantom
-    end
-    subgraph C
-        c0:::phantom
-    end
-    subgraph Bp["B'"]
-        bp0:::phantom
-    end
-    subgraph Singleton["*"]
-        singleton:::phantom
-    end
-    A ==Mash==> B ==Mash'==> C ==Guess'==> Bp
-    B ==Guess==> Ap
-    A -.- Ap
-    B -.- Bp
-    C -.- Singleton
-
-    LeftMarginHack:::phantom ~~~ a0
-    bp0 ~~~ RightMarginHack:::phantom
-    classDef phantom display: none;
-```
+{% include figure.liquid path="assets/img/2026-04-27-destruction/A_Mash_B_Guess_Ap__Mashp_C_Guessp_Bp__sim_Singleton.png" class="img-fluid" %}
 
 Bob can learn `Guess` using `Mash` on Alice's message, and Carol can learn `Guess'` using `Mash'` on Bob's.
 And because Carol knows nothing, we're ready to generate completely fake $A''$ behavior from nothing! 
 
-```mermaid
-flowchart LR
-    subgraph Singleton["*"]
-        singleton:::phantom
-    end
-    subgraph Bpp["B''"]
-        bpp0:::phantom
-    end
-    subgraph App["A''"]
-        app0:::phantom
-    end
-    subgraph A["A"]
-        a0:::phantom
-    end
-    
-    Singleton =="Guess'"==> Bpp ==Guess==> App -.- A
-
-    LeftMarginHack:::phantom ~~~ Singleton
-    a0 ~~~ RightMarginHack:::phantom
-    classDef phantom display: none;
-```
+{% include figure.liquid path="assets/img/2026-04-27-destruction/Singleton_Guessp_Bpp_Guess_App.png" class="img-fluid" %}
 
 This is the strategy used in autoregressive language models.
 
-```mermaid
-flowchart LR
-    subgraph A
-        a0["('The', 'cat', 'is', 'black')"]
-        a1["('The', 'cat', 'is', 'white')"]
-        a2["('The', 'cat', 'is', 'sleepy')"]
-        a3["('The', 'cat', 'was', 'sleepy')"]
-        a4["('The', 'dog', 'is', 'black')"]
-        a5["('The', 'dog', 'is', 'brown')"]
-        a6["('Your', 'cat', 'is', 'black')"]
-        a7["..."]
-    end
-    subgraph B
-        b0["('The', 'cat', 'is')"]
-        b1["('The', 'cat', 'was')"]
-        b2["('The', 'dog', 'is')"]
-        b3["('Your', 'cat', 'is')"]
-        b4["..."]
-    end
-    subgraph C
-        c0["('The', 'cat')"]
-        c1["('The', 'dog')"]
-        c2["('Your', 'cat')"]
-        c3["..."]
-    end
-    subgraph D
-        d0["('The')"]
-        d1["('Your')"]
-        d2["..."]
-    end
-    subgraph E
-        e0["()"]
-    end
-   
-    a0 --> b0 --> c0 --> d0 --> e0
-    a1 --> b0
-    a2 --> b0
-    a3 --> b1 --> c0
-    a4 --> b2 --> c1 --> d0
-    a5 --> b2
-    a6 --> b3 --> c2 --> d1 --> e0
+{% include figure.liquid path="assets/img/2026-04-27-destruction/Autoregressive.png" class="img-fluid" %}
 
-    LeftMarginHack:::phantom ~~~ a0
-    e0 ~~~ RightMarginHack:::phantom
-    classDef phantom display: none;
-```
-
-Here the ellipses represent additional messages whose arrows are not explicitly shown.
+Here the "$\cdots$" represent additional messages whose arrows are not explicitly shown.
 The message is iteratively fed through the `MashLastToken` communication channel, which mashes together all the messages that have the same prefix up to the last token.
 Because of the setting's symmetric structure, we can use the same neural network at each position to predict the probability distribution for what the next should be: all positions can contribute to train the same `GuessNextToken`.
 At inference, we start from the singleton (the empty sequence), then iteratively apply `GuessNextToken`.
@@ -802,206 +395,7 @@ Such a very structured, regular way to destroy the message, is typical of many n
 One of my claims in this blogpost is that diffusion models can destroy information more "organically", possibly reducing the human-designer bias hand-waved at by Sutton.<d-cite key="sutton2019bitter"></d-cite>
 As an example of what I mean, here's what the last diagram would look like for a mask diffusion language model.
 
-```mermaid
-flowchart LR
-    subgraph A
-        a0["('The', 'cat', 'is', 'black')"]
-        a1["('The', 'cat', 'is', 'white')"]
-        a2["('The', 'cat', 'is', 'sleepy')"]
-        a3["('The', 'cat', 'was', 'sleepy')"]
-        a4["('The', 'dog', 'is', 'black')"]
-        a5["('The', 'dog', 'is', 'brown')"]
-        a6["('Your', 'cat', 'is', 'black')"]
-        a7["..."]
-    end
-    subgraph B
-        b03["('The', 'cat', 'is', '[MASK]')"]
-        b33["('The', 'cat', 'was', '[MASK]')"]
-        b43["('The', 'dog', 'is', '[MASK]')"]
-        b63["('Your', 'cat', 'is', '[MASK]')"]
-        
-        b02["('The', 'cat', '[MASK]', 'black')"]
-        b12["('The', 'cat', '[MASK]', 'white')"]
-        b22["('The', 'cat', '[MASK]', 'sleepy')"]
-        b42["('The', 'dog', '[MASK]', 'black')"]
-        b52["('The', 'dog', '[MASK]', 'brown')"]
-        b62["('Your', 'cat', '[MASK]', 'black')"]
-        
-        b01["('The', '[MASK]', 'is', 'black')"]
-        b11["('The', '[MASK]', 'is', 'white')"]
-        b21["('The', '[MASK]', 'is', 'sleepy')"]
-        b31["('The', '[MASK]', 'was', 'sleepy')"]
-        b51["('The', '[MASK]', 'is', 'brown')"]
-        b61["('Your', '[MASK]', 'is', 'black')"]
-        
-        b00["('[MASK]', 'cat', 'is', 'black')"]
-        b10["('[MASK]', 'cat', 'is', 'white')"]
-        b20["('[MASK]', 'cat', 'is', 'sleepy')"]
-        b30["('[MASK]', 'cat', 'was', 'sleepy')"]
-        b40["('[MASK]', 'dog', 'is', 'black')"]
-        b50["('[MASK]', 'dog', 'is', 'brown')"]
-        
-        b7["..."]
-    end
-
-    a0 --> b03
-    a1 --> b03
-    a2 --> b03
-    a3 --> b33 
-    a4 --> b43 
-    a5 --> b43
-    a6 --> b63
-
-    a0 --> b02
-    a1 --> b12
-    a2 --> b22
-    a3 --> b22
-    a4 --> b42
-    a5 --> b52
-    a6 --> b62
-
-    a0 --> b01
-    a1 --> b11
-    a2 --> b21
-    a3 --> b31
-    a4 --> b01
-    a5 --> b51
-    a6 --> b61
-
-    a0 --> b00
-    a1 --> b10
-    a2 --> b20
-    a3 --> b30
-    a4 --> b40
-    a5 --> b50
-    a6 --> b00
-
-    subgraph C
-        c023["('The', 'cat', '[MASK]', '[MASK]')"]
-        c423["('The', 'dog', '[MASK]', '[MASK]')"]
-        c623["('Your', 'cat', '[MASK]', '[MASK]')"]
-
-        c013["('The', '[MASK]', 'is', '[MASK]')"]
-        c313["('The', '[MASK]', 'was', '[MASK]')"]
-        c613["('Your', '[MASK]', 'is', '[MASK]')"]
-
-        c003["('[MASK]', 'cat', 'is', '[MASK]')"]
-        c303["('[MASK]', 'cat', 'was', '[MASK]')"]
-        c403["('[MASK]', 'dog', 'is', '[MASK]')"]
-        
-        c023["('The', 'cat', '[MASK]', '[MASK]')"]
-        c423["('The', 'dog', '[MASK]', '[MASK]')"]
-        c623["('Your', 'cat', '[MASK]', '[MASK]')"]
-
-        c012["('The', '[MASK]', '[MASK]', 'black')"]
-        c112["('The', '[MASK]', '[MASK]', 'white')"]
-        c212["('The', '[MASK]', '[MASK]', 'sleepy')"]
-        c512["('The', '[MASK]', '[MASK]', 'brown')"]
-        c612["('Your', '[MASK]', '[MASK]', 'black')"]
-
-        c002["('[MASK]', 'cat', '[MASK]', 'black')"]
-        c102["('[MASK]', 'cat', '[MASK]', 'white')"]
-        c202["('[MASK]', 'cat', '[MASK]', 'sleepy')"]
-        c402["('[MASK]', 'dog', '[MASK]', 'black')"]
-        c502["('[MASK]', 'dog', '[MASK]', 'brown')"]
-        
-        c001["('[MASK]', '[MASK]', 'is', 'black')"]
-        c101["('[MASK]', '[MASK]', 'is', 'white')"]
-        c201["('[MASK]', '[MASK]', 'is', 'sleepy')"]
-        c301["('[MASK]', '[MASK]', 'was', 'sleepy')"]
-        c501["('[MASK]', '[MASK]', 'is', 'brown')"]
-        
-        c7["..."]
-    end
-    B ==> C
-    subgraph D
-        d0012["('[MASK]', '[MASK]', '[MASK]', 'black')"]
-        d1012["('[MASK]', '[MASK]', '[MASK]', 'white')"]
-        d2012["('[MASK]', '[MASK]', '[MASK]', 'sleepy')"]
-        d5012["('[MASK]', '[MASK]', '[MASK]', 'brown')"]
-
-        d0013["('[MASK]', '[MASK]', 'is', '[MASK]')"]
-        d3013["('[MASK]', '[MASK]', 'was', '[MASK]')"]
-
-        d0023["('[MASK]', 'cat', '[MASK]', '[MASK]')"]
-        d4023["('[MASK]', 'dog', '[MASK]', '[MASK]')"]
-
-        d0123["('The', '[MASK]', '[MASK]', '[MASK]')"]
-        d6123["('Your', '[MASK]', '[MASK]', '[MASK]')"]
-
-        d7["..."]
-    end
-    c023 --> d0023
-    c423 --> d0023
-    c013 --> d0013
-    c313 --> d3013
-    c613 --> d0013
-    c003 --> d0013
-    c303 --> d3013
-    c403 --> d0013
-    c623 --> d0023
-    c012 --> d0012
-    c112 --> d1012
-    c212 --> d2012
-    c512 --> d5012
-    c612 --> d0012
-    c002 --> d0012
-    c102 --> d1012
-    c202 --> d2012
-    c402 --> d0012
-    c502 --> d5012
-    c001 --> d0012
-    c101 --> d1012
-    c201 --> d2012
-    c301 --> d2012
-    c501 --> d5012
-
-    c023 --> d0123
-    c423 --> d0123
-    c013 --> d0123
-    c313 --> d0123
-    c613 --> d6123
-    c003 --> d0023
-    c303 --> d0023
-    c403 --> d4023
-    c623 --> d6123
-    c012 --> d0123
-    c112 --> d0123
-    c212 --> d0123
-    c512 --> d0123
-    c612 --> d6123
-    c002 --> d0023
-    c102 --> d0023
-    c202 --> d0023
-    c402 --> d0023
-    c502 --> d0023
-    c001 --> d0013
-    c101 --> d0013
-    c201 --> d0013
-    c301 --> d3013
-    c501 --> d0013
-
-    subgraph E
-        e0["('[MASK]', '[MASK]', '[MASK]', '[MASK]')"]
-    end
-    d0012 --> e0
-    d1012 --> e0
-    d2012 --> e0
-    d5012 --> e0
-
-    d0013 --> e0
-    d3013 --> e0
-
-    d0023 --> e0
-    d4023 --> e0
-
-    d0123 --> e0
-    d6123 --> e0
-   
-    LeftMarginHack:::phantom ~~~ a0
-    e0 ~~~ RightMarginHack:::phantom
-    classDef phantom display: none;
-```
+{% include figure.liquid path="assets/img/2026-04-27-destruction/MDLM.png" class="img-fluid" %}
 
 (There should be 3 arrows leaving each of Bob's messages toward Carol, please pardon me for eschewing them.)
 
@@ -1010,56 +404,11 @@ However, the newly generated information (masking order) is also destroyed by th
 In the end, we still get a singleton: all information is eventually destroyed.
 
 The point I'm trying to make here is that `MashOneRandomUnmaskedToken` is a richer approach to "divide and conquer" than `MashLastToken` was.
-It is more "organic" in a similar sense that mixing milk in coffee is "organic": it's a mess, a *rich* mess.
+It is more "organic" in a similar sense that mixing milk in coffee is "organic": it's a mess, a *rich* mess.<d-footnote>Further notice that this diagram used less Alice messages than the one I showed in the autoregressive case.</d-footnote>
 We can train a model to `GuessOneRandomMaskToken` on that mess, and yes, I could excuse it to train slower than `GuessNextToken`, because `GuessNextToken` is a subset of what `GuessOneRandomMaskToken` is learning.
 Let me make it explicit.
 
-```mermaid
-flowchart LR
-    subgraph A
-        a0["('The', 'cat', 'is', 'black')"]
-        a1["('The', 'cat', 'is', 'white')"]
-        a2["('The', 'cat', 'is', 'sleepy')"]
-        a3["('The', 'cat', 'was', 'sleepy')"]
-        a4["('The', 'dog', 'is', 'black')"]
-        a5["('The', 'dog', 'is', 'brown')"]
-        a6["('Your', 'cat', 'is', 'black')"]
-        a7["..."]
-    end
-    subgraph B
-        b0["('The', 'cat', 'is', '[MASK]')"]
-        b1["('The', 'cat', 'was', '[MASK]')"]
-        b2["('The', 'dog', 'is', '[MASK]')"]
-        b3["('Your', 'cat', 'is', '[MASK]')"]
-        b4["..."]
-    end
-    subgraph C
-        c0["('The', 'cat', '[MASK]', '[MASK]')"]
-        c1["('The', 'dog', '[MASK]', '[MASK]')"]
-        c2["('Your', 'cat', '[MASK]', '[MASK]')"]
-        c3["..."]
-    end
-    subgraph D
-        d0["('The', '[MASK]', '[MASK]', '[MASK]')"]
-        d1["('Your', '[MASK]', '[MASK]', '[MASK]')"]
-        d2["..."]
-    end
-    subgraph E
-        e0["('[MASK]', '[MASK]', '[MASK]', '[MASK]')"]
-    end
-   
-    a0 --> b0 --> c0 --> d0 --> e0
-    a1 --> b0
-    a2 --> b0
-    a3 --> b1 --> c0
-    a4 --> b2 --> c1 --> d0
-    a5 --> b2
-    a6 --> b3 --> c2 --> d1 --> e0
-
-    LeftMarginHack:::phantom ~~~ a0
-    e0 ~~~ RightMarginHack:::phantom
-    classDef phantom display: none;
-```
+{% include figure.liquid path="assets/img/2026-04-27-destruction/MaskAutoregressive.png" class="img-fluid" %}
 
 We could train a model to `GuessOneRandomMaskToken` then, at inference, use the learned weight to perform the `GuessNextToken` task instead.
 In the scenario where we're data-starved, but we can train for as long as we wish to, with a model as big as it needs to,<d-cite key="ni2025diffusion"></d-cite> and inference is performed using `GuessNextToken`, which model would you put your money on: the one trained solely on this specific `GuessNextToken` task, or the one that saw the worst <d-cite key="kim2025train"></d-cite> that `GuessOneRandomMaskToken` had to offer?
@@ -1071,33 +420,9 @@ In the previous section, we saw that both autoregressive language models and mas
 Here we consider the other leading approach to destroying Alice's message: drowning it into irrelevant information.
 
 This mechanism, which I call `Shuffle`, may be more aligned with the historic/physical meaning of the word "diffusion".<d-footnote>In other words, while I expect that some readers could say that `Mash` isn't "real" diffusion, I don't have the same worry for `Shuffle`.</d-footnote>
-Whereas `Mash` *may* generate information (e.g., masking order) but will eventually destroy everything to a singleton, `Shuffle` *must* generate new information to be folded into Alice's message, drowning it in the noise.
+Whereas `Mash` *may* generate information (*e.g*., masking order) but will eventually destroy everything to a singleton, `Shuffle` *must* generate new information to be folded into Alice's message, drowning it in the noise.
 
-```mermaid
-flowchart LR
-    subgraph A
-        a0[0]
-        a1[1]
-        a2[2]
-    end
-    subgraph B
-        b0[0]
-        b1[1]
-        b2[2]
-    end
-
-    a0 --tail---> b0
-    a2 --tail---> b0
-    a0 --head---> b1
-    A ==Shuffle===> B
-    a1 --head---> b1
-    a2 --head---> b2
-    a1 --tail---> b2
-
-    LeftMarginHack:::phantom ~~~ a0
-    b0 ~~~ RightMarginHack:::phantom
-    classDef phantom display: none;
-```
+{% include figure.liquid path="assets/img/2026-04-27-destruction/A012_Shuffle_B012.png" class="img-fluid" %}
 
 If Bob has a good understanding of the `Shuffle` channel, he can model the situation as
 
@@ -1175,40 +500,18 @@ But the channel also destroys information: there are many messages that Alice co
 As for `Shuffle`, `GaussianShuffle(δ)` destroys information about Alice's message by generating irrelevant information and folding it into limited space.<d-footnote>The story is a bit more complex here because, in a strict mathematical sense, specifying a single real number requires an infinite amount of information. One can work around this by considering differential entropy instead of entropy. However, for computer science applications, there is a much simpler resolution: these "real" numbers are represented as discrete data types. Concretely, a `float32` is really a discrete variable that may take one of $2^{32}$ values, thus capturing at most 32 bits of information.</d-footnote>
 
 The impact of $n$ repeated independent applications of `GaussianShuffle(δ)` is a single "bigger" `GaussianShuffle(n*δ)`.<d-footnote>Recall that the convolution of two Gaussians is a Gaussian whose mean and variance is the sum of their respective means and variances.</d-footnote>
-Similarly to how we approximated Zalgo as a uniform distribution earlier, we can choose an $n$ that is high enough so that the outcome of applying `GaussianShuffle(n*δ)` on any image is basically an $w \times h \times 3$ Gaussian with mean zero and variance $n\delta$, i.e., no dependency worth mentioning on the actual image.
+Similarly to how we approximated Zalgo as a uniform distribution earlier, we can choose an $n$ that is high enough so that the outcome of applying `GaussianShuffle(n*δ)` on any image is basically an $w \times h \times 3$ Gaussian with mean zero and variance $n\delta$, *i.e.*, no dependency worth mentioning on the actual image.
 In essence, this amounts to the "Variance Exploding" process from Song *et al.* <d-cite key="song2021scorebased"></d-cite>; the "Variance Preserving" version could be similarly obtained by appropriately scaling down the outcome after each addition of Gaussian noise.
 
 
 ## Beyond Markov
 
-In our quest to divide-and-conquer the learning of Alice's distribution, we have seen two different strategies to destroy all the information in her message: `Mash` everything into a singleton, and `Shuffle` long enough to get a maximum-entropy distribution (e.g., uniform or Gaussian).
+In our quest to divide-and-conquer the learning of Alice's distribution, we have seen two different strategies to destroy all the information in her message: `Mash` everything into a singleton, and `Shuffle` long enough to get a maximum-entropy distribution (*e.g.*, uniform or Gaussian).
 
 Both these strategies are Markovian: each person's message has all the information required to get the probability distribution for the next person's message.
 Stated differently, the "spine" of all my diagrams looked like this.
 
-```mermaid
-flowchart LR
-    subgraph A
-        a0:::phantom
-    end
-    subgraph B
-        b0:::phantom
-    end
-    subgraph C
-        c0:::phantom
-    end
-    subgraph D["..."]
-        d0:::phantom
-    end
-    subgraph Z
-        z0:::phantom
-    end
-    A ==> B ==> C ==> D ==> Z
-    
-    LeftMarginHack:::phantom ~~~ a0
-    z0 ~~~ RightMarginHack:::phantom
-    classDef phantom display: none;
-```
+{% include figure.liquid path="assets/img/2026-04-27-destruction/Markov.png" class="img-fluid" %}
 
 But this is not the only possibility, and many diffusion models have a non-Markovian approach to destruction and/or generation.
 For example, although DDPM's<d-cite key="ho2020denoising"></d-cite> destroying process may be framed as a Markovian chain, we may also frame it as interpolating between a "clean" sample $A'$ and a "noise distribution" $Z$
@@ -1220,48 +523,7 @@ $$
 given appropriate $1 = \alpha_A \ge \alpha_B \ge \alpha_C \ge \cdots \ge \alpha_Z = 0$.
 Below is a diagram showing the Markovian approach on the top-right and the non-Markovian one on the bottom-left.
 
-```mermaid
-flowchart LR
-    subgraph A
-        a0:::phantom
-    end
-    subgraph B
-        b0:::phantom
-    end
-    subgraph C
-        c0:::phantom
-    end
-    subgraph D["..."]
-        d0:::phantom
-    end
-    subgraph Z
-        z0:::phantom
-    end
-    subgraph Ap["A'"]
-        ap0:::phantom
-    end
-    subgraph Bp["B'"]
-        bp0:::phantom
-    end
-    subgraph Cp["C'"]
-        cp0:::phantom
-    end
-    subgraph Zp["Z'"]
-        zp0:::phantom
-    end
-    subgraph ApxZp["A' × Z'"]
-        azp0:::phantom
-    end
-    A ==> B ==> C ==> D ==> Z
-    ApxZp ==> Ap -.- A
-    ApxZp ==> Bp -.- B
-    ApxZp ==> Cp -.- C
-    ApxZp ==> Zp -.- Z
-    
-    LeftMarginHack:::phantom ~~~ a0
-    z0 ~~~ RightMarginHack:::phantom
-    classDef phantom display: none;
-```
+{% include figure.liquid path="assets/img/2026-04-27-destruction/NotMarkov.png" class="img-fluid" %}
 
 Here I used $A' \times Z'$ to denote someone that has simultaneous access to both $A'$ and $Z'$ messages, and is thus able to use the previous equation to obtain $B'$, $C'$, *etc.*
 
@@ -1269,88 +531,10 @@ But once you've used $A' \times Z'$ to calculate, say, $B'$, you could just *not
 The same holds up to $Y' \times Z'$ and, with a little more algebra, we can actually go back to $A' \times Z'$ (ignoring finite-precision errors).
 I represent such information-preserving back-and-forth conversions using bidirectional arrows.
 
-```mermaid
-flowchart LR
-    subgraph ApxZp["A' × Z'"]
-        apzp0:::phantom
-    end
-    subgraph BpxZp["B' × Z'"]
-        bpzp0:::phantom
-    end
-    subgraph CpxZp["C' × Z'"]
-        cpzp0:::phantom
-    end
-    subgraph DpxZp["..."]
-        dpzp0:::phantom
-    end
-    subgraph YpxZp["Y' × Z'"]
-        ypzp0:::phantom
-    end
-    subgraph Ap["A'"]
-        ap0:::phantom
-    end
-    subgraph Bp["B'"]
-        bp0:::phantom
-    end
-    subgraph Cp["C'"]
-        cp0:::phantom
-    end
-    subgraph Yp["Y'"]
-        yp0:::phantom
-    end
-    subgraph Zp["Z'"]
-        zp0:::phantom
-    end
-    subgraph BpxZpp["B' × Z''"]
-        bpzpp0:::phantom
-    end
-    subgraph CpxZppp["C' × Z'''"]
-        cpzppp0:::phantom
-    end
-    subgraph YpxZpppp["Y' × Z'''''"]
-        ypzpppp0:::phantom
-    end
-    subgraph App["A''"]
-        app0:::phantom
-    end
-    subgraph A
-        a0:::phantom
-    end
-    subgraph B
-        b0:::phantom
-    end
-    subgraph C
-        c0:::phantom
-    end
-    subgraph D["..."]
-        d0:::phantom
-    end
-    subgraph Y
-        y0:::phantom
-    end
-    subgraph Z
-        z0:::phantom
-    end
-    
-    Ap ==> ApxZp <==> BpxZp <==> CpxZp <==> DpxZp <==> YpxZp ==> Zp
-    BpxZp ==> Bp ==> BpxZpp -."B'".- BpxZp
-    CpxZp ==> Cp ==> CpxZppp -."C'".- CpxZp
-    YpxZp ==> Yp ==> YpxZpppp -."Y'".- YpxZp
-    A ==> B ==> C ==> D ==> Y ==> Z
-    ApxZp ==> App -.- A
-    Ap -.- A
-    Bp -.- B
-    Cp -.- C
-    Yp -.- Y
-    Zp -.- Z
-
-    LeftMarginHack:::phantom ~~~ ap0
-    z0 ~~~ RightMarginHack:::phantom
-    classDef phantom display: none;
-```
+{% include figure.liquid path="assets/img/2026-04-27-destruction/DDPM.png" class="img-fluid" %}
 
 Projecting $B' \times Z'$ to $B'$ destroys information about $Z'$ and, without it, we cannot get back to $A'$: this projection destroys information about $A'$.
-We may thus train a model to use $B'$ to predict the "missing noise" $Z''$, with the intent to obtain a $B' \times Z''$ whose distribution matches $B' \times Z'$.
+We may thus train a `GuessNoise` model to use $B'$ to predict the "missing noise" $Z''$, with the intent to obtain a $B' \times Z''$ whose distribution matches $B' \times Z'$.
 Equation (14) from DDPM<d-cite key="ho2020denoising"></d-cite> learns such denoising functions.
 
 
@@ -1362,114 +546,34 @@ Most are meant for empirical/scientific use: we translate our intuition of what 
 
 This blogpost introduces a new kind of probabilistic graphical model, which I propose to call *generative commutative diagrams*.
 Unlike many other kinds of graphical models, those used here are meant for prescription/engineering use.
-They read like code: an arrow is like a procedure you can call to transform the origin node into the target node.
+They read like code: my arrows and harpoons are like procedures you can call to transform the origin node into the target node.
 
 As the name "generative commutative diagrams" implies, they have been inspired by the [commutative diagrams](https://en.wikipedia.org/wiki/Commutative_diagram) used by mathematicians, especially [category theorists](https://en.wikipedia.org/wiki/Category_theory).
 This blogpost is not about category theory, you do not need to know nor care about category theory to read it, and I am myself definitely *not* an expert on category theory.
 
-Most of the arrows used in this blogpost do *not* represent morphisms, but something less-than-a-morphism.
-I call them "harpoons" as I denote them $\rightharpoonup$ when I draw on a whiteboard or in $\texttt{tikz-cd}$, and I reserve $\rightarrow$ for proper morphisms.
-For this blogpost, I haven't figured out how to coerce $\texttt{mermaid}$ into making different arrow heads: almost all the arrows show here should be $\rightharpoonup$.
-`Project` and `Mash` are among the rare examples that are proper morphisms, which I would usually draw as $\rightarrow$.
+An introduction to category theory will often start with a *diagram* like this.
 
-An introduction to category theory will often start with something like this.
-```mermaid
-flowchart LR
-    subgraph X
-        x0:::phantom
-    end
-    subgraph Y
-        y0:::phantom
-    end
-    subgraph Z
-        z0:::phantom
-    end
-    X ==f==> Y ==g==> Z
-    X ==h==> Z
+{% include figure.liquid path="assets/img/2026-04-27-destruction/X_h_Z__f_Y_g_Z.png" class="img-fluid" %}
 
-    LeftMarginHack:::phantom ~~~ x0
-    z0 ~~~ RightMarginHack:::phantom
-    classDef phantom display: none;
-```
-They will then mention "this diagram is commutative", which means that $g(f(x)) = h(x)$ for all $x$.
-When we show the little arrows between the ~~messages~~ objects, this means that the paths going from $X$ to $Z$ by following $f$ then $g$ must all agree with the paths directly using $h$.
+The arrows ($\rightarrow$) of such a diagram represent morphisms, which for our present purpose may very well be understood as "deterministic function", and this blogpost abides by this convention: whenever I use $\rightarrow$, I mean a deterministic (mathematical) function.
+However, note that my generative diagrams also allow for harpoons ($\rightharpoonup$), which need not be deterministic: they may represent something less-than-a-morphism.
 
-```mermaid
-flowchart LR
-    subgraph X
-        x0["0"]
-        x1["1"]
-        x2["2"]
-    end
-    subgraph Y
-        y0["0"]
-        y1["1"]
-    end
-    subgraph Z
-        z0["0"]
-        z1["1"]
-    end
-    X ==f==> Y ==g==> Z
-    X ==h==> Z
-    x0 --> y0 --> z0
-    x1 --> z0
-    x1 --> y0
-    x2 --> z1
-    x2 --> y1 --> z1
-    x0 --> z0
+That same introduction to category theory will then likely say something along the lines "The above diagram is commutative, which means that $g(f(x)) = h(x)$ for all $x$."
+When we show the "maps to" arrows ($\mapsto$) between the ~~messages~~ objects, this means that the paths going from $X$ to $Z$ by following $f$ then $g$ must all agree with the paths directly using $h$.
 
-    LeftMarginHack:::phantom ~~~ x0
-    z0 ~~~ RightMarginHack:::phantom
-    classDef phantom display: none;
-```
+{% include figure.liquid path="assets/img/2026-04-27-destruction/X012_h_Z01__f_Y01_g_Z.png" class="img-fluid" %}
 
-In a generative commutative diagrams, all the big arrows (harpoons and proper morphisms included) **must also satisfy this requirement of commutativity.**
+I define generative commutative diagrams such that both the arrows ($\rightarrow$) and harpoons ($\rightharpoonup$) **must also satisfy this requirement of commutativity.**
 
 Next, that introduction to category theory may give the following diagram.
 
-```mermaid
-flowchart LR
-    subgraph X
-        x0:::phantom
-    end
-    subgraph Y
-        y0:::phantom
-    end
-    subgraph Z
-        z0:::phantom
-    end
-    X ==f==> Y ==g==> Z
-
-    LeftMarginHack:::phantom ~~~ x0
-    z0 ~~~ RightMarginHack:::phantom
-    classDef phantom display: none;
-```
+{% include figure.liquid path="assets/img/2026-04-27-destruction/X_f_Y_g_Z.png" class="img-fluid" %}
 
 They will then say that because $f$ and $g$ are morphisms, this picture is equivalent to the first one: we can always combine morphisms head-to-tail to obtain an implicit morphism, here $h = g \circ f$.
 **This is not true for my harpoons.**
-If either or both $f$ and $g$ are harpoons, the best you can get by chaining them is a way to sample the same probability distribution<d-footnote>Again, these mermaid diagrams use a dashed line to represent "has the same marginal distribution as", but elsewhere I prefer tikz-cd's squiggly line, in reference to the "tilde" symbol that is often used to mean "distributed like".</d-footnote> -- *not* a guarantee that you will end up at the same element.
+If either or both $f$ and $g$ are harpoons, the best you can get by chaining them is a way to sample the same probability distribution -- *not* a guarantee that you will end up at the same element.
 
-```mermaid
-flowchart LR
-    subgraph X
-        x0:::phantom
-    end
-    subgraph Y
-        y0:::phantom
-    end
-    subgraph Z
-        z0:::phantom
-    end
-    subgraph Zp["Z'"]
-        zp0:::phantom
-    end
-    X ==f==> Y ==g==> Z
-    X =="g ○ f"==> Zp -.- Z
-
-    LeftMarginHack:::phantom ~~~ x0
-    z0 ~~~ RightMarginHack:::phantom
-    classDef phantom display: none;
-```
+{% include figure.liquid path="assets/img/2026-04-27-destruction/X_f_Y_g_Z_compose.png" class="img-fluid" %}
 
 Morphisms cannot create information, only destroy or preserve it.
 Harpoons can create, preserve and destroy information.
