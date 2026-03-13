@@ -267,7 +267,7 @@
                     const arrowEndX = midX - unitX * 5;
                     const arrowEndY = midY - unitY * 5;
 
-                    if (point.iteration === 6) {
+                    if (point.iteration === 11) {
                         arrowStartY = arrowStartY - 7;
                     }
 
@@ -316,7 +316,7 @@
                     const arrowEndX = xPos - unitX * 10;
                     const arrowEndY = yPos - unitY * 10;
 
-                    if (point.iteration === 6) {
+                    if (point.iteration === 11) {
                         arrowStartY = arrowStartY - 7;
                     }
 
@@ -422,15 +422,10 @@
 
                 // Spread the available frames across the full longer scroll sequence.
                 if (iterationImage) {
-                    const imageProgress = (elementsToShow - 1) / Math.max(1, totalElements - 1);
-                    const imageIndex = Math.min(
-                        iterationImages.length - 1,
-                        Math.floor(imageProgress * iterationImages.length)
-                    );
-                    if (!iterationImage.src.endsWith(iterationImages[imageIndex].split('/').pop())) {
-                        iterationImage.src = iterationImages[imageIndex];
-                    }
+                    const imageIndex = (elementsToShow - 1) % iterationImages.length;
+                    iterationImage.src = iterationImages[imageIndex];
                 }
+
             }
 
             window.addEventListener('scroll', updateDrawing);

@@ -7,8 +7,8 @@
       "annotations":[
         {
           "type": "line",
-          "text": "Optimizing the model for a fixed distribution\nimproves the risk...",
-          "translateX": -40,
+          "text": "Optimizing the model for a fixed distribution improves the risk...",
+          "translateX": -50,
           "translateY": -250
         }
       ]
@@ -20,15 +20,15 @@
       "annotations":[
         {
           "type": "point",
-          "text": "...therefore, the risk at this point\nis measured with the DPR.",
-          "translateX": 0,
-          "translateY": 25
+          "text": "...therefore, the risk at this point is measured with the DPR",
+          "translateX": -100,
+          "translateY": -280
         },
         {
           "type": "line",
-          "text": "But upon deployment,\na distribution shift happens...",
-          "translateX": 45,
-          "translateY": 30
+          "text": "But upon deployment, a distribution shift happens...",
+          "translateX": 35,
+          "translateY": 50
         }
       ]
     },
@@ -39,9 +39,9 @@
       "annotations":[
         {
           "type": "point",
-          "text": "...and the risk\nbecomes the PR",
-          "translateX": -10,
-          "translateY": -140
+          "text": "...and the risk becomes the PR",
+          "translateX": 10,
+          "translateY": 150
         }
       ]
     },
@@ -98,7 +98,7 @@
     {
       "iteration": 7,
       "value": -6.836368298206852,
-      "color": "blue"
+      "color": "orange"
     },
     {
       "iteration": 7,
@@ -108,7 +108,7 @@
     {
       "iteration": 8,
       "value": -4.134917224149353,
-      "color": "blue"
+      "color": "orange"
     },
     {
       "iteration": 8,
@@ -118,7 +118,7 @@
     {
       "iteration": 9,
       "value": -2.4928649827707012,
-      "color": "blue"
+      "color": "orange"
     },
     {
       "iteration": 9,
@@ -128,7 +128,7 @@
     {
       "iteration": 10,
       "value": -1.500008263043607,
-      "color": "blue"
+      "color": "orange"
     },
     {
       "iteration": 10,
@@ -138,13 +138,13 @@
     {
       "iteration": 11,
       "value": -0.9015490962433945,
-      "color": "blue",
+      "color": "orange",
       "annotations":[
         {
           "type": "point",
-          "text": "The distribution shift does not change the risk:\nthe algorithm has converged!",
-          "translateX": -400,
-          "translateY": 100
+          "text": "Training does not change the risk:\nthe algorithm has converged!",
+          "translateX": -250,
+          "translateY": 200
         }
       ]
     }
