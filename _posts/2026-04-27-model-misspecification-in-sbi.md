@@ -82,8 +82,7 @@ field.
 ## A Concrete Example - SIR Model with Weekend Reporting Delay
 
 Before formalizing these concepts, we introduce a concrete running example: the
-Susceptible-Infected-Recovered (SIR) epidemic model with weekend reporting delays
-<d-cite key="ward_robust_2022"></d-cite>. The SIR model describes disease spread through
+Susceptible-Infected-Recovered (SIR) epidemic model with weekend reporting delays <d-cite key="ward_robust_2022"></d-cite>. The SIR model describes disease spread through
 infection and recovery rates $(\beta, \gamma)$, with reproduction number
 $R_0 = \beta/\gamma$. In the clean simulator, infection reports occur uniformly across
 all days. In contrast, real-world data often exhibit systematic patterns—here, a
@@ -100,7 +99,7 @@ characteristic weekly oscillations (Figure 1).
   <strong>A</strong>: Schematic SIR model and misspecification: a fraction α of weekend infections is reported on Monday.
   <strong>B</strong>: Example epidemic trajectory showing true S, I, R curves and observed infections with a weekend delay.
   <strong>C</strong>: SBI posterior samples for $(\beta, \gamma)$ for clean data (α = 0%, blue) and misspecified data (α=20%, orange), with true parameters marked.
-  <strong>D</strong>: Posterior predictive checks for both cases, illustrating how misspecification shifts and distorts the inferred dynamics. Results generated using the [sbi](https://sbi.readthedocs.io/)<d-cite key="boelts_sbi_2025"></d-cite> package and SIR specifications from Cannon et al..
+  <strong>D</strong>: Posterior predictive checks for both cases, illustrating how misspecification shifts and distorts the inferred dynamics. Results generated using the <a href="https://sbi.readthedocs.io/">sbi</a><d-cite key="boelts_sbi_2025"></d-cite> package and SIR specifications from Cannon et al..
 </div>
 
 To infer infection parameters from observed data, a common SBI approach would be using
