@@ -943,7 +943,7 @@ ninja.data = [{
         },
       },{id: "post-divide-conquer-and-standardize-a-recursive-architecture-for-multi-agent-systems-mas",
         
-          title: "Divide, Conquer, and Standardize — A Recursive Architecture for Multi-Agent Systems (MAS)",
+          title: "Divide, Conquer, and Standardize - A Recursive Architecture for Multi-Agent Systems (MAS)",
         
         description: "The scalability and robustness of current Multi-Agent Systems (MAS) are severely constrained by the heterogeneity of communication interfaces and a reliance on fragile ad-hoc integrations. We introduce FRACTAL-MAS, a recursive architecture that standardizes orchestration through the convergence of MCP and A2A protocols, integrating a unified control loop with procedural memory grounded in Case-Based Reasoning (CBR). This design allows for continuous adaptation without fine-tuning and enables a seamless transition from rigid hierarchical structures to decentralized networks, providing a reference architecture for the robust and scalable construction of MAS.",
         section: "Posts",
