@@ -7,8 +7,15 @@ future: true
 htmlwidgets: true
 authors:
   - name: Harshwardhan Fartale
+    url: "https://emharsha1812.github.io"
+    affiliations:
+      name: Independent
   - name: Akshata Kishore Moharir
+    affiliations:
+      name: Independent
   - name: Ashish Kattamuri
+    affiliations:
+      name: Independent
 
 bibliography: 2026-04-27-the-evolution-of-flashattention.bib
 
