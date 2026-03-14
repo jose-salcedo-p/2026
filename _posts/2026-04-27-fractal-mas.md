@@ -1,6 +1,6 @@
 ---
 layout: distill
-title: Divide, Conquer, and Standardize — A Recursive Architecture for Multi-Agent Systems (MAS)
+title: Divide, Conquer, and Standardize - A Recursive Architecture for Multi-Agent Systems (MAS)
 description: The scalability and robustness of current Multi-Agent Systems (MAS) are severely constrained by the heterogeneity of communication interfaces and a reliance on fragile ad-hoc integrations. We introduce FRACTAL-MAS, a recursive architecture that standardizes orchestration through the convergence of MCP and A2A protocols, integrating a unified control loop with procedural memory grounded in Case-Based Reasoning (CBR). This design allows for continuous adaptation without fine-tuning and enables a seamless transition from rigid hierarchical structures to decentralized networks, providing a reference architecture for the robust and scalable construction of MAS.
 date: 2026-04-27
 future: true
@@ -13,8 +13,29 @@ mermaid:
   zoomable: true
 
 #Anonymize when submitting
+#authors:
+#  - name: Anonymous
 authors:
-  - name: Anonymous
+   - name: Ronaldinho V. C. Olivera
+     url: "https://www.linkedin.com/in/ronaldinho-vega-centeno-olivera/"
+     affiliations:
+       name: Institute of Computing, Unicamp
+   - name: Allan M. de Souza
+     url: "https://ic.unicamp.br/~allanms/"
+     affiliations:
+       name: Institute of Computing, H.IAAC, Unicamp
+   - name: Júlio C. dos Reis
+     url: "https://ic.unicamp.br/~jreis/"
+     affiliations:
+       name: Institute of Computing, H.IAAC, Unicamp
+   - name: Mateus E. R. da Silveira
+     url: "https://www.linkedin.com/in/mateus-edival-6815b7186/"
+     affiliations:
+       name: Institute of Computing, Unicamp
+   - name: Alejandro N. Arroyo
+     url: "https://www.linkedin.com/in/alejandronunezarroyo/"
+     affiliations:
+       name: Institute of Computing, Unicamp
 
 
 # must be the exact same name as your blogpost
@@ -37,6 +58,7 @@ toc:
       - name: Unified FRACTAL Control Loop
       - name: Procedural Memory — Continuous Learning 
   - name: Conclusions
+  - name: Future Work
 
 # Below is an example of injecting additional post-specific styles.
 # This is used in the 'Layouts' section of this post.
@@ -102,7 +124,7 @@ This convergence creates the ideal foundation for robust systems; however, while
 
 ## FRACTAL-MAS
 
-Our proposed architecture, FRACTAL-MAS, is grounded in the premise that complexity should not be managed through the addition of heterogeneous components, but rather through structural self-similarity. Based on the computational principles of "Divide and Conquer" (solving a difficult problem by breaking it down into simpler parts as many times as necessary <d-cite key="wikipedia_divide_and_conquer"></d-cite>) and Recursion (when the definition of a concept or process depends on a simpler or previous version of itself <d-cite key="wikipedia_recursion"></d-cite>), FRACTAL-MAS proposes that the structure of the MAS must be isomorphic to the structure of an individual agent.
+Our proposed architecture, FRACTAL-MAS, is grounded in the premise that complexity should not be managed through the addition of heterogeneous components, but rather through structural self-similarity. Based on the computational principles of "Divide and Conquer" (solving a difficult problem by breaking it down into simpler parts as many times as necessary <d-cite key="Ephrati1994DivideAC"></d-cite>) and Recursion (when the definition of a concept or process depends on a simpler or previous version of itself <d-cite key="doi:10.3233/ICA-2004-11206"></d-cite>), FRACTAL-MAS proposes that the structure of the MAS must be isomorphic to the structure of an individual agent.
 
 
 ### Basic FRACTAL Agent
@@ -504,7 +526,7 @@ Given the recursive design of our architecture, procedural memory performs isomo
 
 Our proposal postulates that procedural memory is an elemental principle of MAS and should not be bound to a single technical implementation. FRACTAL-MAS is agnostic to the retrieval method, framing this mechanism as an adaptable heuristic that varies according to the agent's nature. This allows for the implementation of hybrid strategies ranging from semantic similarity for contextual understanding or lexical matching for technical terms, to the use of knowledge graphs or trainable scoring models like the Q-function in Memento <d-cite key="zhou2025mementofinetuningllmagents"></d-cite>. This flexibility allows each node in the network to optimize its own learning curve independently.
 
-Conclusions
+## Conclusions
 
 In this post, we have presented FRACTAL-MAS, a theoretical architecture that proposes a paradigm shift in the design of MAS, transitioning from ad-hoc orchestration toward structural self-similarity. By applying principles of recursion and decomposition (Divide and Conquer), we have demonstrated that managing complexity in modern tasks does not require the addition of heterogeneous components, but rather a robust modular design that replicates fractally across all scales of the system, from the individual specialist agent to the global network.
 
@@ -514,3 +536,6 @@ Simultaneously, the architecture redefines the system's adaptive capacity throug
 
 Finally, by standardizing input and output interfaces, FRACTAL-MAS enables the "Agent-as-a-Tool" paradigm, endowing the architecture with intrinsic topological flexibility. This allows the organizational structure to evolve organically from centralized hierarchies to decentralized networks, where any agent can act simultaneously as client and server, maximizing resilience and scalability. Ultimately, FRACTAL-MAS lays the necessary infrastructure for the seamless and standardized orchestration of distributed specialists.
 
+## Future Work
+
+While FRACTAL-MAS provides a robust theoretical foundation for scalable orchestration, we acknowledge that its recursive nature inherently introduces a higher computational overhead compared to traditional flat architectures. Moving forward, our immediate focus is to empirically evaluate this cost-benefit trade-off to determine the exact complexity thresholds where the benefits of our approach outweigh the orchestration costs. Additionally, we plan to establish formal operational boundaries, such as defining the ideal recursion depth parameter to strictly prevent infinite replanning loops. Finally, to fully validate this framework, future implementations will be tested on complex, long-horizon, and multi-domain tasks, moving beyond standard, simplified benchmarks to demonstrate the true potential of fractal orchestration.
