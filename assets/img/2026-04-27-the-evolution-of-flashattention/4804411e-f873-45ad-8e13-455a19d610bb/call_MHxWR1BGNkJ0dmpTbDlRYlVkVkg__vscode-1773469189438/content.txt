@@ -1,0 +1,318 @@
+<!-- ============================================================
+     INSTRUCTIONS FOR INTEGRATION
+     ============================================================
+     
+     1. REPLACE lines 726–807 (the existing "## FlashAttention V4" section)
+        with the new FA4 section below.
+     
+     2. REPLACE lines 809–825 (the existing "## Principles for Future 
+        Attention Algorithms" section) with the revised Principles section below
+.                                                                                    
+     3. APPEND Appendix C after the end of Appendix B (after line 916).
+     
+     4. UPDATE the TOC (line 22) to add:
+          - name: Appendix C Conditional Rescaling Threshold
+     
+     5. UPDATE line 50 in the Introduction. Replace:
+        "We also refer to what is known about FlashAttention 4, though 
+        an official paper is not public yet."
+        With:
+        "FlashAttention v4 then co-designs the algorithm and kernel pipeline 
+        for the Blackwell GPU, where asymmetric hardware scaling shifts 
+        the bottleneck away from matrix multiplication entirely."
+     
+     6. ADD the following BibTeX entry to your .bib file:
+        @article{zadouri2026flashattention4,
+          title={FlashAttention-4: Algorithm and Kernel Pipelining Co-Design for
+ Asymmetric Hardware Scaling},                                                            author={Zadouri, Ted and Hoehnerbach, Markus and Shah, Jay and Liu, Ti
+mmy and Thakkar, Vijay and Dao, Tri},                                                     journal={arXiv preprint arXiv:2603.05451},
+          year={2026}
+        }
+
+     7. REMOVE the following citation keys from your .bib file (no longer refere
+nced):                                                                                  gpu-mode-fa4, tri-dao-hotchips, wu-fa4-medium, modal-fa4, schraudolph199
+9fast                                                                                
+     ============================================================ -->
+
+
+<!-- ============================================================
+     NEW FA4 SECTION (replaces lines 726–807)
+     ============================================================ -->
+
+## FlashAttention V4
+
+FlashAttention-4 (FA4) <d-cite key="zadouri2026flashattention4"></d-cite> addres
+ses a fundamental shift in GPU hardware economics: **asymmetric hardware scaling**. On NVIDIA's Blackwell architecture (B200/GB200), tensor core throughput doubled to 2.25 PFLOPS for BF16, up from Hopper's 1 PFLOPS. However, other functional units did not keep pace — the multi-function unit (MUFU) for exponentials remains at 16 ops/clock/SM (unchanged from Hopper), and shared memory read bandwidth stays at 128 bytes/clock/SM. This imbalance means that on Blackwell, the bottleneck for attention has shifted away from matrix multiplication toward shared memory traffic and non-matmul operations like softmax. FA2 on Hopper already achieved ~35% utilization, with the gap to peak explained by non-matmul overhead. On Blackwell, that gap widens because the matmul ceiling moved up while everything else stayed in place.                                                            
+FA4 responds with algorithm-kernel co-design: redesigned pipelines that exploit 
+Blackwell's fully asynchronous MMA and tensor memory, software-emulated exponentials to bypass the MUFU bottleneck, and conditional softmax rescaling to eliminate unnecessary non-matmul work.                                                 
+### Roofline Analysis: Where the Cycles Go
+
+Before describing FA4's optimizations, we quantify the bottleneck shift. This an
+alysis follows the same spirit as [Appendix B](#appendix-b-memory-bound-analysis), but targets per-tile cycle counts on Blackwell rather than arithmetic intensity on Ampere. Let the tile dimensions be $M \times N$ along the sequence length, with head dimension $d$. The three relevant hardware resources are:            
+**MMA compute.** The forward pass performs two MMAs per inner-loop iteration ($Q
+K^\top$ and $PV$), each requiring $2MNd$ FLOPs. At 8192 FLOPs/clock/SM on Blackwell:                                                                            
+$$T_{\text{MMA}} = \frac{4MNd}{8192} \text{ cycles}$$
+
+**Shared memory traffic.** The $QK^\top$ MMA reads both operands from shared mem
+ory (SS mode), while $PV$ reads only $V$ from shared memory with $P$ coming from tensor memory (TS mode). Accounting for all operand reads at 128 bytes/cycle and 2 bytes per BF16 element:                                                     
+$$T_{\text{SMEM}} = \frac{3MNd}{8192} \text{ cycles}$$
+
+**Exponential unit.** Softmax requires exponentiating the $M \times N$ score mat
+rix. At 16 ops/clock/SM:                                                        
+$$T_{\text{exp}} = \frac{MN}{16} \text{ cycles}$$
+
+For $M = N = d = 128$, these evaluate to:
+
+| Resource | Cycles ($128^3$) | Cycles ($256 \times 128^2$) |
+|:---|:---|:---|
+| MMA compute | **1024** | **2048** |
+| Shared memory | 768 | 1536 |
+| Exponential unit | **1024** | **2048** |
+
+The key observation: MMA compute and the exponential unit are **co-bottlenecks**
+, each consuming 1024 cycles. On Hopper (where MMA throughput was 4096 FLOPs/clock/SM), MMA alone dominated. Blackwell doubled MMA throughput without doubling MUFU throughput, making the exponential unit equally expensive. This is the quantitative signature of asymmetric scaling, and it motivates all three of FA4's forward pass optimizations: (1) overlap MMA and softmax, (2) increase exponential throughput, (3) reduce unnecessary non-matmul operations.                        
+### Forward Pass Optimizations
+
+#### 1. Pipeline for Matmul-Softmax Overlap
+
+{% include figure.liquid path="assets/img/2026-04-27-the-evolution-of-flashatten
+tion/Figure_FA4_fwd_pipeline.png" class="img-fluid rounded z-depth-1" caption="FlashAttention-4 forward pipeline. Superscript $H$ denotes matrices for the 'high' Q tile, $L$ for the 'low' Q tile. Each Q tile corresponds to 128 query tokens. Tensor core operations and MUFU softmax alternate across tiles in a ping-pong schedule. Reproduced from Fig. 1 of Zadouri et al. <d-cite key='zadouri2026flashattention4'></d-cite>." %}                                                       
+<!-- FIGURE DESCRIPTION FOR CREATION:
+The diagram should show 4 SMs (SM 0 through SM 3), each with two horizontal     
+timeline rows: "Tensor Cores (BF16 MMA)" and "MUFU2" (exponential unit).        
+Time flows left-to-right in slots of 512 and 1024 cycles.
+
+For each SM, the pattern is:
+- Slot 1 (512 cycles): Tensor Cores compute S_0^H = Q^H · K_0
+  (colored green). MUFU is idle.
+- Slot 2 (1024 cycles): Tensor Cores compute O^H += P_0^H · V_0 and
+  S_1^L = Q^L · K_0 (green blocks). Simultaneously, MUFU computes
+  P_0^H = softmax(S_0^H) (colored orange).
+- Slot 3 (512 cycles): Tensor Cores compute S_0^L = Q^L · K_0 (green).
+  MUFU idle.
+- Pattern repeats with H and L tiles alternating.
+
+The key visual point: green (MMA) and orange (softmax) blocks overlap
+in time — when one tile's softmax runs on MUFU, the other tile's MMA
+runs on Tensor Cores.
+
+Also show on the left side: the outer loop over Q_i (rows, divided
+across CTAs) and inner loop over K_j, V_j (columns). Show output O_i
+tiles at the bottom, one per CTA pair.
+-->
+
+Since MMA and MUFU are co-bottlenecks, FA4 must overlap them as completely as po
+ssible. FA4 follows a **ping-pong schedule** similar to FA3's inter-warpgroup pipelining, but redesigned for Blackwell's larger tiles and tensor memory. Two tiles of the output are computed per thread block: while one tile's tensor core operations execute, the other tile computes softmax on the MUFU.                   
+A key architectural difference from FA3: Blackwell tensor cores write accumulato
+rs to **tensor memory (TMEM)** — a new 256 KB on-chip memory per SM — rather than to registers. This has two consequences. First, Blackwell MMA tiles are $128 \times 128$ (double Hopper's $64 \times 128$), so each warpgroup of 128 threads processes an entire row, eliminating inter-warp shuffles for the row-max reduction that softmax requires. Second, since $P$ is communicated via TMEM rather than the register file, rescaling of the output accumulator can be offloaded to a separate **correction warpgroup**, removing it from the critical path between MMA and softmax.                                                                     
+The TMEM is partitioned to hold two output accumulator tiles (for the ping-pong)
+ and two copies of $S$ that are reused for $P$ after softmax. This lets the pipeline start by immediately computing two $S$ tiles, filling the pipeline from the first iteration.                                                               
+#### 2. Software-Emulated Exponential
+
+The MUFU computes 16 exponentials per cycle per SM. For a $128 \times 128$ tile,
+ that is $16{,}384 / 16 = 1024$ cycles — matching the MMA cost exactly. To break this tie, FA4 offloads part of the exponential computation onto the **FMA units**, which are otherwise idle during softmax phases.                             
+The method decomposes $2^x$ using classical range reduction (Cody-Waite):       
+
+$$2^x = 2^{\lfloor x \rfloor} \cdot 2^{x_{\text{frac}}} \quad \text{where } x_{\
+text{frac}} = x - \lfloor x \rfloor \in [0, 1)$$                                
+**Integer part** ($2^{\lfloor x \rfloor}$): In IEEE 754 representation, powers o
+f two are encoded directly in the exponent field. Computing $2^{\lfloor x \rfloor}$ reduces to shifting $\lfloor x \rfloor$ into the exponent bits — an integer ALU operation.                                                                  
+**Fractional part** ($2^{x_{\text{frac}}}$): Approximated by a degree-$n$ polyno
+mial via Horner's method using FMA instructions:                                
+$$2^{x_{\text{frac}}} \approx \sum_{i=0}^{n} p_i \, x_{\text{frac}}^i$$
+
+with $p_0 = 1.0$ and remaining coefficients minimizing relative error over $[0, 
+1)$. A degree-3 polynomial suffices for BF16 precision: BF16 quantization error ($\sim 3.9 \times 10^{-3}$) dominates the polynomial approximation error ($\sim 8.8 \times 10^{-5}$) by roughly 45×, making higher-degree polynomials unnecessary when the output is consumed at BF16 precision.                                
+**Partial emulation.** Full software emulation would increase register pressure 
+and latency. FA4 applies emulation to only **10–25%** of entries per softmax row, with the remainder computed via hardware MUFU.EX2. The exact fraction is tuned empirically based on the MMA-to-exponential throughput ratio for each tile configuration.                                                                      
+#### 3. Conditional Softmax Rescaling
+
+Standard FlashAttention rescales the output accumulator at every iteration where
+ $m_j > m_{j-1}$:                                                               
+$$O_j = e^{m_{j-1} - m_j} O_{j-1} + e^{S_j - m_j} V_j$$
+
+Each rescaling requires a vector-matrix multiplication and a synchronization poi
+nt. FA4 introduces **conditional rescaling** — only rescale when the change in running maximum exceeds a threshold $\tau$:                                      
+$$O_j = \begin{cases} e^{m_{j-1} - m_j} O_{j-1} + e^{S_j - m_j} V_j & \text{if }
+ m_j - m_{j-1} > \tau \\ O_{j-1} + e^{S_j - m_{j-1}} V_j & \text{otherwise} \end{cases}$$                                                                       
+When $m_j - m_{j-1} \le \tau$, the kernel keeps $m_{j-1}$ and skips the rescalin
+g entirely. Correctness is preserved because the true maximum $m_{\text{final}}$ and normalizer $\ell_{\text{final}}$ are tracked throughout, and the final normalization $\text{Output} = \ell_{\text{final}}^{-1} \, O_{\text{final}}$ corrects any accumulated slack.                                                        
+The threshold is set to $\tau = \log_2(256) = 8.0$, meaning intermediate values 
+can be inflated by at most $2^8 = 256$ before a rescaling is triggered. This is safe because the FP32 accumulator retains sufficient precision even with 8 bits of exponent slack — a detailed numerical argument is given in [Appendix C](#appendix-c-conditional-rescaling-threshold). In practice, conditional rescaling yields a **10× reduction** in rescaling operations, removing a significant source of pipeline stalls. To avoid warp divergence, the kernel rescales when *any* thread in the warp requires it.                                                      
+### Backward Pass
+
+{% include figure.liquid path="assets/img/2026-04-27-the-evolution-of-flashatten
+tion/Figure_FA4_bwd_graph.png" class="img-fluid rounded z-depth-1" caption="FlashAttention-4 backward computation graph (5 MMA operations + 2 elementwise operations), showing the 1-CTA software pipeline order across prologue, main loop, and tail. Reproduced from Fig. 2 of Zadouri et al. <d-cite key='zadouri2026flashattention4'></d-cite>." %}                                                         
+<!-- FIGURE DESCRIPTION FOR CREATION:
+Show the backward computation graph with three phases: Prologue, Main Loop,     
+and Tail.
+
+PROLOGUE (leftmost):
+- Load Q_0, dO_0, K, V, and LSE_0 into SMEM/TMEM
+- Compute S_0^T = K · Q_0^T (MMA, green)
+- Compute dP_0^T = V · dO_0^T (MMA, green)
+- Compute exp(S_0 - LSE_0) = P_0 (elementwise, orange)
+- Compute P_0^T · dO_0 = dV (MMA, green) — accumulates into TMEM
+- Compute P_0 ⊙ (dP_0 - δ_0) = dS_0 (elementwise, orange)
+
+MAIN LOOP (center, for j = 1..B blocks):
+- Load Q_j, Q_{j-1}
+- Compute dS_{j-1}^T · Q_{j-1} → accumulate dK (MMA, green)
+- Compute dS_{j-1} · K → dQ_{j-1} (MMA, green), then atomic reduce to HBM       
+- Compute S_j^T = K · Q_j^T (MMA, green)
+- Compute exp(...) = P_j (orange, overlaps with dQ/dK MMAs)
+- Compute dP_j^T = V · dO_j^T (MMA, green)
+- Compute P_j^T · dO_j → accumulate dV (MMA, green)
+- Compute dS_j (orange)
+
+TAIL (rightmost):
+- Final dK and dQ accumulations
+- Write dK, dV to HBM
+
+Color coding: green = MMA (tensor cores), orange = elementwise/softmax
+(MUFU + CUDA cores), blue = SMEM loads/stores, grey = atomic reduction.
+Show TMEM column allocation at bottom: (A) [0,128], (B) [128,256],
+(C) [256,384], (D) [384,512] — S/P share one block, dP/dS/dQ share another,     
+dV and dK each get their own.
+-->
+
+The backward pass computes five MMAs per inner-loop iteration: recomputing $S^\t
+op = KQ^\top$, then $dP^\top = VdO^\top$, $dV = P^\top dO$, $dQ = dS \cdot K$, and $dK = dS^\top Q$. The gradients $dV$ and $dK$ accumulate across the inner loop, while $dQ$ requires a reduction across the outer loop (over KV blocks).      
+**Roofline.** For $M = N = d = 128$ in the 1-CTA configuration:
+
+| Resource | Cycles (1-CTA, $M{=}128$) | Cycles (2-CTA, $M{=}256$) |
+|:---|:---|:---|
+| MMA compute | 2560 | 2560 |
+| **Total shared memory** | **3328** | **2688** |
+| Exponential unit | 1024 | 1024 |
+
+Unlike the forward pass, shared memory is the dominant bottleneck — exceeding MM
+A compute by ~30% in the 1-CTA case. This is because five MMAs require eight BF16 operands to be loaded from shared memory (only two operands reside in TMEM), plus additional traffic for writing $dS$ and $dQ$.                               
+**2-CTA MMA mode.** To reduce shared memory pressure, FA4 uses Blackwell's **2-C
+TA tensor core mode**, where a CTA pair on the same SM cooperatively executes a single MMA with tile shape $M = 256$, $N = K = 128$. Each CTA stages only half of operand B in its own shared memory, while the hardware consumes the combined B tile during the multiply. This roughly halves shared memory traffic for operand B, bringing total SMEM time to 2688 cycles — only ~5% above MMA compute.       
+{% include figure.liquid path="assets/img/2026-04-27-the-evolution-of-flashatten
+tion/Figure_FA4_bwd_2cta.png" class="img-fluid rounded z-depth-1" caption="2-CTA backward $dQ$ decomposition. The CTA pair uses distributed shared memory (DSMEM) to exchange half of the $dS$ tile so each CTA forms an $(M/2 \times 2N)$ operand for a CTA-pair MMA with doubled reduction dimension. Adapted from Fig. 3 of Zadouri et al. <d-cite key='zadouri2026flashattention4'></d-cite>." %}           
+<!-- FIGURE DESCRIPTION FOR CREATION:
+Show six panels (a) through (f) illustrating the 2-CTA dQ decomposition:        
+
+(a) Logical view: dS is M×N, partitioned along M into CTA 0 (top half) and      
+    CTA 1 (bottom half). K is N×d. Label: "dS · K = (S_c × S_c) · (S_c × d)"    
+
+(b) CTA tile shape: Two thread block clusters, each with SM containing CTA 0    
+    and CTA 1. Cluster 0: SM 0 has CTA 0 and CTA 0. Cluster 1: SM 1 has
+    CTA 1 and CTA 1. Show all 4 CTAs.
+
+(c) dS layout: Each CTA has N×N tile. CTA 0 owns rows [0, M/2), CTA 1 owns      
+    rows [M/2, M). Both have full N columns.
+
+(d) dS is M×N. Label dimensions.
+
+(e) After DSMEM exchange: Each CTA now has (M/2 × 2N) slice of dS. CTA 0        
+    has its own N columns plus CTA 1's N columns (received via DSMEM).
+    K is reshaped as (2N × d/2) per CTA. Show the doubled reduction axis.       
+
+(f) Output: dQ is (M/2 × d) per CTA. CTA 0 writes top half, CTA 1 writes        
+    bottom half.
+
+Key visual: arrows showing DSMEM data exchange between CTAs in panel (d)→(e).   
+-->
+
+The $dQ$ computation presents a special challenge: its reduction dimension ($N$)
+ is the KV sequence length, which is partitioned across CTAs in the outer loop. In 2-CTA mode, the CTA pair uses **distributed shared memory (DSMEM)** to exchange half of the $dS$ tile between partner CTAs. After the exchange, each CTA holds $M/2$ rows with the full $2N$ reduction dimension, enabling a CTA-pair MMA that doubles the reduction per step. A complementary benefit: since each CTA writes only $M/2$ rows of $dQ$, the number of global **atomic reductions is halved**. 
+**Deterministic backward pass.** Atomic $dQ$ updates introduce nondeterminism. F
+or reproducible training, FA4 provides a deterministic mode using semaphore-based serialization: each CTA acquires a lock in a predefined order before performing its reduction. With shortest-processing-time-first (SPT) scheduling for causal masking, the deterministic mode reaches up to **75% the speed** of the nondeterministic mode.                                                                  
+### LPT Scheduling
+
+Attention workloads with causal masking are inherently **load-imbalanced**: tile
+s near the diagonal of the causal mask process fewer valid entries than tiles far below it. Standard grid linearization assigns tiles in increasing order, which processes the shortest tiles first and leaves SMs idle at the end.             
+FA4 applies **longest-processing-time-first (LPT) scheduling** <d-cite key="zado
+uri2026flashattention4"></d-cite>: tiles are ordered by decreasing main-loop iteration count. For causal masking, this means processing tiles in reverse mblock order within each head. To preserve L2 cache locality for KV blocks, FA4 swizzles over heads within cache-capacity sections before varying over mblocks. For GQA/MQA, all query heads sharing a KV head are traversed before moving to the next mblock.                                                                         
+For **variable sequence lengths**, FA4 launches a lightweight preprocessing kern
+el that sorts batches by their maximum per-tile execution time. The resulting virtual-to-actual batch index mapping is cached and reused across training iterations.                                                                            
+Empirically, LPT scheduling yields **4–8% FLOPS improvement** for MHA and **7–14
+% for MQA** on causal attention workloads.                                      
+### Performance Results
+
+On B200 GPUs with BF16:
+
+| Configuration | FlashAttention-4 | cuDNN 9.13 | Triton | FA4 vs cuDNN | FA4 vs
+ Triton |                                                                       |:---|:---|:---|:---|:---|:---|
+| BF16 Forward (peak) | **1613 TFLOPS** | ~1240 TFLOPS | ~600 TFLOPS | **1.3×** 
+| **2.7×** |                                                                    | GPU Utilization | **71%** | — | — | — | — |
+
+FA4 consistently outperforms all baselines for sequences of 4K tokens and above.
+ The gains are larger for causal attention, attributable to the LPT scheduler. For the DeepSeek V3 configuration (head dimension 192/128), FA4 reaches up to 1654 TFLOPS.                                                                       
+### Current Limitations
+
+FA4 currently operates exclusively in BF16 precision and does **not yet utilize 
+FP4 operations** or **hardware-native microscaling** (the MX format family introduced by Blackwell). It also does not employ 2-CTA MMA for all forward pass operations. These remain optimization opportunities for future work.                
+
+<!-- ============================================================
+     REVISED PRINCIPLES SECTION (replaces lines 809–825)
+     ============================================================ -->
+
+## Principles for Future Attention Algorithms
+
+The evolution from FlashAttention v1 through v4 reveals several core principles 
+that extend beyond simply optimizing existing attention mechanisms. These principles form a foundation for thinking about future attention algorithms as the hardware landscape continues to evolve.                                            
+First, **memory hierarchy awareness must become a first-class concern** in algor
+ithm design. The FlashAttention series demonstrates that asymptotic complexity alone is insufficient — the IO complexity term $O(N^2 d^2 M^{-1})$ matters as much as the FLOP count. With Blackwell's introduction of tensor memory (TMEM) as a new level between registers and shared memory, the hierarchy that algorithms must reason about continues to deepen. Future attention mechanisms should be designed with explicit consideration of data movement costs across every level, rather than treating memory as a flat abstraction.                                    
+Second, **kernel fusion and recomputation trade-offs offer underexplored design 
+space**. FlashAttention's backward pass trades additional compute for reduced memory traffic, exploiting the fact that modern accelerators are increasingly memory-bound rather than compute-bound. This suggests a broader principle: as the compute-to-bandwidth ratio continues to grow in future hardware, selectively recomputing intermediate values rather than storing them becomes increasingly favorable. The question becomes which intermediate tensors to materialize and which to recompute, a decision that depends on both the operation's arithmetic intensity and its position in the dependency graph.                                       
+Third, **algorithm design must track asymmetric hardware scaling**. FA4 demonstr
+ates that the dominant bottleneck can shift between hardware generations — from HBM bandwidth (FA1), to occupancy and non-matmul overhead (FA2), to asynchronous pipeline utilization (FA3), to exponential unit and shared memory traffic (FA4). The progression toward heterogeneous functional units (Tensor Cores, MUFUs, FMA units, integer ALUs) means algorithms should explicitly partition work to match the throughput characteristics of each unit type. FA4's warp specialization — separating MMA, softmax, correction, load, and store roles — and its use of FMA units to supplement MUFU throughput are instances of this principle. Future kernel authors cannot treat the GPU as a homogeneous compute resource; they must profile and match the bottleneck resource of each hardware generation.             
+Fourth, **numerical precision is a tunable parameter, not a fixed constraint**. 
+FlashAttention-3's block quantization and FA4's software-based exponential approximation and conditional rescaling demonstrate that carefully managed reduced-precision computation can maintain accuracy while improving throughput. FA4's conditional rescaling is particularly instructive: by tolerating bounded slack in intermediate values (up to $2^8 = 256$) and correcting at the end, it eliminates 90% of rescaling synchronization points. Future algorithms might adaptively select precision per-operation based on numerical sensitivity analysis, potentially using FP8 or FP4 for matmuls while maintaining higher precision only where gradients demand it.                                                                  
+However, these principles come with a sobering caveat: **the usability wall rema
+ins high**. Writing a custom attention kernel that achieves even 50% of hardware peak requires deep expertise in GPU memory hierarchies, warp scheduling, Tensor Core constraints, and low-level CUDA or PTX programming. This excludes most ML researchers from contributing to or modifying these kernels directly. Tools like Triton <d-cite key="tillet2019triton"></d-cite>, ThunderKittens <d-cite key="spector2024thunderkittenssimplefastadorable"></d-cite>, and CuTe-DSL aim to lower this barrier by providing higher-level abstractions. FA4 itself is implemented entirely in CuTe-DSL embedded in Python, achieving 20–30× faster compile times than the C++ template-based FA3, while maintaining full low-level control. This suggests that the gap between algorithm design on paper and efficient GPU implementation is narrowing, but closing it fully — through better DSLs, compilers, or automated tuning — remains as important as the algorithmic advances themselves.  
+A related concern is the risk of permanent vendor lock-in. The optimizations in 
+FA3 and FA4 rely heavily on NVIDIA-specific features: TMA, WGMMA, Tensor Memory, and architecture-specific warp scheduling. Code tuned for Blackwell does not run on Hopper, let alone on AMD or Intel GPUs. This creates a tension between extracting peak performance and maintaining portability. Encouragingly, the ecosystem is beginning to diversify: AMD's ROCm stack now includes FlashAttention ports, and projects like AMD's Iris library <d-cite key="amd-iris"></d-cite> aim to provide competitive attention kernels for MI300X and future accelerators. Whether the field converges on portable abstractions or fragments into vendor-specific silos will shape who can participate in — and benefit from — the next generation of efficient attention.                                                         
+These principles point toward a future where attention mechanisms are not merely
+ approximate variants of the standard formulation, but fundamentally redesigned algorithms that achieve exact results through hardware-conscious implementation strategies.                                                                     
+
+<!-- ============================================================
+     NEW APPENDIX C (append after Appendix B, i.e. after line 916)
+     ============================================================ -->
+
+## Appendix C: Conditional Rescaling Threshold
+
+In standard FlashAttention, the output accumulator $O$ is rescaled at every inne
+r-loop iteration where the running maximum increases: $O_j = e^{m_{j-1} - m_j} O_{j-1} + e^{S_j - m_j} V_j$. FA4's conditional rescaling skips this update when $m_j - m_{j-1} \le \tau$, using $m_{j-1}$ in place of $m_j$. Here we derive why $\tau = \log_2(256) = 8.0$ is safe.                                             
+### Setup
+
+The attention kernel uses $2^x$ (via the hardware MUFU.EX2 instruction) rather t
+han $e^x$. When rescaling is skipped, the kernel computes:                      
+$$2^{S_{ij} - m_{j-1}} \quad \text{instead of} \quad 2^{S_{ij} - m_j}$$
+
+Since $S_{ij} \le m_j$ by definition of $m_j = \max(m_{j-1}, \text{rowmax}(S_j))
+$, the largest value of the skipped-rescaling expression is:                    
+$$2^{m_j - m_{j-1}} \le 2^\tau = 2^8 = 256$$
+
+Without rescaling, the intermediate accumulator values can thus be **inflated** 
+by a factor of up to 256 relative to their correctly-scaled magnitudes. The question is whether this inflation causes overflow or unacceptable precision loss.  
+### Overflow Safety
+
+The accumulator $O$ is stored in FP32, which has an exponent range of $[-126, 12
+7]$ and a maximum representable value of approximately $3.4 \times 10^{38}$. When correctly scaled (i.e., with the running maximum subtracted), the softmax exponentials satisfy $2^{S_{ij} - m_j} \le 1$, so the weighted value contributions $\tilde{P}_{ij} V_j$ are bounded by the magnitude of $V$. With an inflation factor of at most 256, the worst-case intermediate value grows by 8 bits of exponent — well within FP32's 127-bit exponent range. Overflow is not a concern.         
+### Precision Safety
+
+The more subtle question is whether the inflated accumulator loses precision whe
+n combined with correctly-scaled values from subsequent blocks.                 
+FP32 has 23 mantissa bits, providing approximately 7 decimal digits of precision
+. When intermediate values are inflated by a factor of $2^8$, 8 bits of the mantissa are effectively "consumed" by representing the inflated magnitude, leaving $23 - 8 = 15$ effective mantissa bits.                                          
+The final attention output is consumed at BF16 precision, which has only 7 manti
+ssa bits ($\sim 2$ decimal digits). Even in the worst case, the FP32 accumulator retains 15 mantissa bits of effective precision — more than double what the BF16 output requires. This margin ensures that the inflation introduces no observable error after the final normalization and BF16 conversion.                     
+To make this concrete: suppose the correctly-scaled accumulator would hold the v
+alue $1.0$ (in FP32, this is exact). After inflation by $256$, the accumulator holds $256.0$ instead. The FP32 representation of $256.0$ is still exact, and nearby values are representable to within $2^{8-23} = 2^{-15} \approx 3 \times 10^{-5}$. After final normalization divides by the true denominator and the result is rounded to BF16 (which can only distinguish values differing by $\sim 2^{-7} \approx 0.008$), the $2^{-15}$ precision of the inflated accumulator is invisible.                                                                               
+### Practical Impact
+
+In typical attention distributions, the running maximum $m_j$ stabilizes within 
+the first few blocks of each row — attention scores rarely exhibit jumps of more than 8 in the $\log_2$ scale between consecutive blocks. This makes rescaling a rare event under the $\tau = 8.0$ threshold. Empirically, conditional rescaling reduces rescaling operations by approximately **10×**, with the corresponding elimination of synchronization points and pipeline stalls.                       
+### Correctness Guarantee
+
+Regardless of how many rescaling operations are skipped, the final output is exa
+ct up to floating-point rounding. The true running maximum $m_{\text{final}}$ and normalizer $\ell_{\text{final}}$ are maintained throughout (the statistics tracking is never skipped — only the accumulator rescaling is). The final step:    
+$$\text{Output} = \frac{1}{\ell_{\text{final}}} O_{\text{final}}$$
+
+corrects any accumulated slack, producing the same result (up to floating-point 
+precision) as if every intermediate rescaling had been performed.               
