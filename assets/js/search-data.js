@@ -952,17 +952,6 @@ ninja.data = [{
             window.location.href = "/2026/blog/2026/fractal-mas/";
           
         },
-      },{id: "post-flow-where-you-want",
-        
-          title: "Flow Where You Want",
-        
-        description: "This tutorial demonstrates how to add inference-time controls to pretrained flow-based generative models operating in latent space. Using an unconditional MNIST flow model, we apply classifier guidance and inpainting by adding velocity corrections during sampling. We also explore PnP-Flow, which satisfies constraints through iterative projection rather than velocity correction.",
-        section: "Posts",
-        handler: () => {
-          
-            window.location.href = "/2026/blog/2026/flow-where-you-want/";
-          
-        },
       },{id: "post-from-trajectories-to-operators-a-unified-flow-map-perspective-on-generative-modeling",
         
           title: "From Trajectories to Operators — A Unified Flow Map Perspective on Generative Modeling...",
