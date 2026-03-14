@@ -539,3 +539,7 @@ Finally, by standardizing input and output interfaces, FRACTAL-MAS enables the "
 ## Future Work
 
 While FRACTAL-MAS provides a robust theoretical foundation for scalable orchestration, we acknowledge that its recursive nature inherently introduces a higher computational overhead compared to traditional flat architectures. Moving forward, our immediate focus is to empirically evaluate this cost-benefit trade-off to determine the exact complexity thresholds where the benefits of our approach outweigh the orchestration costs. Additionally, we plan to establish formal operational boundaries, such as defining the ideal recursion depth parameter to strictly prevent infinite replanning loops. Finally, to fully validate this framework, future implementations will be tested on complex, long-horizon, and multi-domain tasks, moving beyond standard, simplified benchmarks to demonstrate the true potential of fractal orchestration.
+
+## Acknowledgments
+
+This study was sponsored by Petróleo Brasileiro S.A. (PETROBRAS) within the project *"Application of Large Language Models (LLMs) for online monitoring of industrial processes"* conducted in partnership with the University of Campinas [01-P-34480/2024 - 62208].
