@@ -861,6 +861,43 @@ FA4 consistently outperforms all baselines for sequences of 4K tokens and above.
 
 FA4 currently operates exclusively in BF16 precision and does **not yet utilize FP4 operations** or **hardware-native microscaling** (the MX format family introduced by Blackwell). It also does not employ 2-CTA MMA for all forward pass operations. These remain optimization opportunities for future work.
 
+## Limitations of FlashAttention and the Long-Context Boundary
+
+FlashAttention is an *IO optimization*, not a *compute optimization*. This distinction is critical for understanding where its benefits plateau and where complementary techniques become necessary.
+
+### The Quadratic Compute Wall
+
+FlashAttention reduces HBM accesses from $\Theta(N^2)$ to $O(N^2 d^2 M^{-1})$ — an improvement factor of $M/d^2$. But the FLOP count remains unchanged at $O(N^2 d)$. The IO savings are governed by a hardware-determined constant: $M/d^2 \approx 10^5 / 4096 \approx 25\times$ on an A100 with $d=64$. No matter how large $N$ grows, this constant does not improve.
+
+At moderate sequence lengths (say $N \leq 16K$), attention is memory-bound — the IO cost dominates, and FlashAttention's tiling delivers substantial wall-clock speedups. But as $N$ increases, the raw compute cost $O(N^2 d)$ eventually overtakes the IO cost as the binding constraint. Doubling the sequence length from 64K to 128K quadruples the attention FLOPs per layer. At $N = 128K$ with $d = 128$ and 32 heads, a single forward attention pass requires approximately 135 TFLOPs — a cost that no amount of memory hierarchy optimization can reduce, since FlashAttention computes *exact* attention and performs the same number of floating-point operations as the standard algorithm.
+
+This is the fundamental ceiling: FlashAttention makes exact attention as fast as the hardware allows, but it cannot make exact attention cheaper than $O(N^2 d)$.
+
+### SRAM Tiling Limits at Extreme Sequence Lengths
+
+FlashAttention's inner loop iterates over $T_c = \lceil N / B_c \rceil$ key-value blocks, where $B_c = \Theta(M/d)$ is capped by SRAM capacity. As $N$ grows, $T_c$ grows linearly — the pipeline simply has more iterations to execute, and each iteration's cost is fixed by the tile size.
+
+The pipeline optimizations introduced across FA2–FA4 (pingpong scheduling, warp specialization, conditional rescaling) amortize *per-tile* overhead effectively, but they cannot reduce the *number of tiles*. Meanwhile, increasing $B_c$ to reduce $T_c$ is constrained by SRAM size: on an A100, 192 KB per SM limits $B_c$ to a few hundred rows at $d = 128$; Hopper's 256 KB per SM and Blackwell's additional TMEM help, but the improvement is incremental. Register pressure further constrains tile dimensions — FA4's forward pass already requires careful staging of softmax values to avoid register spills with $128 \times 128$ tiles.
+
+The practical consequence is that FlashAttention's wall-clock time scales linearly with $T_c$ (i.e., linearly with $N$ for fixed tile size), and each unit of that linear scaling carries an $O(N \cdot d)$ FLOP cost per tile. The total remains $O(N^2 d)$, and hardware constraints prevent the constant factor from shrinking significantly across GPU generations.
+
+### Where Complementary Methods Become Necessary
+
+Beyond approximately 64K–128K tokens, FlashAttention alone faces diminishing returns: the absolute compute cost becomes prohibitive for single-device execution, and the KV tensors may not fit in a single GPU's HBM. At this scale, several complementary techniques become essential — not as replacements for FlashAttention, but as partners that address orthogonal bottlenecks.
+
+**Ring Attention** <d-cite key="liu2023ringattention"></d-cite> distributes the key-value sequence across multiple GPUs arranged in a logical ring. Each device holds a local chunk of $K, V$ and computes attention over that chunk using a local FlashAttention kernel, while simultaneously sending its chunk to the next device in the ring. By overlapping communication with computation, Ring Attention extends the effective context length to millions of tokens across a device cluster. Crucially, FlashAttention serves as the *local compute primitive* inside each ring step — the two techniques are complementary rather than competing.
+
+**Striped Attention** <d-cite key="brandon2023striped"></d-cite> addresses a load-imbalance problem inherent to Ring Attention under causal masking. When tokens are distributed in contiguous chunks across devices, devices holding early tokens perform significantly less work (since causal masking zeroes out most of their attention scores), while devices holding later tokens are fully loaded. Striped Attention interleaves tokens across devices in a round-robin fashion, ensuring each device sees a balanced mixture of early and late positions. This achieves near-perfect load balance while preserving the communication-computation overlap of Ring Attention.
+
+**Block-Sparse Attention** approaches skip entire blocks of the attention matrix that contribute negligibly to the output. Rather than computing all $T_r \times T_c$ tile pairs, a sparsity mask identifies which $(Q_i, K_j)$ blocks to evaluate. If only a fraction $k/N$ of blocks per row are retained, the effective complexity drops toward $O(N \cdot k \cdot d)$, which is sub-quadratic when $k \ll N$. Recent frameworks such as FlexAttention <d-cite key="he2024flexattention"></d-cite> provide composable APIs for specifying block-sparse patterns and can leverage FlashAttention-style tiled kernels for the non-zero blocks, combining sparsity with IO-efficient execution.
+
+The key insight is that for long-context models operating beyond 64K tokens, these techniques form a *stack*: block-sparse patterns reduce the effective number of tiles, Ring/Striped Attention distributes those tiles across devices, and FlashAttention executes each tile IO-efficiently on the local GPU. No single technique in this stack is sufficient on its own.
+
+### Inference: A Different Bottleneck
+
+It is worth noting that FlashAttention primarily targets the *training* and *prefill* phases, where the full $N \times N$ attention computation is performed. During autoregressive decoding, the computational pattern is fundamentally different: each new token attends to all previous tokens, producing a single row of the attention matrix rather than the full matrix. Here, the bottleneck shifts from attention FLOPs to **KV cache memory** — storing and accessing the key-value states of all prior tokens. Techniques such as Multi-Query Attention (MQA) <d-cite key="shazeer2019fasttransformerdecodingwritehead"></d-cite>, Grouped-Query Attention (GQA), Multi-Head Latent Attention (MLA), and PagedAttention <d-cite key="kwon2023pagedattention"></d-cite> address this distinct bottleneck by compressing or managing the KV cache, and are largely orthogonal to FlashAttention's IO-aware tiling.
+
+
 
 ## Principles for Future Attention Algorithms
 
