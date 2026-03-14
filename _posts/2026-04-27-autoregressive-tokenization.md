@@ -38,23 +38,23 @@ toc:
     subsections:
       - name: Primer on autoregressive modeling
       - name: What exactly are tokens?
-  - name: What do we mean by "sequential" and "non-sequential" data?
+  - name: '"Sequential" vs. "non-sequential" data'
     subsections:
-      - name: Examples of sequence choice affecting modelability
+      - name: When sequence choice affects modelability
   - name: Can we just use non-sequential models?
-  - name: "Turning images into a sequence: an illustrative example"
+  - name: "Images as sequences: an illustrative example"
   - name: Aligning sequential models and non-sequential data
     subsections:
-      - name: "Modeling-level alignment: optimizing the prediction order"
+      - name: "Modeling-level: optimizing prediction order"
         subsections:
           - name: Marginalizing over orderings
           - name: Heuristically choosing the order
           - name: Learning the order
-      - name: "Tokenization-level alignment: optimizing the input representation"
+      - name: "Tokenization-level: optimizing input representations"
         subsections:
           - name: Heuristically encouraging AR modelability
           - name: Autoregressive priors
-  - name: "Summary and outlook: what is the future for non-sequential data"
+  - name: "What is the future for non-sequential data?"
   - name: Acknowledgements
   - name: Footnotes
 
@@ -150,15 +150,15 @@ Thus enters **tokenization**: the process of mapping raw data into a sequence of
 
 Subword methods strike a balance between vocabulary size and sequence length, whereas byte-level tokenization uses a near-minimal vocabulary that results in no information loss but produces considerably longer sequences. (Note: there’s a recent and interesting line of work on tokenization-free methods operating at the byte level[^byte], but they too are designed for sequential data.) These choices reflect a fundamental tension in tokenizer design: **a tokenizer optimized purely for compression (i.e. the best reconstruction per bit budget) is not necessarily the one that is easiest for a generative model to predict one-by-one** (as evidenced by e.g. <d-cite key="lester2024training"></d-cite>, who demonstrate that a naive compression-based tokenizer works poorly for language modeling). Later sections will revisit this reconstruction-generation tradeoff.
 
-Each token is moreover associated with a positional encoding, which encodes that token’s position in the sequence and breaks the native permutational invariance of the attention mechanism. However, even without positional encodings, the causal attention mask of autoregressive models still forces token generation to occur in a specific order. Thus, simply removing positional encodings does not fundamentally change the sequential nature of causal attention, as works like <d-cite key="haviv-etal-2022-transformer" type="author"></d-cite> have demonstrated.
+Each token is moreover associated with a positional encoding, which encodes that token’s position in the sequence and breaks the native permutational invariance of the attention mechanism. However, even without positional encodings, the causal attention mask of autoregressive models still forces token generation to occur in a specific order. Thus, simply removing positional encodings does not fundamentally change the sequential nature of causal attention, as demonstrated in <d-cite key="haviv-etal-2022-transformer"></d-cite>.
 
-# What do we mean by “sequential” and “non-sequential” data?
+# “Sequential” vs. “non-sequential” data
 
 We’ve alluded to the idea that autoregressive models rely on a *meaningful* factorization of the data into a sequence, but that certain data is “non-sequential”. What does this mean exactly? Spoken and written language are clearly “sequential” in a meaningful way: they are both generated in, and meant to be consumed in, a certain temporal sequence. But if someone asked you to order the pixels from an image into a sequence, what would you choose? Raster order? Top-to-bottom, or bottom-to-top? How about the atoms in a molecule? 
 
 Perhaps you would answer that it depends on what you want to use the sequence for. Images, molecular graphs, and 3D point clouds are defined by spatial relationships and symmetries, but there is no single, canonical ordering of elements on which all readers of this post would agree. To distinguish between orderings, we require the notion of **modelability for autoregressive models**. 
 
-At a high-level, modelability is a general and ubiquitous idea in representation learning: simply put, some representations are easier for models to learn from than others. This perspective echoes the notion of *usable information* <d-cite key="Xu2020A,dieleman2025latents"></d-cite> and, more recently, *epiplexity* <d-cite key="finzi2026entropyepiplexityrethinkinginformation"></d-cite>, both of which emphasize that what matters is not just how much information a representation contains, but how much of it is accessible to a computationally bounded learner or model class. A similar view appears in the rate–distortion–usefulness tradeoff[^tradeoff] of <d-cite key="tschannen2018recentadvancesautoencoderbasedrepresentation" type="author"></d-cite>, where “usefulness” for a downstream model depends on how that information is organized. 
+At a high-level, modelability is a general and ubiquitous idea in representation learning: simply put, some representations are easier for models to learn from than others. This perspective echoes the notion of *usable information* <d-cite key="Xu2020A,dieleman2025latents"></d-cite> and, more recently, *epiplexity* <d-cite key="finzi2026entropyepiplexityrethinkinginformation"></d-cite>, both of which emphasize that what matters is not just how much information a representation contains, but how much of it is accessible to a computationally bounded learner or model class. A similar view appears in the rate–distortion–usefulness tradeoff[^tradeoff] proposed in <d-cite key="tschannen2018recentadvancesautoencoderbasedrepresentation"></d-cite>, where “usefulness” for a downstream model depends on how that information is organized. 
 
 We focus here on the specific notion of modelability for autoregressive models. The data representation is now not a single vector per datapoint, but a sequence of discrete tokens $x_1,\dots,x_n$ per datapoint. Since autoregressive models factor the data distribution as 
 $\prod_{i=1}^n p(x_i \mid x_{<i})$,
@@ -169,23 +169,21 @@ $\prod_{i=1}^n p(x_i \mid x_{<i})$,
 
 Here, the “best” model is that produced by a training procedure (usually, optimizing for the same CE loss) over a finite training set. 
 
-In words, the autoregressive modelability of a tokenization is simply the test perplexity of the best next-token prediction model. Language (under any standard tokenizer) is highly modelable because next-token models do a good job at, well, predicting the next tokens. Note that modelability is a property of a **specific tokenization** of a data distribution, not the modality itself. For any data distribution and model class, we can ask what tokenization yields the optimal modelability score (the equation above). Thus, this notion of modelability implicitly depends on the inductive biases and computational limitations (e.g., finite context length and recency bias) of the model class. This naturally dovetails with the theory of tokenization discussed by <d-cite key="rajaraman2025theorytokenizationllms" type="author"></d-cite>: there, the advantages of tokenization were related to the limitations of the transformer, which tended to learn unigram models in their setting.
+In words, the autoregressive modelability of a tokenization is simply the test perplexity of the best next-token prediction model. Language (under any standard tokenizer) is highly modelable because next-token models do a good job at, well, predicting the next tokens. Note that modelability is a property of a **specific tokenization** of a data distribution, not the modality itself. For any data distribution and model class, we can ask what tokenization yields the optimal modelability score (the equation above). Thus, this notion of modelability implicitly depends on the inductive biases and computational limitations (e.g., finite context length and recency bias) of the model class. This naturally dovetails with the theory of tokenization developed in <d-cite key="rajaraman2025theorytokenizationllms"></d-cite>, where the advantages of tokenization were related to the limitations of the transformer, which tended to learn unigram models in their setting.
 
 In this sense, the dichotomy of “sequential” and “non-sequential” is overly simplistic, since one can arbitrarily pick a sequence for any input data. What we really ask is, based on domain knowledge or just common sense, is there an **obviously modelable** sequence? If not, we call the modality “non-sequential”, and assert that more complex methods are needed to identify a modelable tokenization (more on this later)[^ordering]. 
 
-## Examples of sequence choice affecting modelability
+## When sequence choice affects modelability
 
-The difference in modelability between different tokens orders is especially clear in domains where different prediction orders induce subproblems of highly varying difficulty. For example, consider training a model to solve Sudoku puzzles. At a given current state, some cells might be nearly forced, while others are highly ambiguous -- so, the difficulty of the prediction subproblem depends strongly on which cell is predicted first. As explored by <d-cite key="kim2025train" type="author"></d-cite>, changing the prediction order of the unfilled Sudoku tiles can shift the model from easy, highly-constrained cases to much harder, underdetermined ones. 
+The difference in modelability between different tokens orders is especially clear in domains where different prediction orders induce subproblems of highly varying difficulty. For example, consider training a model to solve Sudoku puzzles. At a given current state, some cells might be nearly forced, while others are highly ambiguous -- so, the difficulty of the prediction subproblem depends strongly on which cell is predicted first. As explored in <d-cite key="kim2025train"></d-cite>, changing the prediction order of the unfilled Sudoku tiles can shift the model from easy, highly-constrained cases to much harder, underdetermined ones. 
 
 <div style="text-align: center; margin: 2rem 0;">
-  <div style="display: inline-block; max-width: 450px; width: 100%;">
-    {% include figure.liquid 
-        path="assets/img/2026-04-27-autoregressive-tokenization/sudoku.png" 
-        class="img-fluid rounded z-depth-1"
-    %}
-    <div class="caption" style="text-align: center;">
-      Example of a 4x4 Sudoku board where filling in a highly constrained square first forces the remaining moves, while starting elsewhere would be more ambiguous. Figure taken from <d-cite key="woojrSudokuKids"></d-cite>.
-    </div>
+  {% include figure.liquid 
+      path="assets/img/2026-04-27-autoregressive-tokenization/sudoku.png" 
+      class="img-fluid rounded z-depth-1"
+  %}
+  <div class="caption" style="text-align: center;">
+    Example of a 4x4 Sudoku board where filling in a highly constrained square first forces the remaining moves, while starting elsewhere would be more ambiguous.
   </div>
 </div>
 
@@ -196,7 +194,32 @@ To clearly demonstrate the impact of information order on modelability, we coded
 2. Using a random (fixed) ordering of the nodes.
 3. Using a random ordering of the nodes, which changes with each datapoint (but with the original position encoded, so that information is not lost).
 
+{% comment %}
+<div style="text-align: center; margin: 2rem 0;">
+  {% include figure.liquid 
+      path="assets/img/2026-04-27-autoregressive-tokenization/experiment.png" 
+      class="img-fluid rounded z-depth-1"
+  %}
+  <div class="caption" style="text-align: center;">
+    Visualization of the three sequence orderings used in our experiment, all derived from data generated by a fixed Markov chain.
+  </div>
+</div>
+-->
+{% endcomment %}
+
 We also vary the context length of the causal attention model, the number of nodes in the Markov chain, and the size of the dataset, all to modulate the difficulty of the learning task. As shown, the natural ordering of nodes achieves the best loss in all cases. Only in the easiest setting (with smallest vocabulary, largest training set, and full context length) does the performance gap close between the two fixed orderings, whereas the randomized ordering method remains suboptimal.
+
+{% comment %}
+<div style="text-align: center; margin: 2rem 0;">
+  {% include figure.liquid 
+      path="assets/img/2026-04-27-autoregressive-tokenization/plots.png" 
+      class="img-fluid rounded z-depth-1"
+  %}
+  <div class="caption" style="text-align: center;">
+    Test loss as a function of context length for different token orderings across varying dataset and vocabulary sizes.
+  </div>
+</div>
+{% endcomment %}
 
 Hopefully, this drives home the point that **not all orderings are created equal**.
 
@@ -209,19 +232,19 @@ However, compared to autoregressive models, these non-sequential architectures s
 
 A well-studied domain where the lack of an inherent ordering becomes especially salient is vision. Images do not come with a built-in sequence structure, yet significant effort has been devoted to making them autoregressively modelable. Let’s start with this domain as a case study, before diving into more recent trends of tokenization-model alignment.
 
-# Turning images into a sequence: an illustrative example
+# Images as sequences: an illustrative example
 Images have no inherent traversal order, yet to apply autoregressive models, we must linearize them into a 1D sequence. The earliest attempts, such as PixelRNN <d-cite key="10.5555/3045390.3045575"></d-cite>, flattened the image into a sequence of raw pixels and predicted them one by one in raster scan order (top-to-bottom, left-to-right). One limiting factor of pixel-level flattening was that it would result in very long sequences that are difficult to model (e.g., a 256 x 256 image results in a sequence of length 65,536). In fact, this is the same reason that tokenization arose for language <d-cite key="sennrich-etal-2016-neural"></d-cite>!
 
-To solve the sequence length problem, the fundamental unit of computation shifted from pixels to patches. This strategy was standardized by Vision Transformers (ViTs) <d-cite key="dosovitskiy2021an"></d-cite>: divide the image into fixed-size squares (e.g., 16 x 16), embed each patch as a token with positional encodings, and arrange them in a sequence. Crucially, ViTs retained the raster scan order, as shown at the bottom of the following figure from <d-cite key="dosovitskiy2021an" type="author"></d-cite>. 
+To solve the sequence length problem, the fundamental unit of computation shifted from pixels to patches. This strategy was standardized by Vision Transformers (ViTs) <d-cite key="dosovitskiy2021an"></d-cite>: divide the image into fixed-size squares (e.g., 16 x 16), embed each patch as a token with positional encodings, and arrange them in a sequence. Crucially, ViTs retained the raster scan order, as shown at the bottom of the following figure. 
 
 <div style="text-align: center; margin: 2rem 0;">
-  <div style="display: inline-block; width: 80%;">
+  <div style="display: inline-block; width: 70%;">
     {% include figure.liquid 
         path="assets/img/2026-04-27-autoregressive-tokenization/vit.png" 
         class="img-fluid rounded z-depth-1"
     %}
     <div class="caption" style="text-align: center;">
-      The Vision Transformer architecture, where the input image is converted into a sequence by flattering the patch grid according to a raster scan order.
+      The Vision Transformer architecture, where the input image is converted into a sequence by flattering the patch grid according to a raster scan order. Figure from <d-cite key="dosovitskiy2021an"></d-cite>.
     </div> 
   </div>
 </div>
@@ -247,7 +270,7 @@ The modern paradigm of autoregressive models for images adopts this patch-based 
 Although VQ-VAE and VQGAN tokenizers learn a visual “vocabulary”, they do not remove the need for a fixed ordering: the tokens are still ordered for input to the transformer. Thus, the **inherent mismatch between the prediction order and the causal structure of natural images remains**: predicting a patch from only previously raster-ordered predecessors might force the model to commit to global structural decisions (e.g., “this is a dog”) based on ambiguous local evidence (e.g., a patch of fur in the top-left corner).  This is just one example of how a representation can induce conditional prediction tasks as subproblems that are poorly aligned with the modality’s underlying structure. With this as motivation, we now turn to the general problem of aligning sequential models with non-sequential data.
 
 # Aligning sequential models and non-sequential data
-Earlier, we noted a basic tension: representations that perfectly preserve all the information in the data can make generation more expensive and/or difficult (e.g. PixelRNN), while representations that near-optimally compress the underlying signal, do so to the detriment of generation <d-cite key="lester2024training"></d-cite>. While these two notions, of compression and modelability, are not strictly at odds with one another, they are simply different objectives that need not align in practice. A common thought experiment that demonstrates this (e.g. <d-cite key="ramanujan2025when" type="author"></d-cite>) is that of a constant tokenization -- trivial to model, but a terrible compressor. The goal, then, is to balance these two objectives: to make sequential modeling easier without giving up too much reconstruction quality.
+Earlier, we noted a basic tension: representations that perfectly preserve all the information in the data can make generation more expensive and/or difficult (e.g. PixelRNN), while representations that near-optimally compress the underlying signal, do so to the detriment of generation <d-cite key="lester2024training"></d-cite>. While these two notions, of compression and modelability, are not strictly at odds with one another, they are simply different objectives that need not align in practice. A common thought experiment that demonstrates this is that of a constant tokenization -- trivial to model, but a terrible compressor <d-cite key="ramanujan2025when"></d-cite>. The goal, then, is to balance these two objectives: to make sequential modeling easier without giving up too much reconstruction quality.
 
 The emerging methods for navigating this tradeoff can be organized into two distinct categories. One approach keeps the token vocabulary, and therefore the reconstruction quality, fixed, but modifies the *modeling procedure* so that the existing sequence becomes easier to generate (still autoregressively). The other approach keeps the modeling procedure fixed but changes the *tokenization itself*, aiming to find representations that are jointly good for reconstruction and sequential prediction.
 
@@ -262,7 +285,7 @@ We further subdivide these categories according to the following flowchart, whic
     Approaches for addressing the mismatch between sequential model and non-sequential data.
 </div>
 
-## Modeling-level alignment: optimizing the prediction order
+## Modeling-level: optimizing the prediction order
 When a modality lacks an intrinsic traversal order, the challenge is to decide (or discover) the prediction order that leads to the easiest, most structurally coherent subproblems for a model to learn. To reiterate, we’re assuming here that the tokenization is fixed, but the modelling procedure is no longer restricted to this fixed, left-to-right order. There are three broad techniques for doing this: (1) marginalizing over orderings, (2) learning an ordering, or (3) heuristically choosing an order. 
 
 ### Marginalizing over orderings
@@ -291,7 +314,7 @@ A related approach is σ-GPT <d-cite key="10.1007/978-3-031-70368-3_9"></d-cite>
 
 AO-ARMs above take the view that, once a token vocabulary is fixed, the remaining structural choice is the *order* in which tokens are predicted. The default any-order training treats this latent variable as uniformly distributed over all permutations, which forces the model to learn a wide family of conditionals. The methods[^canon] in this section ask a more targeted question: can we pick a specific order that actually makes prediction easier?
 
-For example, <d-cite key="kim2025train" type="author"></d-cite> implement this idea in a masked diffusion model <d-cite key="lou2024discrete"></d-cite> that can fill tokens in arbitrary positions, greedily selecting the next token with the lowest predictive entropy (“most confident first”). This avoids ambiguous subproblems and improves performance (e.g., on Sudoku), and even helps ARMs when the learned ordering is reused during training. Similarly, <d-cite key="pramanik2025distillingsemanticallyawareorders" type="author"></d-cite> show that for images, adaptively choosing the next patch based on a scoring heuristic and fine-tuning on these paths yields a more semantic generation order and better FID than raster scans. Across these works, ordering becomes a heuristic search problem: even simple rules for “what to predict next” can make autoregressive generation substantially easier. 
+For example, Kim et al. <d-cite key="kim2025train"></d-cite> implement this idea in a masked diffusion model <d-cite key="lou2024discrete"></d-cite> that can fill tokens in arbitrary positions, greedily selecting the next token with the lowest predictive entropy (“most confident first”). This avoids ambiguous subproblems and improves performance (e.g., on Sudoku), and even helps ARMs when the learned ordering is reused during training. Similarly, Pramanik et al. <d-cite key="pramanik2025distillingsemanticallyawareorders"></d-cite> show that for images, adaptively choosing the next patch based on a scoring heuristic and fine-tuning on these paths yields a more semantic generation order and better FID than raster scans. Across these works, ordering becomes a heuristic search problem: even simple rules for “what to predict next” can make autoregressive generation substantially easier. 
 
 ### Learning the order
 Rather than using a heuristic, Wang et al. <d-cite key="wang2025learningorder"></d-cite> directly parametrize the ordering via a neural network. In **Learning Order Autoregressive Models (LO-ARMs)**, the ordering is treated explicitly as a latent variable: the model learns an order-policy
@@ -299,7 +322,7 @@ $$p_x(\sigma) = \Pi_i p(\sigma_i \mid \sigma_{<i}, x_{\sigma_{<i}})$$
 that, given a partially masked input, chooses a position to unmask next. At the same time, a shared model (UNet for images, Graph Transformer for molecules) produces value logits for every position. Once the order-policy selects a position $$\sigma_i$$, the model applies a softmax to choose **what value to place there**. The resulting orderings were found to reflect coherent structural patterns, such as placing border pixels in images or bond structures in molecular graphs first in the ordering! 
 
 {% include figure.liquid path="assets/img/2026-04-27-autoregressive-tokenization/lo-arm.png" class="img-fluid" %}
-<div class="caption" style="text-align: center;">
+<div class="caption" style="text-align: center; width: 100%;">
     The LO-ARM sampling process, in which a shared model jointly predicts which position to unmask next and what value to assign.
 </div>
 
@@ -307,7 +330,7 @@ A closely related learned-ordering approach is **REOrder** <d-cite key="kutscher
 
 The modeling-level methods show that reordering can meaningfully reduce the difficulty of the generative task, but only within the limits imposed by the underlying tokenization. Since the representation itself is fixed, these approaches cannot introduce coarse-to-fine structure or reshape the information content of the tokens; they can only choose a more favorable sequence in which to model them. As a result, **modeling-level alignment can improve modelability, but its flexibility in exploring the reconstruction-generation tradeoff is limited.**
 
-## Tokenization-level alignment: optimizing the input representation
+## Tokenization-level: optimizing input representations
 Suppose we don’t want to mess around with the somewhat complicated strategies above. Tokenization-level methods are motivated by the following question: how can we simply provide sequential models with the “most sequential,” i.e. most modelable, representation of the input data? If the model generates autoregressively, then the tokenizer can be designed with autoregressive generation in mind from the start!. These methods address the reconstruction-generation tradeoff directly at the representation level, rather than merely reordering the prediction path. 
 
 ### Heuristically encouraging AR modelability
@@ -340,7 +363,7 @@ To bridge this gap, recent works have introduced an autoregressive prior directl
 
 These methods explicitly build sequentiality directly into the learned tokenizer, using general learning techniques rather than heuristics.
 
-# Summary and outlook: what is the future for non-sequential data?
+# What is the future for non-sequential data?
 
 In sum, autoregressive models offer a flexible, efficient method for generative modeling tasks, but they require tokens to be input in some ordering. However, many modalities of interest outside language lack a clear, natural ordering for tokenization. Although one can simply choose an arbitrary ordering convention, it may not optimize the resultant model’s generation quality. This is the notion of “modelability,” which we apply specifically to autoregressive models. To improve the autoregressive modelability of arbitrary modalities, model-based approaches broadly attempt to find the most modelable ordering of some fixed tokenization. In contrast, tokenization-based approaches take sequential generation into account when constructing the tokenization itself. This encourages ordered tokenizations that are easy to incrementally predict. In a scattered landscape of diverse tokenization and ordering strategies, we hope to have provided not just a methodological survey, but a unifying perspective.
 
@@ -350,7 +373,7 @@ There are many possible routes for the future of non-sequential data. Perhaps sp
 
 # Acknowledgements
 
-We thank Tess Smidt and the *Atomic Architects* group, Tommi Jaakkola, Sam Stanton, and Vivek Ramanujan for helpful feedback and insightful discussions.
+We thank Tess Smidt and the *Atomic Architects* group, Tommi Jaakkola, Samuel Stanton, and Vivek Ramanujan for helpful feedback and insightful discussions.
 
 [^discrete]: Recent work has explored the use of continuous or “soft” tokens with an infinite vocabulary to allow for a more semantically rich latent space <d-cite key="tschannen2025jetformer"></d-cite>.
 
@@ -364,7 +387,7 @@ We thank Tess Smidt and the *Atomic Architects* group, Tommi Jaakkola, Sam Stant
 
 [^canon]: There are also several works which perform input canonicalization, i.e. choosing an optimal permutation of input data for in-context learning <d-cite key="Lu2021FantasticallyOP"></d-cite> or graph generation <d-cite key="kim2023learning"></d-cite>. Although these approaches also learn an optimal ordering of the input data, they differ from most of the approaches we discuss in the blogpost by committing to an ordering all at once, rather than incrementally as generation progresses.
 
-[^diffusion]: This loosely parallels the way diffusion models reconstruct signals by first resolving low-frequency components and then adding higher-frequency detail. <d-cite key="dieleman2025latents" type="author"></d-cite> gives an intuitive explanation of the viewpoint that "diffusion is spectral autoregression", and <d-cite key="falck2025fourier" type="author"></d-cite> offers a complementary analysis that clarifies the conditions under which the connection holds.
+[^diffusion]: This loosely parallels the way diffusion models reconstruct signals by first resolving low-frequency components and then adding higher-frequency detail. Dieleman <d-cite key="dieleman2025latents"></d-cite> gives an intuitive explanation of the viewpoint that "diffusion is spectral autoregression", and Falck <d-cite key="falck2025fourier"></d-cite> offers a complementary analysis that clarifies the conditions under which the connection holds.
 
 [^language]: Even when there is a canonical ordering for the input, it might not be the most faithful to the underlying generative process. For example, one could imagine that the “best” ordering for certain language modeling tasks might be structured according to some hierarchy of abstract concepts or reasoning steps rather than the default left-to-right sequence. There is thus a growing body of work on Transformers that operate in a latent token space <d-cite key="sun2025enhancinglatentcomputationtransformers"></d-cite>. 
 
