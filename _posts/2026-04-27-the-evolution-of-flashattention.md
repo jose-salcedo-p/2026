@@ -6,7 +6,9 @@ date: 2026-04-27
 future: true
 htmlwidgets: true
 authors:
-  - name: Anonymous
+  - name: Harshwardhan Fartale
+  - name: Akshata Kishore Moharir
+  - name: Ashish Kattamuri
 
 bibliography: 2026-04-27-the-evolution-of-flashattention.bib
 
