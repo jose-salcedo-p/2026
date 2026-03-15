@@ -26,10 +26,7 @@ authors:
   - name: Maternus Herold
     url: https://www.linkedin.com/in/maternus-herold-5919b812b/
     affiliations:
-        name: Research and Development, Hesos.ai
-        name: TransferLab, appliedAI Institute for Europe
-        name: Research and Innovation Center, BMW Group
-        name: Institute for Applied Mathematics and Scientific Computing University of the Bundeswehr Munich
+        name: Hesos.ai, BMW Group, appliedAI Institute for Europe & University of the Bundeswehr Munich
   - name: Konstantin Leonard Freiherr von Gaisberg-Helfenberg
     url: https://www.linkedin.com/in/konstantin-von-gaisberg/
     affiliations:
