@@ -8,32 +8,38 @@ future: true
 htmlwidgets: true
 
 authors:
-- name: Shan Chen*
+  - name: Shan Chen*
     affiliations:
-      name: Harvard University,
-      name: Mass General Brigham,
-      name: Boston Children’s Hospital
-- name: Jirui Qi*
+      - name: Harvard University
+      - name: Mass General Brigham
+      - name: Boston Children’s Hospital
+
+  - name: Jirui Qi*
     affiliations:
-      name: University of Groningen
-- name: Zidi Xiong
+      - name: University of Groningen
+
+  - name: Zidi Xiong
     affiliations:
-      name: Harvard University
-- name: Timothy A. Miller
+      - name: Harvard University
+
+  - name: Timothy A. Miller
     affiliations:
-      name: Harvard Medical School
-      name: Boston Children’s Hospital
-- name: Arianna Bisazza
+      - name: Harvard Medical School
+      - name: Boston Children’s Hospital
+
+  - name: Arianna Bisazza
     affiliations:
-      name: University of Groningen
-- name: Raquel Fernández
+      - name: University of Groningen
+
+  - name: Raquel Fernández
     affiliations:
-      name: University of Amsterdam
-- name: Danielle Bitterman
+      - name: University of Amsterdam
+
+  - name: Danielle Bitterman
     affiliations:
-      name: Harvard University,
-      name: Mass General Brigham,
-      name: Boston Children’s Hospital
+      - name: Harvard University
+      - name: Mass General Brigham
+      - name: Boston Children’s Hospital
 
 bibliography: "2026-04-27-budget-alignment.bib"
 
