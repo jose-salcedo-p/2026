@@ -249,7 +249,8 @@
     (() => {
       const CHI2_QUANTILE_DF2_80 = -2.0 * Math.log(1.0 - 0.80);
       const ENVELOPE_POINTS = 181;
-      const ENVELOPE_HISTORY_ALPHA = 0.08;
+      const ENVELOPE_HISTORY_ALPHA_LIGHT = 0.08;
+      const ENVELOPE_HISTORY_ALPHA_DARK = 0.24;
 
       const COLORS = {
         cloud: "#00FF00",
@@ -677,7 +678,12 @@
         drawGrid(m.x, m.y, m.w, m.h);
 
         // Envelope history
-        ctx.strokeStyle = `rgba(0,0,0,${ENVELOPE_HISTORY_ALPHA})`;
+        const isDarkTheme = document.documentElement.getAttribute("data-theme") === "dark";
+        const envelopeHistoryAlpha = isDarkTheme
+          ? ENVELOPE_HISTORY_ALPHA_DARK
+          : ENVELOPE_HISTORY_ALPHA_LIGHT;
+        ctx.strokeStyle = COLORS.path;
+        ctx.globalAlpha = envelopeHistoryAlpha;
         ctx.lineWidth = 1.0;
         ctx.setLineDash([]);
         for (let h = 0; h < frame; h++) {
@@ -691,6 +697,7 @@
           }
           ctx.stroke();
         }
+        ctx.globalAlpha = 1.0;
 
         // Current envelope
         const currentEnv = proc.envelopes[frame];

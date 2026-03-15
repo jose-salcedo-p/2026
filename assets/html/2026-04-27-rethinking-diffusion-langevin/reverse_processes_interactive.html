@@ -792,7 +792,8 @@
 
         drawGrid(ctx, m.x, m.y, m.w, m.h);
 
-        ctx.strokeStyle = `rgba(0,0,0,${ENVELOPE_HISTORY_ALPHA})`;
+        ctx.strokeStyle = COLORS.path;
+        ctx.globalAlpha = ENVELOPE_HISTORY_ALPHA;
         ctx.lineWidth = 1.0;
         ctx.setLineDash([]);
         for (let h = 0; h < frame; h++) {
@@ -806,6 +807,7 @@
           }
           ctx.stroke();
         }
+        ctx.globalAlpha = 1.0;
 
         const currentEnv = proc.envelopes[frame];
         ctx.strokeStyle = COLORS.envelope;
