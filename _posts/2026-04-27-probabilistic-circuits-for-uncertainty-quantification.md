@@ -30,8 +30,7 @@ authors:
   - name: Konstantin von Gaisberg-Helfenberg
     url: https://www.linkedin.com/in/konstantin-von-gaisberg/
     affiliations:
-	name: BMW Group & Karlsruher Institut für Technologie
-
+        name: BMW Group & Karlsruhe Institute of Technology
 # must be the exact same name as your blogpost
 bibliography: 2026-04-27-probabilistic-circuits-for-uncertainty-quantification.bib
 
