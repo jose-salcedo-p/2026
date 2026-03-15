@@ -8,7 +8,32 @@ future: true
 htmlwidgets: true
 
 authors:
-- name: Anonymous
+- name: Shan Chen*
+    affiliations:
+      name: Harvard University,
+      name: Mass General Brigham,
+      name: Boston Children’s Hospital
+- name: Jirui Qi*
+    affiliations:
+      name: University of Groningen
+- name: Zidi Xiong
+    affiliations:
+      name: Harvard University
+- name: Timothy A. Miller
+    affiliations:
+      name: Harvard Medical School
+      name: Boston Children’s Hospital
+- name: Arianna Bisazza
+    affiliations:
+      name: University of Groningen
+- name: Raquel Fernández
+    affiliations:
+      name: University of Amsterdam
+- name: Danielle Bitterman
+    affiliations:
+      name: Harvard University,
+      name: Mass General Brigham,
+      name: Boston Children’s Hospital
 
 bibliography: "2026-04-27-budget-alignment.bib"
 
@@ -43,7 +68,7 @@ And we want this post to serve as a practical guide with lessons learned along t
 
 One scope note matters for everything that follows: in this work, **math is a proxy task for reasoning behavior**. We are not claiming that multilingual math benchmarks alone capture all real-world reasoning. We use math because answers are verifiable and errors are easy to localize, which makes it a clean testbed for studying whether language-aligned reasoning helps or hurts reasoning quality. We then stress-test transfer on science and medicine to see where this proxy stops being sufficient.
 
-Code, data, and checkpoints will be linked in the **camera-ready** version of this post to preserve anonymity during review.
+Code, data, and checkpoints are released at https://github.com/Betswish/mCoT-XReasoning/tree/main/training.
 
 ---
 
