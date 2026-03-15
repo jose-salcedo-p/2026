@@ -1238,17 +1238,6 @@ ninja.data = [{
             window.location.href = "/2026/blog/2026/causal-ts/";
           
         },
-      },{id: "post-budget-alignment-making-models-reason-in-the-user-39-s-language",
-        
-          title: "Budget Alignment: Making Models Reason in the User&#39;s Language",
-        
-        description: "We explore a two step multilingual alignment recipe for large language models to keep reasoning and answers in the user language while preserving accuracy.",
-        section: "Posts",
-        handler: () => {
-          
-            window.location.href = "/2026/blog/2026/budget-alignment/";
-          
-        },
       },{id: "post-the-99-success-paradox-when-near-perfect-retrieval-equals-random-selection",
         
           title: "The 99% Success Paradox: When Near-Perfect Retrieval Equals Random Selection",
