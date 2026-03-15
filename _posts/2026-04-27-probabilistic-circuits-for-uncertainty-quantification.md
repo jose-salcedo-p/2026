@@ -27,9 +27,10 @@ authors:
     url: https://www.linkedin.com/in/maternus-herold-5919b812b/
     affiliations:
         name: Hesos.ai, BMW Group, appliedAI Institute for Europe & University of the Bundeswehr Munich
-  - name: Konstantin Leonard Freiherr von Gaisberg-Helfenberg
+  - name: Konstantin von Gaisberg-Helfenberg
     url: https://www.linkedin.com/in/konstantin-von-gaisberg/
     affiliations:
+	name: BMW Group & Karlsruher Institut für Technologie
 
 # must be the exact same name as your blogpost
 bibliography: 2026-04-27-probabilistic-circuits-for-uncertainty-quantification.bib
