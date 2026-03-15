@@ -11,37 +11,37 @@ authors:
   - name: Shan Chen*
     url: "https://shanchen.dev/"
     affiliations:
-      - name: Harvard University, Mass General Brigham, Boston Children’s Hospital
+      name: Harvard University, Mass General Brigham, Boston Children’s Hospital
 
   - name: Jirui Qi*
     url: "https://betswish.github.io/"
     affiliations:
-      - name: University of Groningen
+      name: University of Groningen
 
   - name: Zidi Xiong
     url: "https://polaris-73.github.io/"
     affiliations:
-      - name: Harvard University
+      name: Harvard University
 
   - name: Timothy A. Miller
     url: "https://tmills.github.io/"
     affiliations:
-      - name: Harvard Medical School, Boston Children’s Hospital
+      name: Harvard Medical School, Boston Children’s Hospital
 
   - name: Arianna Bisazza
     url: "https://inclow-lm.github.io/author/arianna-bisazza/"
     affiliations:
-      - name: University of Groningen
+      name: University of Groningen
 
   - name: Raquel Fernández
     url: "https://staff.fnwi.uva.nl/r.fernandezrovira/"
     affiliations:
-      - name: University of Amsterdam
+      name: University of Amsterdam
 
   - name: Danielle Bitterman
     url: "https://www.bittermanlab.org/"
     affiliations:
-      - name: Harvard University, Mass General Brigham, Boston Children’s Hospital
+      name: Harvard University, Mass General Brigham, Boston Children’s Hospital
 
 bibliography: "2026-04-27-budget-alignment.bib"
 
