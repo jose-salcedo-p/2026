@@ -13,7 +13,27 @@ mermaid:
   zoomable: true
 
 authors:
-  - name: Anonymous
+   - name: Mateus E. R. da Silveira
+     url: "https://www.linkedin.com/in/mateus-edival-6815b7186/"
+     affiliations:
+       name: Institute of Computing, Unicamp
+   - name: Ronaldinho V. C. Olivera
+     url: "https://www.linkedin.com/in/ronaldinho-vega-centeno-olivera/"
+     affiliations:
+       name: Institute of Computing, Unicamp
+   - name: Alejandro N. Arroyo
+     url: "https://www.linkedin.com/in/alejandronunezarroyo/"
+     affiliations:
+       name: Institute of Computing, Unicamp
+   - name: Allan M. de Souza
+     url: "https://ic.unicamp.br/~allanms/"
+     affiliations:
+       name: Institute of Computing, H.IAAC, Unicamp
+   - name: Júlio C. dos Reis
+     url: "https://ic.unicamp.br/~jreis/"
+     affiliations:
+       name: Institute of Computing, H.IAAC, Unicamp
+
 
 # must be the exact same name as your blogpost
 bibliography:  2026-04-27-dissecting-non-determinism.bib
@@ -56,7 +76,7 @@ However, determinism does not shield us from Prompt Brittleness, a phenomenon wh
 
 Finally, we will address the LLM-as-a-Judge paradigm. If the judge itself varies due to its non-deterministic nature, can we trust its verdict? We will analyze how this variance affects evaluation metrics and the dangerous implications of using these models as arbitrary evaluators.
 
-We conclude that understanding these dynamics in LLM experimentation can help us avoid misleading conclusions and ensure the integrity of our evaluation sets. In light of our findings, we suggest the imperative need to adopt consistency-oriented practices, recognizing non-determinism as a critical variable that must be managed in any rigorous experiment.
+We conclude that understanding these dynamics in LLM experimentation can help us avoid misleading conclusions and ensure the integrity of our evaluation sets. In light of our findings, we suggest the imperative need to adopt consistency-oriented practices, recognizing non-determinism and high sensitivity as a critical variables that must be managed in any rigorous experiment.
 
 ---
 
@@ -164,7 +184,7 @@ This operational overhead forces a difficult question: Is reproducibility a requ
 
 ## The Brittleness of Prompt Engineering
 
-Prompt Brittleness refers to the phenomenon where minor and apparently marginal changes in format or structure are made to a LLM input prompt leads to an variation, sometimes drastically, in its result performance <d-cite key="MoE"></d-cite>.  For software engineers integrating LLMs into their systems, brittleness creates a "dreadful challenge" in debugging, where tweaking a prompt to fix one edge might inadvertently degrades performance in others case.
+Prompt Brittleness refers to the phenomenon where minor and apparently marginal changes in format or structure are made to a LLM input prompt leads to a variation, sometimes drastically, in its result performance <d-cite key="MoE"></d-cite>.  For software engineers integrating LLMs into their systems, brittleness creates a "dreadful challenge" in debugging, where tweaking a prompt to fix one edge might inadvertently degrade performance in other cases.
 
  For researchers conducting comparative evaluations, this fragility creates a crisis of reproducibility. If a system works for one test case but fails for a nearly identical one due to a minor prompt variation, the system is effectively non-deterministic from the user’s perspective. 
 Not even large and instruction-tuned models escapes from this sensitivity to “spurious” features <d-cite key="FormatSpread"></d-cite>. If a model fails simply because the bracket style changed or the input ordering was altered <d-cite key="MoE"></d-cite>, it challenges the assumption that the model is genuinely "understanding" the prompt in a human-like way.
@@ -307,10 +327,14 @@ Analysis of Position Bias within MT-Bench <d-cite key="NEURIPS2023_91f18a12"></d
 
 ## Conclusion
 
-Non-determinism in LLMs is not merely a configurable setting but a systemic limitation that pits semantic creativity against scientific reproducibility. While techniques like Nucleus Sampling enhance human-like quality, the belief that zero temperature guarantees stability is a fallacy debunked by the asynchronous nature of hardware optimizations and inference batching. Consequently, until we are willing to pay the performance cost for deterministic execution, we must accept that our AI systems are not logic machines, but "statistical engines" prone to chaotic fluctuations.
+The unpredictability of LLMs is not merely a configurable setting but a systemic limitation that pits semantic creativity against scientific reproducibility. While techniques like Nucleus Sampling enhance human-like quality, the belief that zero temperature guarantees stability is a fallacy debunked by the asynchronous nature of hardware optimizations and inference batching. Consequently, until we are willing to pay the performance cost for deterministic execution, we must accept that our AI systems are not logic machines, but "statistical engines" prone to chaotic fluctuations.
 
 On the other hand, Prompt Brittleness exposes a fragile reality beneath the impressive capabilities of LLMs. It forces a paradigm shift in how we evaluate systems, ensuring we distinguish genuine architectural gains from mere overfitting to specific prompts. The paradox where semantically identical inputs yield inconsistent outputs confirms that reliability cannot be measured by accuracy alone. Consequently, we require robust metrics to quantify sensitivity at various levels, alongside frameworks and tools to actively mitigate these brittle effects.
 
 While the LLM-as-a-Judge paradigm provides an effective evaluation mechanism, it is susceptible to various forms of bias. However, an analysis of proposed methodologies suggests that these biases can be successfully mitigated through rigorous implementation, provided that the strategies are carefully tailored to the specific requirements of the target application.
 
 As LLMs might appear as inherently unreliable in ways that are difficult to predict or mitigate, we need to be specially aware of what they are capable, and what are the mainly problems when design new systems based on them. Achieving reliability requires building robust wrapper systems (like automated prompt optimizers, evaluation benchmarks, etc) to mitigate the model's inherent problems. By adopting more rigorous statistical evaluations and maintaining a keen awareness of how brittleness affects our metrics, we can transition from deploying fragile models to engineering robust systems. While the underlying models may remain inherently probabilistic, disciplined engineering and targeted constraints can render these errors statistically negligible, even more closed domain cases <d-cite key="negligible"></d-cite>, turning unpredictability into managed reliability.
+
+## Acknowledgments
+
+This Blog was sponsored by Petróleo Brasileiro S.A. (PETROBRAS) as part of the project 'Application of Large Language Models (LLMs) for online monitoring of industrial processes,' developed in collaboration with the University of Campinas [01-P-34480/2024 - 62208].
