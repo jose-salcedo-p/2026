@@ -1139,17 +1139,6 @@ ninja.data = [{
             window.location.href = "/2026/blog/2026/dissecting-non-determinism/";
           
         },
-      },{id: "post-discretisation-invariance",
-        
-          title: "Discretisation invariance",
-        
-        description: "Discretisation invariance, a recent innovation in scientific machine learning, is a requirement that ensures an architecture can process inputs of different resolutions. In this post, we formally define this property, provide examples, generate datasets, train architectures, and discuss whether discretisation invariance is living up to its promise.",
-        section: "Posts",
-        handler: () => {
-          
-            window.location.href = "/2026/blog/2026/discretisation-invariance/";
-          
-        },
       },{id: "post-navigating-the-manifold-a-geometric-perspective-on-diffusion-based-inverse-problems",
         
           title: "Navigating the Manifold — A Geometric Perspective on Diffusion-Based Inverse Problems",
@@ -1280,17 +1269,6 @@ ninja.data = [{
         handler: () => {
           
             window.location.href = "/2026/blog/2026/beyond-the-rerun/";
-          
-        },
-      },{id: "post-square-peg-round-hole-plugging-non-sequential-data-into-sequential-language-models",
-        
-          title: "Square Peg, Round Hole: Plugging Non-Sequential Data into Sequential Language Models",
-        
-        description: "Autoregressive (AR) models are central to modern generative AI systems, yet their need for an ordered sequence of tokens clashes with modalities that lack an obvious ordering, such as images, graphs, and point clouds. Despite this mismatch, AR models are widely applied beyond language owing to their scalability and controllability. In this post, we articulate exactly what the problem is, and how it can be solved. In short, there are two broad classes of techniques for applying AR models to non-sequential data: selecting a generation order given some fixed tokenization scheme, and redesigning the tokenization itself to simplify next-token prediction. Yet these methods face tradeoffs, particularly between compression (how many bits are used to represent the input) and autoregressive &amp;quot;modelability&amp;quot; (how easy it is to model each next-token conditional distribution in the chosen order). We predict that as data-hungry AI pipelines require new data modalities to train integrated, multi-modal models, these considerations will only grow more crucial. By drawing these connections, we aim to motivate future work on tokenizations tailored to the needs of autoregressive models for arbitrary datatypes.",
-        section: "Posts",
-        handler: () => {
-          
-            window.location.href = "/2026/blog/2026/autoregressive-tokenization/";
           
         },
       },{id: "post-an-overview-of-subliminal-learning",
