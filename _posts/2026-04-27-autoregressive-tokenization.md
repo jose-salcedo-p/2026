@@ -189,10 +189,15 @@ The difference in modelability between different tokens orders is especially cle
 
 A similar example appears in arithmetic tasks, where models have been observed to perform better when generating blocks of digits right-to-left than left-to-right, perhaps reflecting how carries propagate in the computation <d-cite key="singh2024tokenizationcountsimpacttokenization,lee2024digitstodecisions"></d-cite>. Across these settings, a consistent pattern emerges: prediction orders that better align with a task’s underlying structure tend to be more effective. 
 
-To clearly demonstrate the impact of information order on modelability, we coded up a simple demonstration using graphical models. We first generated data from a Markov chain, and assumed each node in the Markov chain was simply its own token, so that the only free parameter is the ordering of those tokens. We compared the best test loss achieved in three different orderings:
-1. Using the natural ordering of the nodes, according to a topological sort of the Markov chain.
-2. Using a random (fixed) ordering of the nodes.
-3. Using a random ordering of the nodes, which changes with each datapoint (but with the original position encoded, so that information is not lost).
+To clearly demonstrate the impact of information order on modelability, we ran a simple demonstration using graphical models (code available [here](https://github.com/hannahlawrence/graph_token_ordering)). We generate data from a Markov chain over a discrete vocabulary, letting each node in the Markov chain correspond to its own token for simplicity. The only free parameter in defining the tokenization is then the ordering of those tokens. Ultimately, datapoints are sequences of discrete token values, drawn from a Markov chain and ordered according to some strategy (described below). Then, we train a small decoder-only transformer to represent the data distribution, measuring the test cross-entropy achieved at the point of optimal validation loss. 
+
+
+We compare three different ordering strategies:
+1. **Topological**: Using the natural ordering of the nodes, according to a topological sort of the Markov chain.
+2. **Fixed Random**: Using a random (fixed) ordering of the nodes.
+3. **Random per-instance**: Using a random ordering of the nodes, which changes with each datapoint (but with the original position encoded, so that information is not lost).
+
+Note that positional encodings are used to capture both the original and post-ordering positions of each token.
 
 {% comment %}
 <div style="text-align: center; margin: 2rem 0;">
@@ -212,7 +217,7 @@ We also vary the context length of the causal attention model, the number of nod
 {% comment %}
 <div style="text-align: center; margin: 2rem 0;">
   {% include figure.liquid 
-      path="assets/img/2026-04-27-autoregressive-tokenization/plots.png" 
+      path="assets/img/2026-04-27-autoregressive-tokenization/markov_chain_ordering_comparison.png" 
       class="img-fluid rounded z-depth-1"
   %}
   <div class="caption" style="text-align: center;">
@@ -383,7 +388,7 @@ We thank Tess Smidt and the *Atomic Architects* group, Tommi Jaakkola, Samuel St
 
 [^ordering]: In this blogpost, we talk a lot about permuting data tokens. However, naively permuting tokens clearly doesn’t make sense for domains like language or vision: the sentence “Work is more important than family” has the opposite meaning from its permutation, “Family is more important than work” (as is famously capitalized upon in Jonathan Reed’s reversible poem “The Lost Generation” -- a clever work that can be read forwards and backwards, with diametrically opposed meanings). Similarly, permuting the pixels of an image can create an entirely new image. In contrast, permuting the points in a point cloud or nodes in a graph preserves the underlying object, and therefore doesn’t lose any information. Thus, when we talk about permuting data tokens, what we really mean is changing the *generation order* -- while retaining the information describing the input object itself.
 
-[^AR_diffusion]: We should note that there is a growing line of work aiming to combine the strengths of autoregressive and diffusion models <d-cite key="hoogeboom2022autoregressive,chen2024diffusion,arriola2025block"></d-cite>. We set these aside in this post, as our focus is specifically on autoregressive models.
+[^AR_diffusion]: There is a growing line of work aiming to combine the strengths of autoregressive and diffusion models <d-cite key="hoogeboom2022autoregressive,chen2024diffusion,arriola2025block"></d-cite>. We set these aside in this post, as our focus is specifically on autoregressive models.
 
 [^canon]: There are also several works which perform input canonicalization, i.e. choosing an optimal permutation of input data for in-context learning <d-cite key="Lu2021FantasticallyOP"></d-cite> or graph generation <d-cite key="kim2023learning"></d-cite>. Although these approaches also learn an optimal ordering of the input data, they differ from most of the approaches we discuss in the blogpost by committing to an ordering all at once, rather than incrementally as generation progresses.
 
