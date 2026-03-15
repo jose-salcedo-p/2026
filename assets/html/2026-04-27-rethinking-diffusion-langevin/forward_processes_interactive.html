@@ -59,7 +59,7 @@
 
     body {
       margin: 0;
-      padding: 22px 14px;
+      padding: 22px 14px 0;
       background: var(--gallery-white);
       color: var(--brutal-black);
       font-family: var(--font-serif);
@@ -71,7 +71,7 @@
       background: var(--gallery-white);
       border: 2px solid var(--brutal-black);
       box-shadow: 4px 4px 0 0 var(--brutal-black);
-      padding: 14px 14px 11px;
+      padding: 14px 14px 0;
     }
 
     .title {
@@ -200,8 +200,8 @@
       transition: none !important;
     }
     @media (max-width: 900px) {
-      body { padding: 11px 6px; }
-      .wrap { padding: 10px 8px 8px; }
+      body { padding: 11px 6px 0; }
+      .wrap { padding: 10px 8px 0; }
       .title { font-size: 18px; }
       .desc { font-size: 13px; line-height: 1.35; }
       .control-panel { gap: 8px; padding: 8px; }
@@ -213,8 +213,10 @@
     canvas {
       display: block;
       width: 100%;
+      margin: 0 0 0 0;
       border: 2px solid var(--brutal-black);
       background: var(--gallery-white);
+      vertical-align: top;
     }
   </style>
 </head>
@@ -542,18 +544,20 @@
       }
 
       function getPanelLayout() {
-        const isMobile = window.innerWidth <= 700;
-        const cols = isMobile ? 1 : 3;
+        const viewportW = window.innerWidth;
+        const compactMobile = viewportW <= 520;
+        const isMobile = viewportW <= 768;
+        const cols = compactMobile ? 1 : (isMobile ? 2 : 3);
         const rows = Math.ceil(processes.length / cols);
         const outerPad = isMobile ? 10 : 16;
-        const gapX = isMobile ? 10 : 12;
-        const gapY = isMobile ? 10 : 12;
+        const gapX = isMobile ? 8 : 12;
+        const gapY = isMobile ? 8 : 12;
         const panelW = (cssW - outerPad * 2 - gapX * (cols - 1)) / cols;
-        const panelAspect = isMobile ? 1.45 : 1.22;
+        const panelAspect = compactMobile ? 1.62 : (isMobile ? 1.38 : 1.22);
         const panelH = isMobile
-          ? Math.max(160, panelW / panelAspect)
+          ? Math.max(compactMobile ? 140 : 150, panelW / panelAspect)
           : panelW / panelAspect;
-        return { isMobile, cols, rows, outerPad, gapX, gapY, panelW, panelH };
+        return { isMobile, compactMobile, cols, rows, outerPad, gapX, gapY, panelW, panelH };
       }
 
       function resizeCanvas() {
@@ -657,9 +661,11 @@
         ctx.lineWidth = 2.0;
         ctx.strokeRect(left, top, panelW, panelH);
 
-        const plotPad = layout.isMobile
-          ? { l: 24, r: 10, t: 32, b: 22 }
-          : { l: 27, r: 11, t: 35, b: 22 };
+        const plotPad = layout.compactMobile
+          ? { l: 22, r: 8, t: 30, b: 20 }
+          : (layout.isMobile
+            ? { l: 24, r: 10, t: 32, b: 22 }
+            : { l: 27, r: 11, t: 35, b: 22 });
         const plotLeft = left + plotPad.l;
         const plotTop = top + plotPad.t;
         const plotW = panelW - plotPad.l - plotPad.r;
@@ -705,9 +711,10 @@
         const cloud = proc.states[frame];
         ctx.fillStyle = COLORS.cloud;
         ctx.globalAlpha = 0.9;
+        const cloudRadius = layout.compactMobile ? 1.2 : 1.5;
         for (const p of cloud) {
           ctx.beginPath();
-          ctx.arc(m.toX(p[0]), m.toY(p[1]), 1.5, 0, 2 * Math.PI);
+          ctx.arc(m.toX(p[0]), m.toY(p[1]), cloudRadius, 0, 2 * Math.PI);
           ctx.fill();
         }
         ctx.globalAlpha = 1.0;
@@ -760,13 +767,17 @@
 
         // Titles and labels
         ctx.fillStyle = COLORS.text;
-        ctx.font = "700 14px 'Space Grotesk', sans-serif";
+        ctx.font = layout.compactMobile
+          ? "700 12px 'Space Grotesk', sans-serif"
+          : "700 14px 'Space Grotesk', sans-serif";
         ctx.textAlign = "left";
         const titleX = left + 10;
         const titleY = top + 24;
         ctx.fillText(proc.name, titleX, titleY);
         const titleWidth = ctx.measureText(proc.name).width;
-        ctx.font = "500 11px 'Space Grotesk', sans-serif";
+        ctx.font = layout.compactMobile
+          ? "500 10px 'Space Grotesk', sans-serif"
+          : "500 11px 'Space Grotesk', sans-serif";
         const gapWidth = ctx.measureText("00000").width; // 5-character spacing
         ctx.fillText(proc.labels[frame], titleX + titleWidth + gapWidth, titleY);
 
@@ -776,7 +787,9 @@
         ctx.strokeStyle = COLORS.text;
         ctx.fillStyle = COLORS.text;
         ctx.lineWidth = 1.2;
-        ctx.font = "10px 'Times New Roman', serif";
+        ctx.font = layout.compactMobile
+          ? "9px 'Times New Roman', serif"
+          : "10px 'Times New Roman', serif";
 
         // bottom x-axis line
         ctx.beginPath();
