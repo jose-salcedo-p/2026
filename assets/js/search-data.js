@@ -94,17 +94,6 @@ ninja.data = [{
             window.location.href = "/2026/blog/2026/fans/";
           
         },
-      },{id: "post-effect-of-parallel-environments-and-rollout-steps-in-ppo",
-        
-          title: "Effect of Parallel Environments and Rollout Steps in PPO",
-        
-        description: "This blog post explores batch size in PPO-what happens when we increase the number of parallel environments versus the number of rollout steps, while keeping the total samples per update fixed. We discuss how this affects bias and variance in gradient estimation.",
-        section: "Posts",
-        handler: () => {
-          
-            window.location.href = "/2026/blog/2026/ppo-batch-size/";
-          
-        },
       },{id: "post-beyond-attention-as-a-graph",
         
           title: "Beyond Attention as a Graph",
@@ -1271,17 +1260,6 @@ ninja.data = [{
             window.location.href = "/2026/blog/2026/budget-alignment/";
           
         },
-      },{id: "post-boundlessness-overtaking-benchmarks-the-crisis-of-evaluating-ai-scientists",
-        
-          title: "Boundlessness Overtaking Benchmarks: The Crisis of Evaluating AI Scientists",
-        
-        description: "As AI systems begin drafting full research reports, our long-standing evaluation mindset is hitting its limits. We are used to benchmarking models on massive data sets with well-defined, comparable metrics. But modern AI-generated science is now judged on only a small number of long, open-ended research outputs, making traditional notions of generalization hard to verify. In the absence of standard evaluation frameworks, researchers find themselves creating case-specific evaluation criteria. This blog is a wake-up call, a look at how quickly LLM-based scientific agents are outgrowing our inherited evaluation paradigms, and why we must rethink our long-held assumptions to build rigorous and standardized ways of assessing this new form of AI-driven scientific work.",
-        section: "Posts",
-        handler: () => {
-          
-            window.location.href = "/2026/blog/2026/boundlessness-overtaking-benchmarks/";
-          
-        },
       },{id: "post-the-99-success-paradox-when-near-perfect-retrieval-equals-random-selection",
         
           title: "The 99% Success Paradox: When Near-Perfect Retrieval Equals Random Selection",
@@ -1346,6 +1324,17 @@ ninja.data = [{
         handler: () => {
           
             window.location.href = "/2026/blog/2026/a-human-centric-framework-for-debating-the-ethics-of-ai-consciousness-under-uncertainty/";
+          
+        },
+      },{id: "post-effect-of-parallel-environments-and-rollout-steps-in-ppo",
+        
+          title: "Effect of Parallel Environments and Rollout Steps in PPO",
+        
+        description: "This blog post explores batch size in PPO-what happens when we increase the number of parallel environments versus the number of rollout steps, while keeping the total samples per update fixed. We discuss how this affects bias and variance in gradient estimation.",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/2026/blog/2026/ppo-batch-size/";
           
         },
       },{id: "post-",
