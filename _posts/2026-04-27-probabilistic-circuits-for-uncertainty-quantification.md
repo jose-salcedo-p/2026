@@ -23,7 +23,16 @@ mermaid:
 
 # Anonymize when submitting
 authors:
-  - name: Anonymous
+  - name: Maternus Herold
+    url: https://www.linkedin.com/in/maternus-herold-5919b812b/
+    affiliations:
+        name: Research and Development, Hesos.ai
+        name: TransferLab, appliedAI Institute for Europe
+        name: Research and Innovation Center, BMW Group
+        name: Institute for Applied Mathematics and Scientific Computing University of the Bundeswehr Munich
+  - name: Konstantin Leonard Freiherr von Gaisberg-Helfenberg
+    url: https://www.linkedin.com/in/konstantin-von-gaisberg/
+    affiliations:
 
 # must be the exact same name as your blogpost
 bibliography: 2026-04-27-probabilistic-circuits-for-uncertainty-quantification.bib
