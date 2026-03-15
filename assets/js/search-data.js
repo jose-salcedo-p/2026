@@ -534,6 +534,17 @@ ninja.data = [{
             window.location.href = "/2026/blog/2026/pushing-meta-cl-methods/";
           
         },
+      },{id: "post-probabilistic-circuits-for-uncertainty-quantification",
+        
+          title: "Probabilistic Circuits for Uncertainty Quantification",
+        
+        description: "Deep learning models struggle with epistemic uncertainty quantification, often exhibiting blind confidence on out-of-distribution data. This work reviews Probabilistic Circuits (PCs) as a versatile framework for rigorous, tractable reasoning. PCs model the joint probability distribution and by enforcing structural constraints, specifically smoothness, decomposability, and determinism, they allow for the exact computation of marginals, conditionals, and moments in polynomial time without retraining. We discuss the suitability of PCs for Uncertainty Quantification, describing their advantages and highlighting their potential for tractable UQ in high-dimensional problems.",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/2026/blog/2026/probabilistic-circuits-for-uncertainty-quantification/";
+          
+        },
       },{id: "post-extracting-model-precision-from-20-logprobs",
         
           title: "Extracting Model Precision from 20 Logprobs",
@@ -1324,17 +1335,6 @@ ninja.data = [{
         handler: () => {
           
             window.location.href = "/2026/blog/2026/ppo-batch-size/";
-          
-        },
-      },{id: "post-",
-        
-          title: "",
-        
-        description: "",
-        section: "Posts",
-        handler: () => {
-          
-            window.location.href = "/2026/blog/2026/2026-04-27-probabilistic-circuits-for-uncertainty-quantification/";
           
         },
       },{id: "post-",
