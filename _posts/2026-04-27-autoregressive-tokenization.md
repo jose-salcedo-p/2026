@@ -221,7 +221,7 @@ We also vary the context length of the causal attention model, the number of nod
       class="img-fluid rounded z-depth-1"
   %}
   <div class="caption" style="text-align: center;">
-    Test loss as a function of context length for different token orderings across varying dataset and vocabulary sizes.
+    Test loss as a function of context length for different token orderings across varying dataset and vocabulary sizes. Error bars are calculated across two data seeds, two model training seeds, and two ordering seeds (for the "fixed random" and "random per-instance" ordering strategies).
   </div>
 </div>
 {% endcomment %}
