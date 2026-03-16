@@ -66,7 +66,7 @@ I think that it is a good definition, except for the "by injecting noise" part.
 Indeed, there is a paper that is literally called *Cold Diffusion: Inverting Arbitrary Image Transforms **Without Noise***<d-cite key="bansal2023cold"></d-cite> (emphasis mine), and calling "noise" the action of the `[MASK]` token in Mask Diffusion Language Models (MDLMs)<d-cite key="sahoo2024simple"></d-cite> is certainly debatable.
 For the sake of this blogpost, I will define generative diffusion models as follows.
 
-1. **Data distribution.** We have a training dataset sampled from a data distribution, and our goal is to generate new samples from the same data distribution. The only allowed "control mechanism" is *conditioning*.<d-footnote>Concretely, the condition can be specified as a predicate: a function accepting a data sample and returning either "true" or "false". When such a condition is provided, the model must only return samples for which the predicate returns "true", otherwise keeping the data distribution unaltered. Notice that this could be achieved by wrapping the model in a loop, and returning the first samples that passes the predicate check.</d-footnote>
+1. **Data distribution.** We have a training dataset sampled from a data distribution, and our goal is to generate new samples from the same data distribution. The only allowed "control mechanism" is *conditioning*.<d-footnote>Concretely, the condition can be specified as a predicate: a function accepting a data sample and returning either "true" or "false". When such a condition is provided, the model must only return samples for which the predicate returns "true", otherwise keeping the data distribution unaltered. Notice that this filtering could be achieved by wrapping the model in a loop, and returning the first samples that passes the predicate check. More generally, the same argument holds for stochastic (leaky) filters.</d-footnote>
 
 2. **Destroying process.** We also have access to a procedure that can gradually destroy the information in data samples. This procedure **may** involve randomness. Like the training dataset, this procedure if fully specified *a priori*, before any training takes place.
 
@@ -115,7 +115,7 @@ Moreover, while diffusion may beat our vanilla information-withholding approache
 
 This takes me to the last point of this blogpost's thesis: if all incarnations of the tried-and-true "information withholding" machine learning technique can (and perhaps should) be related to diffusion, what other techniques are left?
 And could we improve upon diffusion by learning from them?
-The first answers that come to my mind are "anything that involves exploration,"<d-footnote>Here by "exploration" I roughly mean "trying things": whenever "frozen accidents" could induce path dependences the details of the model's training history.</d-footnote> and "yes, probably."
+The first answers that come to my mind are "anything that involves exploration,"<d-footnote>Here by "exploration" I roughly mean "trying things": whenever "frozen accidents" could induce path dependences in the details of the model's training history.</d-footnote> and "yes, probably."
 
 The archetypal technique involving exploration is Reinforcement Learning (RL).
 Whereas pure generative models solely learn from a training dataset -- striving to generate new samples from the exact same data distribution -- RL models strive for a different, "better" distribution.
@@ -404,7 +404,7 @@ However, the newly generated information (masking order) is also destroyed by th
 In the end, we still get a singleton: all information is eventually destroyed.
 
 The point I'm trying to make here is that `MashOneRandomUnmaskedToken` is a richer approach to "divide and conquer" than `MashLastToken` was.
-It is more "organic" in a similar sense that mixing milk in coffee is "organic": it's a mess, a *rich* mess.<d-footnote>Further notice that this diagram used less Alice messages than the one I showed in the autoregressive case.</d-footnote>
+It is more "organic" in a similar sense that mixing milk in coffee is "organic": it's a mess, a *rich* mess.<d-footnote>Further notice that this diagram used less Alice messages than the one I showed in the autoregressive case: the picture is a bigger mess despite me showing less details.</d-footnote>
 We can train a model to `GuessOneRandomMaskToken` on that mess, and yes, I could excuse it to train slower than `GuessNextToken`, because `GuessNextToken` is a subset of what `GuessOneRandomMaskToken` is learning.
 Let me make it explicit.
 
@@ -521,7 +521,7 @@ B' = \sqrt{\alpha_B} A'  + \sqrt{1 - \alpha_B} Z', \quad C' = \sqrt{\alpha_C} A'
 $$
 
 given appropriate $1 = \alpha_A \ge \alpha_B \ge \alpha_C \ge \cdots \ge \alpha_Z = 0$.
-Below is a diagram showing the Markovian approach on the top-right and the non-Markovian one on the bottom-left.
+Below is a diagram showing the Markovian approach on the top and the non-Markovian one on the bottom.
 
 {% include figure.liquid path="assets/img/2026-04-27-destruction/NotMarkov.png" class="img-fluid" %}
 
@@ -536,6 +536,16 @@ I represent such information-preserving back-and-forth conversions using bidirec
 Projecting $B' \times Z'$ to $B'$ destroys information about $Z'$ and, without it, we cannot get back to $A'$: this projection destroys information about $A'$.
 We may thus train a `GuessNoise` model to use $B'$ to predict the "missing noise" $Z''$, with the intent to obtain a $B' \times Z''$ whose distribution matches $B' \times Z'$.
 Equation (14) from DDPM<d-cite key="ho2020denoising"></d-cite> learns such denoising functions.
+
+If $\alpha_Y$ is sufficiently close to zero, we may approximately sample $Y'$ by using instead the known distribution for $Z$, then use `GuessNoise` to predict $Y'\times Z'''''$.
+Now, if that $Y'\times Z'''''$ were "perfect", we could move horizontally all the way to $A'\times Z'''''$ by doing some algebra with $Y' = \sqrt{\alpha_Y} A'  + \sqrt{1 - \alpha_Y} Z'$.
+However, approximations were involved, and we would amplify them by dividing by $\alpha_Y$ (which we just required to be close to zero).
+So we do this more gradually: shift horizontally to $X'\times Z'''''$, project up to $X'$, use `GuessNoise` to predict $X'\times Z''''$, shift horizontally to $W'\times Z''''$, *etc.*, up to Alice.<d-footnote>Of course, one may also skip some steps and trade quality for speed\ldots</d-footnote>
+
+Some readers may have seen multiple expositions and/or tutorials as to what DDPM is doing, and I bet that none of them looked like the above.
+There are some quite subtle things happening here, and they are difficult to convey accurately through text.
+I believe that diagrams such as the above enable accurate, concise, and approachable expositions.<d-footnote>For similar reasons, this blogpost purposefully avoids terms such as "forward process", "reverse process", or other time-related analogies, which usually abound in diffusion works. I find data processing stories about destruction and generation of information to be easier to follow than time-travel ones.</d-footnote>
+What do you think?
 
 
 ## About the Diagrams
