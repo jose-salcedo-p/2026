@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Langevin Diagram - Brutalist</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['\\(', '\\)']],
+                displayMath: [['\\[', '\\]']]
+            },
+            options: {
+                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+            },
+            startup: {
+                pageReady: () => {
+                    return MathJax.startup.defaultPageReady();
+                }
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    <style>
+        :root {
+            color-scheme: light;
+            --bg-dark: #FFFFFF;
+            --fg-dark: #000000;
+            --accent-neon: #00B300;
+            --shadow-color: #000000;
+            --forward-color: var(--fg-dark);
+            --reverse-color: var(--fg-dark);
+        }
+
+        html[data-theme="dark"] {
+            color-scheme: dark;
+            --bg-dark: #000000;
+            --fg-dark: #FFFFFF;
+            --accent-neon: #00FF00;
+            --shadow-color: #00FF00;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--fg-dark);
+            font-family: "Inter", sans-serif;
+            margin: 0;
+            padding: 22px 14px;
+        }
+
+        .wrap {
+            max-width: 980px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--bg-dark);
+            border: 2px solid var(--fg-dark);
+            border-radius: 4px;
+            box-shadow: 4px 4px 0 0 var(--shadow-color);
+            padding: 14px 14px 12px;
+        }
+
+        .content-column {
+            max-width: 880px;
+            margin: 0 auto;
+        }
+
+        .section-divider {
+            border: 0;
+            border-top: 1px solid var(--fg-dark);
+            margin: 12px 0;
+        }
+
+        .title {
+            margin: 0;
+            color: var(--fg-dark);
+            font-family: "Space Grotesk", sans-serif;
+            line-height: 1.25;
+        }
+
+        .title-kicker {
+            display: block;
+            font-size: 18px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .title-main {
+            display: block;
+            margin-top: 8px;
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: 0.01em;
+            text-transform: none;
+        }
+
+        .explanation {
+            margin: 0;
+            color: var(--fg-dark);
+            font-family: "Space Grotesk", sans-serif;
+            font-size: 20px;  /* 桌面：改这里 */
+            font-weight: 500;
+            letter-spacing: 0.005em;
+            line-height: 1.6;
+            text-align: left;
+        }
+
+        .explanation + .explanation {
+            margin-top: 0.5rem;
+        }
+
+        .title .accent,
+        .explanation .accent {
+            color: var(--accent-neon);
+        }
+
+        .diagram-section {
+            padding: 4px 0;
+            margin-top: 12px;
+        }
+
+        .text-section {
+            margin-top: 6px;
+            border: none;
+            box-shadow: none;
+            border-radius: 0;
+            padding: 14px 16px 14px 0;
+        }
+
+        .langevin-diagram-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 880px;
+            aspect-ratio: 600 / 300;
+            margin: 0 auto;
+            border: 2px solid var(--fg-dark);
+            box-shadow: none;
+        }
+
+        svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        /* Marker definitions */
+        #arrow-forward, #arrow-reverse, #arrow-langevin {
+            marker-end: url(#arrow-head);
+        }
+
+        #arrow-head polygon {
+            fill: var(--fg-dark); /* White arrow heads */
+        }
+
+        /* Arrows */
+        path {
+            stroke-width: 3;
+        }
+
+        .arrow-forward-path {
+            stroke: var(--forward-color);
+            marker-end: url(#arrow-forward-head);
+        }
+
+        .arrow-reverse-path {
+            stroke: var(--reverse-color);
+            marker-end: url(#arrow-reverse-head);
+        }
+
+        .arrow-langevin-path {
+            stroke: var(--accent-neon); /* Neon green for Langevin Dynamics */
+            stroke-width: 4;
+            marker-end: url(#arrow-langevin-head);
+        }
+
+        /* Arrow Labels */
+        .arrow-label {
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+        }
+
+        .label-forward {
+            fill: var(--forward-color);
+        }
+
+        .label-reverse {
+            fill: var(--reverse-color);
+        }
+
+        .label-langevin {
+            fill: var(--accent-neon); /* Neon green label */
+        }
+
+
+        /* Nodes */
+        .node {
+            position: absolute;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-dark); /* Black background for nodes */
+            border: 2px solid var(--fg-dark); /* White border */
+            box-shadow: 3px 3px 0 0 var(--shadow-color);
+            border-radius: 0px; /* Sharp corners */
+            font-size: 1.2rem;
+            z-index: 10;
+            padding: 5px 10px; /* Add some padding */
+        }
+
+        /* Specific node positioning, adjust if needed */
+        .node-pt-left {
+            left: 8.33%;
+            top: 10.9%;
+            width: 20%;
+            height: 15.6%;
+        }
+
+        .node-pt-right {
+            left: 71.66%;
+            top: 10.9%;
+            width: 20%;
+            height: 15.6%;
+        }
+
+        .node-pt-delta-t {
+            left: 38.33%;
+            top: 70%;
+            width: 23.33%;
+            height: 15.6%;
+        }
+
+        .math-label {
+            color: var(--fg-dark);
+            font-family: "Space Grotesk", sans-serif;
+            font-weight: 600;
+            letter-spacing: 0.01em;
+            margin: 0;
+            line-height: 1;
+        }
+
+        .math-label sub {
+            font-size: 0.65em;
+            vertical-align: -0.3em;
+        }
+
+        /* MathJax output: match brutalist theme */
+        .node mjx-container {
+            color: var(--fg-dark) !important;
+            font-size: 1.2rem !important;
+        }
+        .node mjx-container[jax="CHTML"] {
+            font-family: "Space Grotesk", sans-serif !important;
+        }
+        .node mjx-container[jax="CHTML"] mjx-math {
+            font-weight: 600;
+            letter-spacing: 0.01em;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 12px 8px;
+            }
+
+            .panel {
+                padding: 12px 10px 10px;
+            }
+
+            .title-kicker {
+                font-size: 19px;
+            }
+
+            .title-main {
+                font-size: 16px;
+                margin-top: 6px;
+            }
+
+            .explanation {
+                font-size: 14px;  /* 小屏 ≤768px：改这里，否则会覆盖上面的字号 */
+                line-height: 1.6;
+            }
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="wrap">
+    <section class="panel">
+        <div class="content-column">
+        <h2 class="title">
+            <span class="title-kicker">CENTRAL INSIGHT</span>
+            <span class="title-main">The Langevin perspective reveals a fundamental <strong class="accent">triangular</strong> relationship.</span>
+        </h2>
+
+        <div class="diagram-section">
+            <div class="langevin-diagram-wrapper">
+                <svg viewBox="0 0 600 320">
+                    <defs>
+                        <marker id="arrow-forward-head" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="var(--forward-color)" />
+                        </marker>
+                        <marker id="arrow-reverse-head" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="var(--reverse-color)" />
+                        </marker>
+                        <marker id="arrow-langevin-head" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="var(--accent-neon)" />
+                        </marker>
+                    </defs>
+
+                    <!-- Arrows -->
+                    <path class="arrow-forward-path" d="M 110 95 C 128 154, 191 198, 214 221" fill="none" />
+                    <path class="arrow-reverse-path" d="M 386 221 C 409 198, 472 154, 490 95" fill="none" />
+                    <path class="arrow-langevin-path" d="M 180 60 L 440 60" fill="none" />
+
+                    <!-- Arrow Labels -->
+                    <text x="140" y="190" class="arrow-label label-forward" text-anchor="end">Forward Process</text>
+                    <text x="460" y="190" class="arrow-label label-reverse" text-anchor="start">Reverse Process</text>
+                    <text x="310" y="32" class="arrow-label label-langevin" text-anchor="middle" letter-spacing="0.5">Langevin Dynamics (Identity)</text>
+                </svg>
+
+                <!-- Nodes: LaTeX rendered by MathJax (same as Distill) -->
+                <div class="node node-pt-left">
+                    <p class="math-label">\( p_t(\mathbf{x}) \)</p>
+                </div>
+
+                <div class="node node-pt-right">
+                    <p class="math-label">\( p_t(\mathbf{x}) \)</p>
+                </div>
+
+                <div class="node node-pt-delta-t">
+                    <p class="math-label">\( p_{t+\Delta t}(\mathbf{x}) \)</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-section">
+            <p class="explanation">
+                This illustrates that the forward and reverse diffusion steps are simply a <strong class="accent">SPLIT</strong> of a single step of Langevin dynamics.
+            </p>
+            <p class="explanation">
+                Langevin dynamics is an <strong class="accent">IDENTITY</strong> map on distributions, the forward and reverse diffusion steps are <strong class="accent">INVERSES</strong> of each other at the distribution level.
+            </p>
+        </div>
+        </div>
+    </section>
+</div>
+<script>
+    (function () {
+        var rootEl = document.documentElement;
+        var themeMediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+
+        function applySystemTheme() {
+            rootEl.setAttribute("data-theme", themeMediaQuery.matches ? "dark" : "light");
+        }
+
+        applySystemTheme();
+
+        if (typeof themeMediaQuery.addEventListener === "function") {
+            themeMediaQuery.addEventListener("change", applySystemTheme);
+        } else if (typeof themeMediaQuery.addListener === "function") {
+            themeMediaQuery.addListener(applySystemTheme);
+        }
+    })();
+</script>
+</body>
+</html>
