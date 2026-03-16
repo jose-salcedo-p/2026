@@ -404,7 +404,7 @@ However, the newly generated information (masking order) is also destroyed by th
 In the end, we still get a singleton: all information is eventually destroyed.
 
 The point I'm trying to make here is that `MashOneRandomUnmaskedToken` is a richer approach to "divide and conquer" than `MashLastToken` was.
-It is more "organic" in a similar sense that mixing milk in coffee is "organic": it's a mess, a *rich* mess.<d-footnote>Further notice that this diagram used less Alice messages than the one I showed in the autoregressive case: the picture is a bigger mess despite me showing less details.</d-footnote>
+It is more "organic" in a similar sense to how mixing milk in coffee is "organic": it's a mess, a *rich* mess.<d-footnote>Further notice that this diagram used less Alice messages than the one I showed in the autoregressive case: the picture is a bigger mess despite me showing less details.</d-footnote>
 We can train a model to `GuessOneRandomMaskToken` on that mess, and yes, I could excuse it to train slower than `GuessNextToken`, because `GuessNextToken` is a subset of what `GuessOneRandomMaskToken` is learning.
 Let me make it explicit.
 
@@ -419,7 +419,7 @@ In the scenario where we're data-starved, but we can train for as long as we wis
 In the previous section, we saw that both autoregressive language models and mask diffusion language models learn to mimic Alice's message distribution by iteratively `Mash`ing them toward a singleton, reaching a state with no information about anything, thus no information about Alice.
 Here we consider the other leading approach to destroying Alice's message: drowning it into irrelevant information.
 
-This mechanism, which I call `Shuffle`, may be more aligned with the historic/physical meaning of the word "diffusion".<d-footnote>In other words, while I expect that some readers could say that `Mash` isn't "real" diffusion, I don't have the same worry for `Shuffle`.</d-footnote>
+This mechanism, which I call `Shuffle`, may align better with the historic/physical meaning of the word "diffusion".<d-footnote>In other words, while I expect that some readers could say that `Mash` isn't "real" diffusion, I don't have the same worry for `Shuffle`.</d-footnote>
 Whereas `Mash` *may* generate information (*e.g*., masking order) but will eventually destroy everything to a singleton, `Shuffle` *must* generate new information to be folded into Alice's message, drowning it in the noise.
 
 {% include figure.liquid path="assets/img/2026-04-27-destruction/A012_Shuffle_B012.png" class="img-fluid" %}
@@ -495,9 +495,9 @@ For the rest of this section, let's quickly consider what "shuffling" means in c
 Suppose Alice's message is a $w \times h \times 3$ tensor of real numbers in the $[-1,1]$ interval representing an RGB picture of $w$ pixels wide by $h$ pixels high.
 We may define the `GaussianShuffle(δ)` communication channel such that it adds independent Gaussian noise (with mean $0$ and variance $0 < \delta \ll 1$) to each entry of this tensor.
 
-This channel generates (irrelevant) information: for a given message from Alice, there are many possible options for what Bob may receive; arrows branching out means that information is generated.
+This channel generates (irrelevant) information: for a given message from Alice, there are many possible options for what Bob may receive; arrows branching out mean that information is generated.
 But the channel also destroys information: there are many messages that Alice could have said that may explain a given message received by Bob; arrows converging in mean that information is destroyed.
-As for `Shuffle`, `GaussianShuffle(δ)` destroys information about Alice's message by generating irrelevant information and folding it into limited space.<d-footnote>The story is a bit more complex here because, in a strict mathematical sense, specifying a single real number requires an infinite amount of information. One can work around this by considering differential entropy instead of entropy. However, for computer science applications, there is a much simpler resolution: these "real" numbers are represented as discrete data types. Concretely, a `float32` is really a discrete variable that may take one of $2^{32}$ values, thus capturing at most 32 bits of information.</d-footnote>
+As for `Shuffle`, `GaussianShuffle(δ)` destroys information about Alice's message by generating irrelevant information and folding it into limited space.<d-footnote>The story is a bit more complex here because, in a strict mathematical sense, specifying a single real number requires an infinite amount of information. One can work around this by considering differential entropy instead of entropy. However, for practical computer science applications, there is a much simpler resolution: these "real" numbers are represented as discrete data types. Concretely, a `float32` is really a discrete variable that may take one of $2^{32}$ values, thus capturing at most 32 bits of information.</d-footnote>
 
 The impact of $n$ repeated independent applications of `GaussianShuffle(δ)` is a single "bigger" `GaussianShuffle(n*δ)`.<d-footnote>Recall that the convolution of two Gaussians is a Gaussian whose mean and variance is the sum of their respective means and variances.</d-footnote>
 Similarly to how we approximated Zalgo as a uniform distribution earlier, we can choose an $n$ that is high enough so that the outcome of applying `GaussianShuffle(n*δ)` on any image is basically an $w \times h \times 3$ Gaussian with mean zero and variance $n\delta$, *i.e.*, no dependency worth mentioning on the actual image.
