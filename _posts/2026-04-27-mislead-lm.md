@@ -329,6 +329,8 @@ The official codebase of the paper doesn’t contain the SFT logic that was used
 
 ## 4. Appendix
 
+### Code
+Code for replicating our experimental runs is located [here](https://https://github.com/basebala/MisleadTRL/tree/master)<d-cite key="misleadtrl"></d-cite> 
 ### Evaluating cut paragraph sufficiency
 ```
 SYSTEM:
