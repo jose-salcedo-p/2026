@@ -1,0 +1,1038 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reverse Processes Interactive</title>
+  <style>
+    @font-face {
+      font-family: "Anton";
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+      src: url("./assets/fonts/Anton-400.ttf") format("truetype");
+    }
+    @font-face {
+      font-family: "Space Grotesk";
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+      src: url("./assets/fonts/SpaceGrotesk-400.ttf") format("truetype");
+    }
+    @font-face {
+      font-family: "Space Grotesk";
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url("./assets/fonts/SpaceGrotesk-500.ttf") format("truetype");
+    }
+    @font-face {
+      font-family: "Space Grotesk";
+      font-style: normal;
+      font-weight: 700;
+      font-display: swap;
+      src: url("./assets/fonts/SpaceGrotesk-700.ttf") format("truetype");
+    }
+
+    :root {
+      color-scheme: light;
+      --neon-green: #00ff00;
+      --brutal-black: #000000;
+      --gallery-white: #ffffff;
+      --grid-line: rgba(0, 0, 0, 0.16);
+      --btn-primary-text: #000000;
+      --font-display: 'Anton', sans-serif;
+      --font-body: 'Space Grotesk', sans-serif;
+      --font-serif: 'Times New Roman', Times, serif;
+    }
+
+    html[data-theme="dark"] {
+      color-scheme: dark;
+      --neon-green: #00ff00;
+      --brutal-black: #ffffff;
+      --gallery-white: #000000;
+      --grid-line: rgba(255, 255, 255, 0.15);
+      --btn-primary-text: #000000;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 22px 14px;
+      background: var(--gallery-white);
+      color: var(--brutal-black);
+      font-family: var(--font-serif);
+    }
+
+    .wrap {
+      max-width: 780px;
+      margin: 0 auto;
+      background: var(--gallery-white);
+      border: 2px solid var(--brutal-black);
+      box-shadow: 4px 4px 0 0 var(--brutal-black);
+      padding: 14px 14px 11px;
+    }
+
+    .title {
+      margin: 0 0 8px;
+      font-family: var(--font-body);
+      font-size: 24px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      line-height: 1.05;
+      color: var(--brutal-black);
+    }
+
+    .desc {
+      margin: 0 0 10px;
+      font-family: var(--font-body);
+      font-size: 16px;
+      font-weight: 500;
+      line-height: 1.4;
+      color: var(--brutal-black);
+      max-width: 1260px;
+    }
+
+    .control-panel {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+      padding: 6px 8px;
+      background: var(--gallery-white);
+      border: 2px solid var(--brutal-black);
+    }
+
+    .btn {
+      border: 2px solid var(--brutal-black);
+      border-radius: 999px;
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      background: var(--gallery-white);
+      color: var(--brutal-black);
+      box-shadow: 3px 3px 0 0 var(--brutal-black);
+    }
+
+    .btn:hover {
+      transform: translate(2px, 2px);
+      box-shadow: 0 0 0 0 var(--brutal-black);
+    }
+
+    .btn svg {
+      width: 13px;
+      height: 13px;
+      fill: currentColor;
+    }
+
+    .btn-primary {
+      background: var(--neon-green);
+      border-color: var(--brutal-black);
+      color: var(--btn-primary-text);
+    }
+
+    .slider-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 1;
+      min-width: 224px;
+    }
+
+    .slider-label {
+      font-size: 13px;
+      color: var(--brutal-black);
+      white-space: nowrap;
+      font-family: var(--font-body);
+      font-weight: 600;
+    }
+
+    input[type="range"] {
+      flex: 1;
+      height: 5px;
+      background: var(--brutal-black);
+      border-radius: 999px;
+      -webkit-appearance: none;
+      appearance: none;
+      outline: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--neon-green);
+      border: 2px solid var(--brutal-black);
+      cursor: pointer;
+      box-shadow: 0 0 0 2px var(--gallery-white);
+    }
+
+    input[type="range"]::-moz-range-thumb {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--neon-green);
+      border: 2px solid var(--brutal-black);
+      cursor: pointer;
+      box-shadow: 0 0 0 2px var(--gallery-white);
+    }
+
+    .mono {
+      font-family: var(--font-serif);
+      font-size: 14px;
+      color: var(--brutal-black);
+      min-width: 58px;
+    }
+
+    .title,
+    .desc,
+    .slider-label,
+    .mono {
+      transition: none !important;
+    }
+    @media (max-width: 900px) {
+      body { padding: 11px 6px; }
+      .wrap { padding: 10px 8px 8px; }
+      .title { font-size: 18px; }
+      .desc { font-size: 13px; line-height: 1.35; }
+      .control-panel { gap: 8px; padding: 8px; }
+      .btn { width: 30px; height: 30px; }
+      .slider-wrap { min-width: 128px; }
+      .mono { min-width: 52px; font-size: 11px; }
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      border: 2px solid var(--brutal-black);
+      background: var(--gallery-white);
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h2 class="title">Reverse Processes: VP-SDE / VP-ODE / VE / Rectified Flow</h2>
+    <p class="desc">Reverse trajectories starting from noisy samples under the four reverse-process parameterizations.</p>
+
+    <div class="control-panel">
+      <button class="btn btn-primary" id="play" title="Play">
+        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
+      </button>
+      <button class="btn" id="pause" title="Pause">
+        <svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" /></svg>
+      </button>
+      <button class="btn" id="reset" title="Reset">
+        <svg viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z" /></svg>
+      </button>
+      <div class="slider-wrap">
+        <span class="slider-label">Frame</span>
+        <input id="frameSlider" type="range" min="0" max="0" value="0" />
+      </div>
+      <span class="mono" id="frameLabel">frame 0</span>
+    </div>
+
+    <canvas id="cv" width="736" height="412"></canvas>
+  </div>
+
+  <script>
+    (() => {
+      const CHI2_QUANTILE_DF2_80 = -2.0 * Math.log(1.0 - 0.80);
+      const ENVELOPE_POINTS = 181;
+      const ENVELOPE_HISTORY_ALPHA = 0.08;
+      const DEFAULT_TRACE_TARGET = [0.0, 1.0];
+      const TRACE_TARGETS = {
+        "VE-Karras": [-2.0, 0.0],
+      };
+
+      const COLORS = {
+        cloud: "#00FF00",
+        path: "#000000",
+        envelope: "#000000",
+        text: "#000000",
+        bg: "#FFFFFF",
+        grid: "rgba(0,0,0,0.16)",
+      };
+
+      function cssVar(name, fallback) {
+        const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+        return v || fallback;
+      }
+
+      function syncCanvasColorsFromCss() {
+        COLORS.cloud = cssVar("--neon-green", COLORS.cloud);
+        COLORS.path = cssVar("--brutal-black", COLORS.path);
+        COLORS.envelope = cssVar("--brutal-black", COLORS.envelope);
+        COLORS.text = cssVar("--brutal-black", COLORS.text);
+        COLORS.bg = cssVar("--gallery-white", COLORS.bg);
+        COLORS.grid = cssVar("--grid-line", COLORS.grid);
+      }
+
+      const params = {
+        nPaths: 160,
+        nSteps: 160,
+        seed: 20260300,
+        tMax: -Math.log(1.0e-3),
+        sigmaMax: 10.0,
+        sMax: 0.999,
+        x0: [10.0, 0.0],
+        veDynamicLimits: false,
+      };
+
+      const UNIT_CIRCLE = (() => {
+        const out = [];
+        for (let i = 0; i < ENVELOPE_POINTS; i++) {
+          const th = (2.0 * Math.PI * i) / (ENVELOPE_POINTS - 1);
+          out.push([Math.cos(th), Math.sin(th)]);
+        }
+        return out;
+      })();
+
+      function linspace(start, end, n) {
+        if (n <= 1) return [start];
+        const arr = new Array(n);
+        const step = (end - start) / (n - 1);
+        for (let i = 0; i < n; i++) arr[i] = start + i * step;
+        return arr;
+      }
+
+      function mulberry32(seed) {
+        let t = seed >>> 0;
+        return function () {
+          t += 0x6d2b79f5;
+          let r = Math.imul(t ^ (t >>> 15), 1 | t);
+          r ^= r + Math.imul(r ^ (r >>> 7), 61 | r);
+          return ((r ^ (r >>> 14)) >>> 0) / 4294967296;
+        };
+      }
+
+      function randn(rng) {
+        let u = 0;
+        let v = 0;
+        while (u === 0) u = rng();
+        while (v === 0) v = rng();
+        return Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+      }
+
+      function distributionMeanAndVariance(name, value, x0) {
+        if (name === "VP") {
+          const alpha = Math.exp(-value);
+          return {
+            mean: [Math.sqrt(alpha) * x0[0], Math.sqrt(alpha) * x0[1]],
+            variance: 1.0 - alpha,
+          };
+        }
+        if (name === "VE-Karras") {
+          return {
+            mean: [x0[0], x0[1]],
+            variance: value * value,
+          };
+        }
+        return {
+          mean: [(1.0 - value) * x0[0], (1.0 - value) * x0[1]],
+          variance: value * value,
+        };
+      }
+
+      function sampleTerminalDistribution(name, terminalValue, x0, nPaths, rng) {
+        const mv = distributionMeanAndVariance(name, terminalValue, x0);
+        const out = new Array(nPaths);
+        const std = Math.sqrt(Math.max(mv.variance, 0.0));
+        for (let p = 0; p < nPaths; p++) {
+          out[p] = [
+            mv.mean[0] + std * randn(rng),
+            mv.mean[1] + std * randn(rng),
+          ];
+        }
+        return out;
+      }
+
+      function promoteTracedSample(name, samples) {
+        const target = TRACE_TARGETS[name] || DEFAULT_TRACE_TARGET;
+        let bestIdx = 0;
+        let bestDist = Infinity;
+        for (let i = 0; i < samples.length; i++) {
+          const dx = samples[i][0] - target[0];
+          const dy = samples[i][1] - target[1];
+          const d = dx * dx + dy * dy;
+          if (d < bestDist) {
+            bestDist = d;
+            bestIdx = i;
+          }
+        }
+        if (bestIdx === 0) return samples;
+        const reordered = samples.slice();
+        const tmp = reordered[0];
+        reordered[0] = reordered[bestIdx];
+        reordered[bestIdx] = tmp;
+        return reordered;
+      }
+
+      function simulateReverseVPSDE(x0, nPaths, nSteps, tMax, rng) {
+        const reverseTimes = linspace(0.0, tMax, nSteps);
+        const forwardTimes = reverseTimes.map((v) => tMax - v);
+        const states = new Array(nSteps);
+        states[0] = promoteTracedSample(
+          "VP-SDE",
+          sampleTerminalDistribution("VP", tMax, x0, nPaths, rng)
+        );
+
+        for (let k = 0; k < nSteps - 1; k++) {
+          const tHi = forwardTimes[k];
+          const tLo = forwardTimes[k + 1];
+          const deltaT = tHi - tLo;
+
+          const alphaHi = Math.exp(-tHi);
+          const alphaLo = Math.exp(-tLo);
+          const semigroup = Math.exp(-0.5 * deltaT);
+          const oneMinusSemigroupSq = 1.0 - semigroup * semigroup;
+          const denom = Math.max(1.0 - alphaHi, 1.0e-12);
+
+          const coefX0 = Math.sqrt(alphaLo) * oneMinusSemigroupSq / denom;
+          const coefXt = semigroup * (1.0 - alphaLo) / denom;
+          const posteriorVariance = (1.0 - alphaLo) * oneMinusSemigroupSq / denom;
+
+          states[k + 1] = new Array(nPaths);
+          for (let p = 0; p < nPaths; p++) {
+            const meanX = coefX0 * x0[0] + coefXt * states[k][p][0];
+            const meanY = coefX0 * x0[1] + coefXt * states[k][p][1];
+            if (posteriorVariance <= 1.0e-12) {
+              states[k + 1][p] = [meanX, meanY];
+            } else {
+              const std = Math.sqrt(posteriorVariance);
+              states[k + 1][p] = [meanX + std * randn(rng), meanY + std * randn(rng)];
+            }
+          }
+        }
+        return { reverseGrid: reverseTimes, states };
+      }
+
+      function simulateReverseVPODE(x0, nPaths, nSteps, tMax, rng) {
+        const reverseTimes = linspace(0.0, tMax, nSteps);
+        const forwardTimes = reverseTimes.map((v) => tMax - v);
+        const states = new Array(nSteps);
+        states[0] = promoteTracedSample(
+          "VP-ODE",
+          sampleTerminalDistribution("VP", tMax, x0, nPaths, rng)
+        );
+
+        for (let k = 0; k < nSteps - 1; k++) {
+          const tHi = forwardTimes[k];
+          const tLo = forwardTimes[k + 1];
+          const alphaHi = Math.exp(-tHi);
+          const alphaLo = Math.exp(-tLo);
+          const meanHi = [Math.sqrt(alphaHi) * x0[0], Math.sqrt(alphaHi) * x0[1]];
+          const meanLo = [Math.sqrt(alphaLo) * x0[0], Math.sqrt(alphaLo) * x0[1]];
+
+          states[k + 1] = new Array(nPaths);
+          if (1.0 - alphaHi <= 1.0e-12) {
+            for (let p = 0; p < nPaths; p++) states[k + 1][p] = [meanLo[0], meanLo[1]];
+            continue;
+          }
+          const shrink = Math.sqrt((1.0 - alphaLo) / (1.0 - alphaHi));
+          for (let p = 0; p < nPaths; p++) {
+            states[k + 1][p] = [
+              meanLo[0] + shrink * (states[k][p][0] - meanHi[0]),
+              meanLo[1] + shrink * (states[k][p][1] - meanHi[1]),
+            ];
+          }
+        }
+        return { reverseGrid: reverseTimes, states };
+      }
+
+      function simulateReverseVEKarras(x0, nPaths, nSteps, sigmaMax, rng) {
+        const reverseSigmas = linspace(0.0, sigmaMax, nSteps);
+        const remainingSigmas = reverseSigmas.map((v) => sigmaMax - v);
+        const states = new Array(nSteps);
+        states[0] = promoteTracedSample(
+          "VE-Karras",
+          sampleTerminalDistribution("VE-Karras", sigmaMax, x0, nPaths, rng)
+        );
+
+        for (let k = 0; k < nSteps - 1; k++) {
+          const sigmaCurrent = remainingSigmas[k];
+          const sigmaNext = remainingSigmas[k + 1];
+          states[k + 1] = new Array(nPaths);
+          if (sigmaCurrent <= 1.0e-12) {
+            for (let p = 0; p < nPaths; p++) states[k + 1][p] = [x0[0], x0[1]];
+            continue;
+          }
+          const ratio = sigmaNext / sigmaCurrent;
+          for (let p = 0; p < nPaths; p++) {
+            states[k + 1][p] = [
+              x0[0] + ratio * (states[k][p][0] - x0[0]),
+              x0[1] + ratio * (states[k][p][1] - x0[1]),
+            ];
+          }
+        }
+        return { reverseGrid: reverseSigmas, states };
+      }
+
+      function simulateReverseRectifiedFlow(x0, nPaths, nSteps, sMax, rng) {
+        const reverseS = linspace(0.0, sMax, nSteps);
+        const remainingS = reverseS.map((v) => sMax - v);
+        const states = new Array(nSteps);
+        states[0] = promoteTracedSample(
+          "Rectified flow",
+          sampleTerminalDistribution("Rectified flow", sMax, x0, nPaths, rng)
+        );
+
+        for (let k = 0; k < nSteps - 1; k++) {
+          const sCurrent = remainingS[k];
+          const sNext = remainingS[k + 1];
+          states[k + 1] = new Array(nPaths);
+          if (sCurrent <= 1.0e-12) {
+            for (let p = 0; p < nPaths; p++) states[k + 1][p] = [x0[0], x0[1]];
+            continue;
+          }
+          const ratio = sNext / sCurrent;
+          for (let p = 0; p < nPaths; p++) {
+            states[k + 1][p] = [
+              x0[0] + ratio * (states[k][p][0] - x0[0]),
+              x0[1] + ratio * (states[k][p][1] - x0[1]),
+            ];
+          }
+        }
+        return { reverseGrid: reverseS, states };
+      }
+
+      function canonicalProcessName(name) {
+        if (name === "VP-SDE" || name === "VP-ODE") return "VP";
+        return name;
+      }
+
+      function formatParameter(name, value) {
+        if (name === "VP") {
+          const alpha = Math.exp(-value);
+          return `alpha = ${alpha.toFixed(3)}`;
+        }
+        if (name === "VE-Karras") return `sigma = ${value.toFixed(3)}`;
+        return `s = ${value.toFixed(3)}`;
+      }
+
+      function reverseEnvelopeCurves(name, grid, x0) {
+        const canonical = canonicalProcessName(name);
+        const envelopes = new Array(grid.length);
+        for (let i = 0; i < grid.length; i++) {
+          const mv = distributionMeanAndVariance(canonical, grid[i], x0);
+          const r = Math.sqrt(Math.max(mv.variance, 0.0) * CHI2_QUANTILE_DF2_80);
+          const curve = new Array(ENVELOPE_POINTS);
+          for (let j = 0; j < ENVELOPE_POINTS; j++) {
+            curve[j] = [
+              mv.mean[0] + r * UNIT_CIRCLE[j][0],
+              mv.mean[1] + r * UNIT_CIRCLE[j][1],
+            ];
+          }
+          envelopes[i] = curve;
+        }
+        return envelopes;
+      }
+
+      function computeGlobalLimits(processes) {
+        const focused = processes.filter((p) => p.name === "VP-SDE" || p.name === "Rectified flow");
+        const forLimits = focused.length > 0 ? focused : processes;
+        let minX = Infinity;
+        let minY = Infinity;
+        let maxX = -Infinity;
+        let maxY = -Infinity;
+
+        for (const proc of forLimits) {
+          for (const cloud of proc.states) {
+            for (const pt of cloud) {
+              minX = Math.min(minX, pt[0]);
+              maxX = Math.max(maxX, pt[0]);
+              minY = Math.min(minY, pt[1]);
+              maxY = Math.max(maxY, pt[1]);
+            }
+          }
+          for (const curve of proc.envelopes) {
+            for (const pt of curve) {
+              minX = Math.min(minX, pt[0]);
+              maxX = Math.max(maxX, pt[0]);
+              minY = Math.min(minY, pt[1]);
+              maxY = Math.max(maxY, pt[1]);
+            }
+          }
+        }
+
+        const spanX = Math.max(maxX - minX, 1.0);
+        const spanY = Math.max(maxY - minY, 1.0);
+        const padX = 0.15 * spanX;
+        const padY = 0.15 * spanY;
+        return [minX - padX, maxX + padX, minY - padY, maxY + padY];
+      }
+
+      function computeVELimitsFromGrid(grid, x0, baseAspectRatio) {
+        const out = new Array(grid.length);
+        for (let i = 0; i < grid.length; i++) {
+          const envelopeRadius = Math.sqrt(CHI2_QUANTILE_DF2_80) * grid[i];
+          const halfHeight = Math.max(2.5, 1.35 * envelopeRadius);
+          const halfWidth = halfHeight * baseAspectRatio;
+          out[i] = [
+            x0[0] - halfWidth,
+            x0[0] + halfWidth,
+            x0[1] - halfHeight,
+            x0[1] + halfHeight,
+          ];
+        }
+        return out;
+      }
+
+      function buildArtifacts() {
+        const rng = mulberry32(params.seed);
+        const vpSde = simulateReverseVPSDE(params.x0, params.nPaths, params.nSteps, params.tMax, rng);
+        const vpOde = simulateReverseVPODE(params.x0, params.nPaths, params.nSteps, params.tMax, rng);
+        const ve = simulateReverseVEKarras(params.x0, params.nPaths, params.nSteps, params.sigmaMax, rng);
+        const rf = simulateReverseRectifiedFlow(params.x0, params.nPaths, params.nSteps, params.sMax, rng);
+
+        const processes = [
+          { name: "VP-SDE", reverseGrid: vpSde.reverseGrid, states: vpSde.states },
+          { name: "VP-ODE", reverseGrid: vpOde.reverseGrid, states: vpOde.states },
+          { name: "VE-Karras", reverseGrid: ve.reverseGrid, states: ve.states },
+          { name: "Rectified flow", reverseGrid: rf.reverseGrid, states: rf.states },
+        ];
+
+        for (const p of processes) {
+          if (p.name === "VP-SDE" || p.name === "VP-ODE") {
+            p.grid = p.reverseGrid.map((v) => params.tMax - v);
+          } else if (p.name === "VE-Karras") {
+            p.grid = p.reverseGrid.map((v) => params.sigmaMax - v);
+          } else {
+            p.grid = p.reverseGrid.map((v) => params.sMax - v);
+          }
+          p.envelopes = reverseEnvelopeCurves(p.name, p.grid, params.x0);
+          p.labels = p.grid.map((g) => formatParameter(canonicalProcessName(p.name), g));
+          p.dynamicLimits = null;
+        }
+
+        const globalLimits = computeGlobalLimits(processes);
+        if (params.veDynamicLimits) {
+          const baseW = globalLimits[1] - globalLimits[0];
+          const baseH = globalLimits[3] - globalLimits[2];
+          const baseAspect = baseW / baseH;
+          const veProc = processes.find((p) => p.name === "VE-Karras");
+          veProc.dynamicLimits = computeVELimitsFromGrid(veProc.grid, params.x0, baseAspect);
+        }
+        return { processes, globalLimits };
+      }
+
+      function panelMapper(limits, left, top, width, height) {
+        const [x0, x1, y0, y1] = limits;
+        const spanX = Math.max(x1 - x0, 1.0e-9);
+        const spanY = Math.max(y1 - y0, 1.0e-9);
+        const scale = Math.min(width / spanX, height / spanY);
+        const usedW = spanX * scale;
+        const usedH = spanY * scale;
+        const xOffset = left + (width - usedW) * 0.5;
+        const yOffset = top + (height - usedH) * 0.5;
+        return {
+          toX: (x) => xOffset + (x - x0) * scale,
+          toY: (y) => yOffset + usedH - (y - y0) * scale,
+          x: xOffset,
+          y: yOffset,
+          w: usedW,
+          h: usedH,
+        };
+      }
+
+      function drawGrid(ctx, left, top, w, h) {
+        ctx.strokeStyle = COLORS.grid;
+        ctx.lineWidth = 1.0;
+        for (let i = 0; i <= 10; i++) {
+          const x = left + (i / 10) * w;
+          ctx.beginPath();
+          ctx.moveTo(x, top);
+          ctx.lineTo(x, top + h);
+          ctx.stroke();
+        }
+        for (let i = 0; i <= 10; i++) {
+          const y = top + (i / 10) * h;
+          ctx.beginPath();
+          ctx.moveTo(left, y);
+          ctx.lineTo(left + w, y);
+          ctx.stroke();
+        }
+      }
+
+      function computeTicks(minV, maxV, count) {
+        const ticks = [];
+        if (maxV <= minV) return [minV];
+        const rawStep = (maxV - minV) / Math.max(count - 1, 1);
+        const magnitude = Math.pow(10, Math.floor(Math.log10(rawStep)));
+        const normalized = rawStep / magnitude;
+        let step = 1;
+        if (normalized > 5) step = 10;
+        else if (normalized > 2) step = 5;
+        else if (normalized > 1) step = 2;
+        step *= magnitude;
+        const start = Math.ceil(minV / step) * step;
+        for (let v = start; v <= maxV + 1.0e-9; v += step) ticks.push(v);
+        return ticks;
+      }
+
+      const canvas = document.getElementById("cv");
+      const ctx = canvas.getContext("2d");
+      const dpr = window.devicePixelRatio || 1;
+      const BASE_CANVAS_W = 736;
+      let cssW = BASE_CANVAS_W;
+      let cssH = 412;
+
+      const playBtn = document.getElementById("play");
+      const pauseBtn = document.getElementById("pause");
+      const resetBtn = document.getElementById("reset");
+      const frameSlider = document.getElementById("frameSlider");
+      const frameLabel = document.getElementById("frameLabel");
+
+      const { processes, globalLimits } = buildArtifacts();
+      const nFrames = Math.min(...processes.map((p) => p.states.length));
+      frameSlider.max = String(nFrames - 1);
+      frameSlider.value = "0";
+
+      let frame = 0;
+      let playing = false;
+      let playbackCompleted = false;
+      let rafId = null;
+      let lastTickMs = null;
+      const playbackFps = 12;
+      let fontsReady = !(document.fonts && document.fonts.ready);
+      let startAfterFontsReady = false;
+      const themeMediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+
+      function applySystemTheme() {
+        document.documentElement.setAttribute("data-theme", themeMediaQuery.matches ? "dark" : "light");
+        syncCanvasColorsFromCss();
+        drawFrame(frame);
+      }
+
+      function getPanelLayout() {
+        const isMobile = window.innerWidth <= 700;
+        const cols = isMobile ? 1 : 2;
+        const rows = Math.ceil(processes.length / cols);
+        const outerPad = isMobile ? 10 : 16;
+        const gapX = isMobile ? 10 : 14;
+        const gapY = isMobile ? 10 : 16;
+        const panelW = (cssW - outerPad * 2 - gapX * (cols - 1)) / cols;
+        const panelAspect = isMobile ? 1.45 : 1.85;
+        const panelH = isMobile
+          ? Math.max(180, panelW / panelAspect)
+          : panelW / panelAspect;
+        return { isMobile, cols, rows, outerPad, gapX, gapY, panelW, panelH };
+      }
+
+      function resizeCanvas() {
+        const parent = canvas.parentElement;
+        const parentStyle = getComputedStyle(parent);
+        const innerW =
+          parent.clientWidth
+          - parseFloat(parentStyle.paddingLeft || "0")
+          - parseFloat(parentStyle.paddingRight || "0");
+        const containerW = Math.floor(innerW || BASE_CANVAS_W);
+        cssW = Math.max(220, containerW);
+        const layout = getPanelLayout();
+        cssH = Math.round(layout.outerPad * 2 + layout.rows * layout.panelH + (layout.rows - 1) * layout.gapY);
+        canvas.width = Math.floor(cssW * dpr);
+        canvas.height = Math.floor(cssH * dpr);
+        canvas.style.width = cssW + "px";
+        canvas.style.height = cssH + "px";
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        drawFrame(frame);
+      }
+
+      function refreshButtons() {
+        playBtn.classList.remove("btn-primary");
+        pauseBtn.classList.remove("btn-primary");
+        resetBtn.classList.remove("btn-primary");
+        if (playbackCompleted && !playing) {
+          resetBtn.classList.add("btn-primary");
+        } else if (playing) {
+          pauseBtn.classList.add("btn-primary");
+        } else {
+          playBtn.classList.add("btn-primary");
+        }
+      }
+
+      function drawPanel(proc, index) {
+        const layout = getPanelLayout();
+        const panelW = layout.panelW;
+        const panelH = layout.panelH;
+        const col = index % layout.cols;
+        const row = Math.floor(index / layout.cols);
+        const left = layout.outerPad + col * (panelW + layout.gapX);
+        const top = layout.outerPad + row * (panelH + layout.gapY);
+
+        ctx.fillStyle = COLORS.bg;
+        ctx.fillRect(left, top, panelW, panelH);
+        ctx.strokeStyle = COLORS.path;
+        ctx.lineWidth = 2.0;
+        ctx.strokeRect(left, top, panelW, panelH);
+
+        const plotPad = layout.isMobile
+          ? { l: 34, r: 10, t: 32, b: 29 }
+          : { l: 40, r: 13, t: 35, b: 35 };
+        const plotLeft = left + plotPad.l;
+        const plotTop = top + plotPad.t;
+        const plotW = panelW - plotPad.l - plotPad.r;
+        const plotH = panelH - plotPad.t - plotPad.b;
+
+        const limits = proc.dynamicLimits ? proc.dynamicLimits[frame] : globalLimits;
+        const [xMin, xMax, yMin, yMax] = limits;
+        const m = panelMapper(limits, plotLeft, plotTop, plotW, plotH);
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(m.x, m.y, m.w, m.h);
+        ctx.clip();
+
+        drawGrid(ctx, m.x, m.y, m.w, m.h);
+
+        ctx.strokeStyle = COLORS.path;
+        ctx.globalAlpha = ENVELOPE_HISTORY_ALPHA;
+        ctx.lineWidth = 1.0;
+        ctx.setLineDash([]);
+        for (let h = 0; h < frame; h++) {
+          const curve = proc.envelopes[h];
+          ctx.beginPath();
+          for (let i = 0; i < curve.length; i++) {
+            const x = m.toX(curve[i][0]);
+            const y = m.toY(curve[i][1]);
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+          }
+          ctx.stroke();
+        }
+        ctx.globalAlpha = 1.0;
+
+        const currentEnv = proc.envelopes[frame];
+        ctx.strokeStyle = COLORS.envelope;
+        ctx.lineWidth = 2.2;
+        ctx.setLineDash([8, 4]);
+        ctx.beginPath();
+        for (let i = 0; i < currentEnv.length; i++) {
+          const x = m.toX(currentEnv[i][0]);
+          const y = m.toY(currentEnv[i][1]);
+          if (i === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        const cloud = proc.states[frame];
+        ctx.fillStyle = COLORS.cloud;
+        ctx.globalAlpha = 0.9;
+        for (const p of cloud) {
+          ctx.beginPath();
+          ctx.arc(m.toX(p[0]), m.toY(p[1]), 1.5, 0, 2.0 * Math.PI);
+          ctx.fill();
+        }
+        ctx.globalAlpha = 1.0;
+
+        ctx.strokeStyle = COLORS.path;
+        ctx.lineWidth = 2.4;
+        ctx.beginPath();
+        for (let i = 0; i <= frame; i++) {
+          const pt = proc.states[i][0];
+          const x = m.toX(pt[0]);
+          const y = m.toY(pt[1]);
+          if (i === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+
+        const cur = proc.states[frame][0];
+        const cx = m.toX(cur[0]);
+        const cy = m.toY(cur[1]);
+        ctx.strokeStyle = COLORS.bg;
+        ctx.lineWidth = 3.5;
+        ctx.beginPath();
+        ctx.arc(cx, cy, 6.5, 0, 2.0 * Math.PI);
+        ctx.stroke();
+        ctx.strokeStyle = COLORS.text;
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.arc(cx, cy, 4, 0, 2.0 * Math.PI);
+        ctx.stroke();
+        ctx.fillStyle = COLORS.path;
+        ctx.beginPath();
+        ctx.arc(cx, cy, 2, 0, 2.0 * Math.PI);
+        ctx.fill();
+
+        const sx = m.toX(params.x0[0]);
+        const sy = m.toY(params.x0[1]);
+        ctx.strokeStyle = COLORS.path;
+        ctx.lineWidth = 2.2;
+        ctx.beginPath();
+        ctx.moveTo(sx - 6, sy - 6);
+        ctx.lineTo(sx + 6, sy + 6);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(sx + 6, sy - 6);
+        ctx.lineTo(sx - 6, sy + 6);
+        ctx.stroke();
+        ctx.restore();
+
+        ctx.fillStyle = COLORS.text;
+        ctx.font = "700 14px 'Space Grotesk', sans-serif";
+        ctx.textAlign = "left";
+        const titleX = left + 10;
+        const titleY = top + 24;
+        ctx.fillText(proc.name, titleX, titleY);
+        const titleWidth = ctx.measureText(proc.name).width;
+        ctx.font = "500 11px 'Space Grotesk', sans-serif";
+        const gapWidth = ctx.measureText("00000").width; // 5-character spacing
+        ctx.fillText(proc.labels[frame], titleX + titleWidth + gapWidth, titleY);
+
+        const xTicks = computeTicks(xMin, xMax, 5);
+        const yTicks = computeTicks(yMin, yMax, 5);
+        ctx.strokeStyle = COLORS.text;
+        ctx.fillStyle = COLORS.text;
+        ctx.lineWidth = 1.2;
+        ctx.font = "10px 'Times New Roman', serif";
+
+        ctx.beginPath();
+        ctx.moveTo(m.x, m.y + m.h);
+        ctx.lineTo(m.x + m.w, m.y + m.h);
+        ctx.stroke();
+        ctx.textAlign = "center";
+        for (const xv of xTicks) {
+          const x = m.toX(xv);
+          ctx.beginPath();
+          ctx.moveTo(x, m.y + m.h);
+          ctx.lineTo(x, m.y + m.h + 5);
+          ctx.stroke();
+          ctx.fillText(xv.toFixed(1), x, m.y + m.h + 16);
+        }
+
+        ctx.beginPath();
+        ctx.moveTo(m.x, m.y);
+        ctx.lineTo(m.x, m.y + m.h);
+        ctx.stroke();
+        ctx.textAlign = "right";
+        for (const yv of yTicks) {
+          const y = m.toY(yv);
+          ctx.beginPath();
+          ctx.moveTo(m.x - 5, y);
+          ctx.lineTo(m.x, y);
+          ctx.stroke();
+          ctx.fillText(yv.toFixed(1), m.x - 8, y + 3);
+        }
+
+        ctx.font = "12px 'Times New Roman', serif";
+        ctx.textAlign = "center";
+        // ctx.fillText("x[0]", m.x + m.w * 0.5, m.y + m.h + 34);
+        ctx.save();
+        ctx.translate(m.x - 34, m.y + m.h * 0.5);
+        ctx.rotate(-Math.PI / 2);
+        // ctx.fillText("x[1]", 0, 0);
+        ctx.restore();
+      }
+
+      function drawFrame(k) {
+        frame = k;
+        ctx.fillStyle = COLORS.bg;
+        ctx.fillRect(0, 0, cssW, cssH);
+        for (let i = 0; i < processes.length; i++) drawPanel(processes[i], i);
+        frameLabel.textContent = `frame ${k}`;
+        frameSlider.value = String(k);
+      }
+
+      function tick(ts) {
+        if (!playing) return;
+        if (lastTickMs === null) lastTickMs = ts;
+        const intervalMs = 1000 / playbackFps;
+        if (ts - lastTickMs >= intervalMs) {
+          const next = Math.min(frame + 1, nFrames - 1);
+          drawFrame(next);
+          lastTickMs = ts;
+          if (next >= nFrames - 1) {
+            playing = false;
+            playbackCompleted = true;
+            refreshButtons();
+            return;
+          }
+        }
+        rafId = requestAnimationFrame(tick);
+      }
+
+      playBtn.onclick = () => {
+        if (!playing) {
+          playing = true;
+          playbackCompleted = false;
+          if (!fontsReady) {
+            startAfterFontsReady = true;
+            return;
+          }
+          lastTickMs = null;
+          refreshButtons();
+          rafId = requestAnimationFrame(tick);
+        }
+      };
+
+      pauseBtn.onclick = () => {
+        playing = false;
+        playbackCompleted = false;
+        startAfterFontsReady = false;
+        cancelAnimationFrame(rafId);
+        lastTickMs = null;
+        refreshButtons();
+      };
+
+      resetBtn.onclick = () => {
+        playing = false;
+        playbackCompleted = false;
+        startAfterFontsReady = false;
+        cancelAnimationFrame(rafId);
+        lastTickMs = null;
+        frame = 0;
+        drawFrame(0);
+        refreshButtons();
+      };
+
+      frameSlider.oninput = (e) => {
+        playing = false;
+        playbackCompleted = false;
+        startAfterFontsReady = false;
+        cancelAnimationFrame(rafId);
+        lastTickMs = null;
+        refreshButtons();
+        drawFrame(Number(e.target.value));
+      };
+
+      function initScene() {
+        resizeCanvas();
+        applySystemTheme();
+        refreshButtons();
+        drawFrame(0);
+      }
+
+      if (typeof themeMediaQuery.addEventListener === "function") {
+        themeMediaQuery.addEventListener("change", applySystemTheme);
+      } else if (typeof themeMediaQuery.addListener === "function") {
+        themeMediaQuery.addListener(applySystemTheme);
+      }
+      window.addEventListener("resize", resizeCanvas);
+
+      if (fontsReady) {
+        initScene();
+      } else {
+        document.fonts.ready.then(() => {
+          fontsReady = true;
+          initScene();
+          if (startAfterFontsReady && playing) {
+            startAfterFontsReady = false;
+            lastTickMs = null;
+            refreshButtons();
+            rafId = requestAnimationFrame(tick);
+          }
+        });
+      }
+    })();
+  </script>
+</body>
+</html>
