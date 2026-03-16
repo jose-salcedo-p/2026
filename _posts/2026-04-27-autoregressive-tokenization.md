@@ -280,7 +280,7 @@ In other words, the two overarching categories of approaches are:
 
 We further subdivide these categories according to the following flowchart, which serves as a roadmap for the remainder of the post.
 
-{% include figure.liquid path="assets/img/2026-04-27-autoregressive-tokenization/roadmap.png" class="img-fluid" %}
+{% include figure.liquid path="assets/img/2026-04-27-autoregressive-tokenization/tree_method_figure.png" class="img-fluid" %}
 <div class="caption" style="text-align: center;">
     Approaches for addressing the mismatch between sequential model and non-sequential data.
 </div>
