@@ -90,7 +90,7 @@ _styles: >
 
 Modern diffusion models are often introduced through a long list of concepts and terms whose relationships are not immediately clear. Very quickly, one encounters names such as *DDPM, SDE, ODE, probability flow, flow matching, rectified flow, distillation, consistency, flow map*, together with phrases like *forward process, reverse process, score, velocity field, sampler*. For a reader encountering these ideas, this can be overwhelming.
 
-In what follows, we revisit the key principles behind the development of diffusion models, slow the story down, and maintain a single guiding thread throughout.
+In what follows, we extract the key principles behind the development of diffusion models, slow the story down, and maintain a single guiding thread throughout:
 > All these models describe different ways to *move probability mass* from "simple noise" to "complicated data". Under the surface, they are all based on the same principle from calculus: the *change-of-variable rule*.
 
 In the rest of this article, we build the picture step by step.
