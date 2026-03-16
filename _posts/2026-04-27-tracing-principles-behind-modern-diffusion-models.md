@@ -88,20 +88,23 @@ _styles: >
   }
 ---
 
-Modern diffusion models are often introduced through a long list of concepts and terms whose relationships are not immediately clear. Very quickly, one encounters names such as *DDPM, SDE, ODE, probability flow, flow matching, rectified flow, distillaion, consistency, flow map*, together with phrases like *forward process, reverse process, score, velocity field, sampler*. For a reader encountering these ideas for the first time, this can be overwhelming.
+Modern diffusion models are often introduced through a long list of concepts and terms whose relationships are not immediately clear. Very quickly, one encounters names such as *DDPM, SDE, ODE, probability flow, flow matching, rectified flow, distillation, consistency, flow map*, together with phrases like *forward process, reverse process, score, velocity field, sampler*. For a reader encountering these ideas, this can be overwhelming.
 
-In what follows, we slow the story down and keep a single guiding thread:
+In what follows, we revisit the key principles behind the development of diffusion models, slow the story down, and maintain a single guiding thread throughout.
 > All these models describe different ways to *move probability mass* from "simple noise" to "complicated data". Under the surface, they are all based on the same principle from calculus: the *change-of-variable rule*.
 
 In the rest of this article, we build the picture step by step.
 
-We start with three common lenses on diffusion, *DDPM*, *score-based methods*, and *flow matching/rectified flow*. They share the same recipe: fix a simple *forward Gaussian noising process*, then learn to reverse it. The main difference is *what the network predicts*, such as noise, score, or velocity.
+We begin with three common lenses on diffusion: *variational-based methods* (e.g., DDPM), *score-based methods* (e.g., Score-SDE), and *flow-based methods* (e.g., flow matching / rectified flow). They all follow the same basic recipe: fix a simple *forward Gaussian noising process*, then learn to reverse it. The main difference lies in *what the network predicts*, such as noise, score, or velocity.
 
 Underneath all of them is the same math question: when we *move a cloud of samples*, how does the distribution change? The answer is the change-of-variable rule from Calculus applied to a particle cloud. In continuous time, this becomes the PDE view: pure transport gives the *continuity equation*, and transport with Gaussian jitter gives the *Fokker–Planck equation*. This matters because it is the bookkeeping that keeps the story honest: once we pre-specify the forward noising process, we have a specific path of snapshot distributions in mind, and the reverse-time generator must move probability mass in a way that stays consistent with that path. Without this structure, there is nothing tying the reverse-time generator to the intended transition from prior to data, so the learned dynamics can quietly drift away from the distribution evolution we had in mind.
 
 Finally, we focus on speed. Diffusion is *high fidelity* but often slow because sampling is iterative. We end with *flow map models*, which keep the same diffusion backbone but aim to learn *long time-jumps* of the probability-flow dynamics directly, replacing many tiny steps with a few big, accurate jumps.
 
-We also provide the full PDF and supplemental code on the page: [The Principles of Diffusion Models](https://the-principles-of-diffusion-models.github.io/).
+
+**Prerequisites.** This blog post may be challenging for readers who are entirely new to diffusion models. We intentionally present it as a concise roadmap that focuses only on the essential principles, offering a unified bird’s-eye view. Accordingly, we assume the reader already has a rough familiarity with diffusion models; for example, the basic idea of DDPM as a forward noising process together with learning a Gaussian denoiser.
+
+For a more detailed introduction to the necessary background, we also provide a full PDF on our webpage: [The Principles of Diffusion Models](https://the-principles-of-diffusion-models.github.io/).
 
 # I. A Systematic Tour of Diffusion Models
 
@@ -130,7 +133,7 @@ Classical models such as GANs and VAEs attempt to learn this arrow in one or a f
 {% include figure.liquid path="assets/img/2026-04-27-tracing-principles-behind-modern-diffusion-models/vdm-backward.svg" class="img-fluid" %}
 
 
-In both directions, there is a common underlying object: a *probability denity* that evolves over time. At time $$t = 0$$, we may have a density that is shaped like the data distribution. As $$t$$ increases, the forward process transports and blurs this density until it approaches a simple reference distribution, often called the *prior*. In practice, this prior is typically chosen to be a standard Gaussian, because we know how to sample from it efficiently and its properties admit closed-form expressions.
+In both directions, there is a common underlying object: a *probability density* that evolves over time. At time $$t = 0$$, we may have a density that is shaped like the data distribution. As $$t$$ increases, the forward process transports and blurs this density until it approaches a simple reference distribution, often called the *prior*. In practice, this prior is typically chosen to be a standard Gaussian, because we know how to sample from it efficiently and its properties admit closed-form expressions.
 
 
 At this point, the big picture is in place: we have a simple way to *corrupt* data into noise, and we hope to learn a reverse procedure that *undoes* that corruption.  
