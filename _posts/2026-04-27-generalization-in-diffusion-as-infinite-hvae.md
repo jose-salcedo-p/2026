@@ -764,21 +764,13 @@ This suggests that while the *architectural* equivalence exists in the limit, th
 
 ## 5. Concluding Remarks
 
+In this post, we have seen the different ways in which the gap between two dominant generative paradigms is bridged in the literature. Diffusion Probabilistic Models are in fact not distinct from Variational Auto-Encoders, but they are equivalent to Hierarchical VAEs in the limit of infinite depth under the right parameterization. This shift in perspective from discrete layers to continuous time resolves the critical bottlenecks that have historically limited deep VAEs:
 
-In this post, we have bridged the gap between two dominant generative paradigms, demonstrating that Diffusion Probabilistic Models are not distinct from Variational Auto-Encoders, but are rigorously equivalent to Hierarchical VAEs in the limit of infinite depth under a particular parameterization. This shift in perspective from discrete layers to continuous time resolves the critical bottlenecks that have historically limited deep VAEs:
+- **Solving Posterior Collapse:** By fixing the encoder to a noise-injection process (the forward diffusion), DPMs bypass the optimization instability where the encoder ignores the latent code.
+- **Generalization "Sweet Spot":** Diffusion can be viewed as an infinite-depth HVAE, which helps explain the gap between Diffusion and standard VAEs observed in our results. While the theory holds in the infinite limit ($T\to\infty$), recent insights suggest that optimal generalization often emerges at a finite depth. The balance between the encoder’s structural constraints and the generator’s texture synthesis yields an optimal operating point for sample quality, one that diffusion models naturally pass through.
 
-- **Solving Posterior Collapse:** By fixing the encoder to a noise-injection process (the forward diffusion), DPMs bypass the optimization instability where the encoder ignores the latent code. The *inference* is no longer learned but prescribed by physics.
-  
-- **Generalization “Sweet Spot”:** Diffusion can be viewed as an infinite-depth HVAE, which helps explain the gap between Diffusion and standard VAEs observed in our results. While the theory holds in the infinite limit ($T \to \infty$), recent insights suggest that optimal generalization often emerges at a finite depth. The balance between the encoder’s structural constraints and the generator’s texture synthesis yields an optimal operating point for sample quality, one that diffusion models naturally pass through.
+Moreover, it gives a principled justification to the efficacy of latent diffusion, and more generally any method that plugs a VAE at the ends of a diffusion model.
 
+Ultimately, bridging the gap between Diffusion Models and HVAEs offers a promising path to better understanding how cutting-edge generative models treat and organize information. This paves the way for future architectural innovations, improved computational efficiency by figuring out efficient finite-depth sweet spots, and refined generation through precise latent space control.
 
-Ultimately, viewing diffusion as an infinite HVAE provides more than just theoretical satisfaction. It offers a sober look at the model's capabilities, suggesting that the secret to their success lies not in magic, but in the rigorous scaling of hierarchical Bayesian inference.
-
-
-<aside class="l-body box-note" markdowk="1">
-<strong>Key Takeaway:</strong> Diffusion models work because they are the first scalable implementation of infinite-depth HVAEs. They trade the complex, learnable encoder of standard VAEs for a stable, fixed forward process that forces the generator to cover the entire data manifold without collapsing.
-</aside>
-
-<br>
-
-**Limitations** While the HVAE perspective illuminates the structure of diffusion models, it remains an idealized view: real models operate at finite depth, introducing discretization gaps that depart from the continuous-time theory. The fixed forward process, although stabilizing, also limits encoder flexibility and may fail to capture richer posterior structures. Moreover, diffusion models still suffer from high computational cost due to their iterative sampling and rely on hand-designed noise schedules that are not guaranteed to be optimal for every dataset.
+**Limitations** While the HVAE perspective illuminates the structure of diffusion models, it remains an idealized view: real models operate at finite depth, introducing discretization gaps that depart from the continuous-time theory. The fixed forward process, although stabilizing, also limits encoder flexibility and may fail to capture richer posterior structures. Moreover, diffusion models still suffer from high computational cost due to their iterative sampling and rely on hand-designed noise schedules that are not guaranteed to be optimal for every dataset.
