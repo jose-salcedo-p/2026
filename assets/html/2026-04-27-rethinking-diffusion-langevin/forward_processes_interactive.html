@@ -1,0 +1,938 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Forward Processes Interactive</title>
+  <style>
+    @font-face {
+      font-family: "Anton";
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+      src: url("./assets/fonts/Anton-400.ttf") format("truetype");
+    }
+    @font-face {
+      font-family: "Space Grotesk";
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+      src: url("./assets/fonts/SpaceGrotesk-400.ttf") format("truetype");
+    }
+    @font-face {
+      font-family: "Space Grotesk";
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url("./assets/fonts/SpaceGrotesk-500.ttf") format("truetype");
+    }
+    @font-face {
+      font-family: "Space Grotesk";
+      font-style: normal;
+      font-weight: 700;
+      font-display: swap;
+      src: url("./assets/fonts/SpaceGrotesk-700.ttf") format("truetype");
+    }
+
+    :root {
+      color-scheme: light;
+      --neon-green: #00ff00;
+      --brutal-black: #000000;
+      --gallery-white: #ffffff;
+      --grid-line: rgba(0, 0, 0, 0.16);
+      --btn-primary-text: #000000;
+      --font-display: 'Anton', sans-serif;
+      --font-body: 'Space Grotesk', sans-serif;
+      --font-serif: 'Times New Roman', Times, serif;
+    }
+
+    html[data-theme="dark"] {
+      color-scheme: dark;
+      --neon-green: #00ff00;
+      --brutal-black: #ffffff;
+      --gallery-white: #000000;
+      --grid-line: rgba(255, 255, 255, 0.15);
+      --btn-primary-text: #000000;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 22px 14px 0;
+      background: var(--gallery-white);
+      color: var(--brutal-black);
+      font-family: var(--font-serif);
+    }
+
+    .wrap {
+      max-width: 780px;
+      margin: 0 auto;
+      background: var(--gallery-white);
+      border: 2px solid var(--brutal-black);
+      box-shadow: 4px 4px 0 0 var(--brutal-black);
+      padding: 14px 14px 0;
+    }
+
+    .title {
+      margin: 0 0 8px;
+      font-family: var(--font-body);
+      font-size: 24px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      line-height: 1.05;
+      color: var(--brutal-black);
+    }
+
+    .desc {
+      margin: 0 0 10px;
+      font-family: var(--font-body);
+      font-size: 16px;
+      font-weight: 500;
+      line-height: 1.4;
+      color: var(--brutal-black);
+      max-width: 1200px;
+    }
+
+    .control-panel {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+      padding: 6px 8px;
+      background: var(--gallery-white);
+      border: 2px solid var(--brutal-black);
+    }
+
+    .btn {
+      border: 2px solid var(--brutal-black);
+      border-radius: 999px;
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      background: var(--gallery-white);
+      color: var(--brutal-black);
+      box-shadow: 3px 3px 0 0 var(--brutal-black);
+    }
+
+    .btn:hover {
+      transform: translate(2px, 2px);
+      box-shadow: 0 0 0 0 var(--brutal-black);
+    }
+
+    .btn svg {
+      width: 13px;
+      height: 13px;
+      fill: currentColor;
+    }
+
+    .btn-primary {
+      background: var(--neon-green);
+      border-color: var(--brutal-black);
+      color: var(--btn-primary-text);
+    }
+
+    .slider-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 1;
+      min-width: 224px;
+    }
+
+    .slider-label {
+      font-size: 13px;
+      color: var(--brutal-black);
+      white-space: nowrap;
+      font-family: var(--font-body);
+      font-weight: 600;
+    }
+
+    input[type="range"] {
+      flex: 1;
+      height: 5px;
+      background: var(--brutal-black);
+      border-radius: 999px;
+      -webkit-appearance: none;
+      appearance: none;
+      outline: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--neon-green);
+      border: 2px solid var(--brutal-black);
+      cursor: pointer;
+      box-shadow: 0 0 0 2px var(--gallery-white);
+    }
+
+    input[type="range"]::-moz-range-thumb {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--neon-green);
+      border: 2px solid var(--brutal-black);
+      cursor: pointer;
+      box-shadow: 0 0 0 2px var(--gallery-white);
+    }
+
+    .mono {
+      font-family: var(--font-serif);
+      font-size: 14px;
+      color: var(--brutal-black);
+      min-width: 58px;
+    }
+
+    .title,
+    .desc,
+    .slider-label,
+    .mono {
+      transition: none !important;
+    }
+    @media (max-width: 900px) {
+      body { padding: 11px 6px 0; }
+      .wrap { padding: 10px 8px 0; }
+      .title { font-size: 18px; }
+      .desc { font-size: 13px; line-height: 1.35; }
+      .control-panel { gap: 8px; padding: 8px; }
+      .btn { width: 30px; height: 30px; }
+      .slider-wrap { min-width: 128px; }
+      .mono { min-width: 52px; font-size: 11px; }
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      margin: 0 0 0 0;
+      border: 2px solid var(--brutal-black);
+      background: var(--gallery-white);
+      vertical-align: top;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h2 class="title">Forward Processes: VP / VE / Rectified Flow</h2>
+    <p class="desc">Forward trajectories of the same starting point under the three model parameterizations.</p>
+
+    <div class="control-panel">
+      <button class="btn btn-primary" id="play" title="Play">
+        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
+      </button>
+      <button class="btn" id="pause" title="Pause">
+        <svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" /></svg>
+      </button>
+      <button class="btn" id="reset" title="Reset">
+        <svg viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>
+      </button>
+      <div class="slider-wrap">
+        <span class="slider-label">Frame</span>
+        <input id="frameSlider" type="range" min="0" max="0" value="0" />
+      </div>
+      <span class="mono" id="frameLabel">frame 0</span>
+    </div>
+
+    <canvas id="cv" width="736" height="281"></canvas>
+  </div>
+
+  <script>
+    (() => {
+      const CHI2_QUANTILE_DF2_80 = -2.0 * Math.log(1.0 - 0.80);
+      const ENVELOPE_POINTS = 181;
+      const ENVELOPE_HISTORY_ALPHA_LIGHT = 0.08;
+      const ENVELOPE_HISTORY_ALPHA_DARK = 0.24;
+
+      const COLORS = {
+        cloud: "#00FF00",
+        path: "#000000",
+        envelope: "#000000",
+        text: "#000000",
+        bg: "#FFFFFF",
+        grid: "rgba(0,0,0,0.16)",
+      };
+
+      function cssVar(name, fallback) {
+        const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+        return v || fallback;
+      }
+
+      function syncCanvasColorsFromCss() {
+        COLORS.cloud = cssVar("--neon-green", COLORS.cloud);
+        COLORS.path = cssVar("--brutal-black", COLORS.path);
+        COLORS.envelope = cssVar("--brutal-black", COLORS.envelope);
+        COLORS.text = cssVar("--brutal-black", COLORS.text);
+        COLORS.bg = cssVar("--gallery-white", COLORS.bg);
+        COLORS.grid = cssVar("--grid-line", COLORS.grid);
+      }
+
+      const params = {
+        nPaths: 160,
+        nSteps: 180,
+        seed: 20260300,
+        tMax: -Math.log(1.0e-3),
+        sigmaMax: 10.0,
+        sMax: 0.999,
+        x0: [10.0, 0.0],
+        veDynamicLimits: true,
+      };
+
+      const UNIT_CIRCLE = (() => {
+        const out = [];
+        for (let i = 0; i < ENVELOPE_POINTS; i++) {
+          const th = (2.0 * Math.PI * i) / (ENVELOPE_POINTS - 1);
+          out.push([Math.cos(th), Math.sin(th)]);
+        }
+        return out;
+      })();
+
+      function linspace(start, end, n) {
+        if (n <= 1) return [start];
+        const arr = new Array(n);
+        const step = (end - start) / (n - 1);
+        for (let i = 0; i < n; i++) arr[i] = start + i * step;
+        return arr;
+      }
+
+      function mulberry32(seed) {
+        let t = seed >>> 0;
+        return function () {
+          t += 0x6d2b79f5;
+          let r = Math.imul(t ^ (t >>> 15), 1 | t);
+          r ^= r + Math.imul(r ^ (r >>> 7), 61 | r);
+          return ((r ^ (r >>> 14)) >>> 0) / 4294967296;
+        };
+      }
+
+      function randn(rng) {
+        let u = 0;
+        let v = 0;
+        while (u === 0) u = rng();
+        while (v === 0) v = rng();
+        return Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+      }
+
+      function initStates(nSteps, nPaths, x0) {
+        const states = new Array(nSteps);
+        states[0] = new Array(nPaths);
+        for (let p = 0; p < nPaths; p++) states[0][p] = [x0[0], x0[1]];
+        return states;
+      }
+
+      function simulateVP(x0, nPaths, nSteps, tMax, rng) {
+        const grid = linspace(0.0, tMax, nSteps);
+        const states = initStates(nSteps, nPaths, x0);
+        for (let k = 0; k < nSteps - 1; k++) {
+          const dt = grid[k + 1] - grid[k];
+          const semigroup = Math.exp(-0.5 * dt);
+          const noiseScale = Math.sqrt(1.0 - Math.exp(-dt));
+          states[k + 1] = new Array(nPaths);
+          for (let p = 0; p < nPaths; p++) {
+            states[k + 1][p] = [
+              semigroup * states[k][p][0] + noiseScale * randn(rng),
+              semigroup * states[k][p][1] + noiseScale * randn(rng),
+            ];
+          }
+        }
+        return { grid, states };
+      }
+
+      function simulateVEKarras(x0, nPaths, nSteps, sigmaMax, rng) {
+        const grid = linspace(0.0, sigmaMax, nSteps);
+        const states = initStates(nSteps, nPaths, x0);
+        for (let k = 0; k < nSteps - 1; k++) {
+          const variance = Math.max(grid[k + 1] * grid[k + 1] - grid[k] * grid[k], 0.0);
+          const noiseScale = Math.sqrt(variance);
+          states[k + 1] = new Array(nPaths);
+          for (let p = 0; p < nPaths; p++) {
+            states[k + 1][p] = [
+              states[k][p][0] + noiseScale * randn(rng),
+              states[k][p][1] + noiseScale * randn(rng),
+            ];
+          }
+        }
+        return { grid, states };
+      }
+
+      function simulateRectifiedFlow(x0, nPaths, nSteps, sMax, rng) {
+        const grid = linspace(0.0, sMax, nSteps);
+        const states = initStates(nSteps, nPaths, x0);
+        for (let k = 0; k < nSteps - 1; k++) {
+          const semigroup = (1.0 - grid[k + 1]) / (1.0 - grid[k]);
+          const transportedVariance = Math.pow(semigroup * grid[k], 2);
+          const variance = Math.max(grid[k + 1] * grid[k + 1] - transportedVariance, 0.0);
+          const noiseScale = Math.sqrt(variance);
+          states[k + 1] = new Array(nPaths);
+          for (let p = 0; p < nPaths; p++) {
+            states[k + 1][p] = [
+              semigroup * states[k][p][0] + noiseScale * randn(rng),
+              semigroup * states[k][p][1] + noiseScale * randn(rng),
+            ];
+          }
+        }
+        return { grid, states };
+      }
+
+      function distributionMeanAndVarianceGrid(name, grid, x0) {
+        const means = new Array(grid.length);
+        const variances = new Array(grid.length);
+        for (let i = 0; i < grid.length; i++) {
+          const g = grid[i];
+          if (name === "VP") {
+            const alpha = Math.exp(-g);
+            means[i] = [Math.sqrt(alpha) * x0[0], Math.sqrt(alpha) * x0[1]];
+            variances[i] = 1.0 - alpha;
+          } else if (name === "VE-Karras") {
+            means[i] = [x0[0], x0[1]];
+            variances[i] = g * g;
+          } else {
+            means[i] = [(1.0 - g) * x0[0], (1.0 - g) * x0[1]];
+            variances[i] = g * g;
+          }
+        }
+        return { means, variances };
+      }
+
+      function envelopeCurves(name, grid, x0) {
+        const { means, variances } = distributionMeanAndVarianceGrid(name, grid, x0);
+        const envelopes = new Array(grid.length);
+        for (let i = 0; i < grid.length; i++) {
+          const r = Math.sqrt(Math.max(variances[i], 0.0) * CHI2_QUANTILE_DF2_80);
+          const curve = new Array(ENVELOPE_POINTS);
+          for (let j = 0; j < ENVELOPE_POINTS; j++) {
+            curve[j] = [
+              means[i][0] + r * UNIT_CIRCLE[j][0],
+              means[i][1] + r * UNIT_CIRCLE[j][1],
+            ];
+          }
+          envelopes[i] = curve;
+        }
+        return envelopes;
+      }
+
+      function formatParameter(name, value) {
+        if (name === "VP") {
+          const alpha = Math.exp(-value);
+          return `alpha = ${alpha.toFixed(3)}`;
+        }
+        if (name === "VE-Karras") return `sigma = ${value.toFixed(3)}`;
+        return `s = ${value.toFixed(3)}`;
+      }
+
+      function computeGlobalLimits(processes) {
+        const focused = processes.filter((p) => p.name === "VP" || p.name === "Rectified flow");
+        const forLimits = focused.length > 0 ? focused : processes;
+
+        let minX = Infinity;
+        let minY = Infinity;
+        let maxX = -Infinity;
+        let maxY = -Infinity;
+
+        for (const proc of forLimits) {
+          for (const frame of proc.states) {
+            for (const pt of frame) {
+              minX = Math.min(minX, pt[0]);
+              maxX = Math.max(maxX, pt[0]);
+              minY = Math.min(minY, pt[1]);
+              maxY = Math.max(maxY, pt[1]);
+            }
+          }
+          for (const curve of proc.envelopes) {
+            for (const pt of curve) {
+              minX = Math.min(minX, pt[0]);
+              maxX = Math.max(maxX, pt[0]);
+              minY = Math.min(minY, pt[1]);
+              maxY = Math.max(maxY, pt[1]);
+            }
+          }
+        }
+
+        const spanX = Math.max(maxX - minX, 1.0);
+        const spanY = Math.max(maxY - minY, 1.0);
+        const padX = 0.15 * spanX;
+        const padY = 0.15 * spanY;
+        return [minX - padX, maxX + padX, minY - padY, maxY + padY];
+      }
+
+      function computeVELimitsFromGrid(grid, x0, baseAspectRatio) {
+        const out = new Array(grid.length);
+        for (let i = 0; i < grid.length; i++) {
+          const envelopeRadius = Math.sqrt(CHI2_QUANTILE_DF2_80) * grid[i];
+          const halfHeight = Math.max(2.5, 1.35 * envelopeRadius);
+          const halfWidth = halfHeight * baseAspectRatio;
+          out[i] = [
+            x0[0] - halfWidth,
+            x0[0] + halfWidth,
+            x0[1] - halfHeight,
+            x0[1] + halfHeight,
+          ];
+        }
+        return out;
+      }
+
+      function buildArtifacts() {
+        const rng = mulberry32(params.seed);
+        const vp = simulateVP(params.x0, params.nPaths, params.nSteps, params.tMax, rng);
+        const ve = simulateVEKarras(params.x0, params.nPaths, params.nSteps, params.sigmaMax, rng);
+        const rf = simulateRectifiedFlow(params.x0, params.nPaths, params.nSteps, params.sMax, rng);
+
+        const processes = [
+          { name: "VP", grid: vp.grid, states: vp.states },
+          { name: "VE-Karras", grid: ve.grid, states: ve.states },
+          { name: "Rectified flow", grid: rf.grid, states: rf.states },
+        ];
+
+        for (const p of processes) {
+          p.envelopes = envelopeCurves(p.name, p.grid, params.x0);
+          p.labels = p.grid.map((g) => formatParameter(p.name, g));
+          p.dynamicLimits = null;
+        }
+
+        const globalLimits = computeGlobalLimits(processes);
+        if (params.veDynamicLimits) {
+          const baseW = globalLimits[1] - globalLimits[0];
+          const baseH = globalLimits[3] - globalLimits[2];
+          const baseAspect = baseW / baseH;
+          const veProc = processes.find((p) => p.name === "VE-Karras");
+          veProc.dynamicLimits = computeVELimitsFromGrid(veProc.grid, params.x0, baseAspect);
+        }
+
+        return { processes, globalLimits };
+      }
+
+      const canvas = document.getElementById("cv");
+      const ctx = canvas.getContext("2d");
+      const dpr = window.devicePixelRatio || 1;
+      const BASE_CANVAS_W = 736;
+      let cssW = BASE_CANVAS_W;
+      let cssH = 281;
+
+      const playBtn = document.getElementById("play");
+      const pauseBtn = document.getElementById("pause");
+      const resetBtn = document.getElementById("reset");
+      const frameSlider = document.getElementById("frameSlider");
+      const frameLabel = document.getElementById("frameLabel");
+
+      const { processes, globalLimits } = buildArtifacts();
+      const nFrames = Math.min(...processes.map((p) => p.states.length));
+
+      frameSlider.max = String(nFrames - 1);
+      frameSlider.value = "0";
+
+      let frame = 0;
+      let playing = false;
+      let playbackCompleted = false;
+      let rafId = null;
+      const playbackFps = 12;
+      let lastTickMs = null;
+      let fontsReady = !(document.fonts && document.fonts.ready);
+      let startAfterFontsReady = false;
+      const themeMediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+
+      function applySystemTheme() {
+        document.documentElement.setAttribute("data-theme", themeMediaQuery.matches ? "dark" : "light");
+        syncCanvasColorsFromCss();
+        drawFrame(frame);
+      }
+
+      function getPanelLayout() {
+        const viewportW = window.innerWidth;
+        const compactMobile = viewportW <= 520;
+        const isMobile = viewportW <= 700;
+        const cols = isMobile ? 1 : 3;
+        const rows = Math.ceil(processes.length / cols);
+        const outerPad = isMobile ? 10 : 16;
+        const gapX = isMobile ? 8 : 12;
+        const gapY = isMobile ? 8 : 12;
+        const panelW = (cssW - outerPad * 2 - gapX * (cols - 1)) / cols;
+        const panelAspect = compactMobile ? 1.62 : (isMobile ? 1.38 : 1.22);
+        const panelH = isMobile
+          ? Math.max(compactMobile ? 140 : 150, panelW / panelAspect)
+          : panelW / panelAspect;
+        return { isMobile, compactMobile, cols, rows, outerPad, gapX, gapY, panelW, panelH };
+      }
+
+      function resizeCanvas() {
+        const parent = canvas.parentElement;
+        const parentStyle = getComputedStyle(parent);
+        const innerW =
+          parent.clientWidth
+          - parseFloat(parentStyle.paddingLeft || "0")
+          - parseFloat(parentStyle.paddingRight || "0");
+        const containerW = Math.floor(innerW || BASE_CANVAS_W);
+        cssW = Math.max(220, containerW);
+        const layout = getPanelLayout();
+        cssH = Math.round(layout.outerPad * 2 + layout.rows * layout.panelH + (layout.rows - 1) * layout.gapY);
+        canvas.width = Math.floor(cssW * dpr);
+        canvas.height = Math.floor(cssH * dpr);
+        canvas.style.width = cssW + "px";
+        canvas.style.height = cssH + "px";
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        drawFrame(frame);
+      }
+
+      function refreshButtons() {
+        playBtn.classList.remove("btn-primary");
+        pauseBtn.classList.remove("btn-primary");
+        resetBtn.classList.remove("btn-primary");
+        if (playbackCompleted && !playing) {
+          resetBtn.classList.add("btn-primary");
+        } else if (playing) {
+          pauseBtn.classList.add("btn-primary");
+        } else {
+          playBtn.classList.add("btn-primary");
+        }
+      }
+
+      function panelMapper(limits, left, top, width, height) {
+        const [x0, x1, y0, y1] = limits;
+        const spanX = Math.max(x1 - x0, 1e-9);
+        const spanY = Math.max(y1 - y0, 1e-9);
+        const scale = Math.min(width / spanX, height / spanY);
+        const usedW = spanX * scale;
+        const usedH = spanY * scale;
+        const xOffset = left + (width - usedW) * 0.5;
+        const yOffset = top + (height - usedH) * 0.5;
+        return {
+          toX: (x) => xOffset + (x - x0) * scale,
+          toY: (y) => yOffset + usedH - (y - y0) * scale,
+          x: xOffset,
+          y: yOffset,
+          w: usedW,
+          h: usedH,
+        };
+      }
+
+      function drawGrid(left, top, w, h) {
+        ctx.strokeStyle = COLORS.grid;
+        ctx.lineWidth = 1.0;
+        for (let i = 0; i <= 10; i++) {
+          const x = left + (i / 10) * w;
+          ctx.beginPath();
+          ctx.moveTo(x, top);
+          ctx.lineTo(x, top + h);
+          ctx.stroke();
+        }
+        for (let i = 0; i <= 10; i++) {
+          const y = top + (i / 10) * h;
+          ctx.beginPath();
+          ctx.moveTo(left, y);
+          ctx.lineTo(left + w, y);
+          ctx.stroke();
+        }
+      }
+
+      function computeTicks(minV, maxV, count) {
+        const ticks = [];
+        if (maxV <= minV) return [minV];
+        const rawStep = (maxV - minV) / Math.max(count - 1, 1);
+        const magnitude = Math.pow(10, Math.floor(Math.log10(rawStep)));
+        const normalized = rawStep / magnitude;
+        let step = 1;
+        if (normalized > 5) step = 10;
+        else if (normalized > 2) step = 5;
+        else if (normalized > 1) step = 2;
+        step *= magnitude;
+        const start = Math.ceil(minV / step) * step;
+        for (let v = start; v <= maxV + 1e-9; v += step) ticks.push(v);
+        return ticks;
+      }
+
+      function drawPanel(proc, index) {
+        const layout = getPanelLayout();
+        const col = index % layout.cols;
+        const row = Math.floor(index / layout.cols);
+        const panelW = layout.panelW;
+        const panelH = layout.panelH;
+        const left = layout.outerPad + col * (panelW + layout.gapX);
+        const top = layout.outerPad + row * (panelH + layout.gapY);
+
+        ctx.fillStyle = COLORS.bg;
+        ctx.fillRect(left, top, panelW, panelH);
+        ctx.strokeStyle = COLORS.path;
+        ctx.lineWidth = 2.0;
+        ctx.strokeRect(left, top, panelW, panelH);
+
+        const plotPad = layout.compactMobile
+          ? { l: 22, r: 8, t: 30, b: 20 }
+          : (layout.isMobile
+            ? { l: 24, r: 10, t: 32, b: 22 }
+            : { l: 27, r: 11, t: 35, b: 22 });
+        const plotLeft = left + plotPad.l;
+        const plotTop = top + plotPad.t;
+        const plotW = panelW - plotPad.l - plotPad.r;
+        const plotH = panelH - plotPad.t - plotPad.b;
+
+        const limits = proc.dynamicLimits ? proc.dynamicLimits[frame] : globalLimits;
+        const m = panelMapper(limits, plotLeft, plotTop, plotW, plotH);
+        const [xMin, xMax, yMin, yMax] = limits;
+        drawGrid(m.x, m.y, m.w, m.h);
+
+        // Envelope history
+        const isDarkTheme = document.documentElement.getAttribute("data-theme") === "dark";
+        const envelopeHistoryAlpha = isDarkTheme
+          ? ENVELOPE_HISTORY_ALPHA_DARK
+          : ENVELOPE_HISTORY_ALPHA_LIGHT;
+        ctx.strokeStyle = COLORS.path;
+        ctx.globalAlpha = envelopeHistoryAlpha;
+        ctx.lineWidth = 1.0;
+        ctx.setLineDash([]);
+        for (let h = 0; h < frame; h++) {
+          const curve = proc.envelopes[h];
+          ctx.beginPath();
+          for (let i = 0; i < curve.length; i++) {
+            const x = m.toX(curve[i][0]);
+            const y = m.toY(curve[i][1]);
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+          }
+          ctx.stroke();
+        }
+        ctx.globalAlpha = 1.0;
+
+        // Current envelope
+        const currentEnv = proc.envelopes[frame];
+        ctx.strokeStyle = COLORS.envelope;
+        ctx.lineWidth = 2.2;
+        ctx.setLineDash([8, 4]);
+        ctx.beginPath();
+        for (let i = 0; i < currentEnv.length; i++) {
+          const x = m.toX(currentEnv[i][0]);
+          const y = m.toY(currentEnv[i][1]);
+          if (i === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Cloud
+        const cloud = proc.states[frame];
+        ctx.fillStyle = COLORS.cloud;
+        ctx.globalAlpha = 0.9;
+        const cloudRadius = layout.compactMobile ? 1.2 : 1.5;
+        for (const p of cloud) {
+          ctx.beginPath();
+          ctx.arc(m.toX(p[0]), m.toY(p[1]), cloudRadius, 0, 2 * Math.PI);
+          ctx.fill();
+        }
+        ctx.globalAlpha = 1.0;
+
+        // Tracked path
+        ctx.strokeStyle = COLORS.path;
+        ctx.lineWidth = 2.4;
+        ctx.beginPath();
+        for (let i = 0; i <= frame; i++) {
+          const pt = proc.states[i][0];
+          const x = m.toX(pt[0]);
+          const y = m.toY(pt[1]);
+          if (i === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+
+        // Tracked current point
+        const cur = proc.states[frame][0];
+        const cx = m.toX(cur[0]);
+        const cy = m.toY(cur[1]);
+        ctx.strokeStyle = COLORS.bg;
+        ctx.lineWidth = 3.5;
+        ctx.beginPath();
+        ctx.arc(cx, cy, 6.5, 0, 2 * Math.PI);
+        ctx.stroke();
+        ctx.strokeStyle = COLORS.text;
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.arc(cx, cy, 4, 0, 2 * Math.PI);
+        ctx.stroke();
+        ctx.fillStyle = COLORS.path;
+        ctx.beginPath();
+        ctx.arc(cx, cy, 2.0, 0, 2 * Math.PI);
+        ctx.fill();
+
+        // Shared start marker x
+        const sx = m.toX(params.x0[0]);
+        const sy = m.toY(params.x0[1]);
+        ctx.strokeStyle = COLORS.path;
+        ctx.lineWidth = 2.2;
+        ctx.beginPath();
+        ctx.moveTo(sx - 6, sy - 6);
+        ctx.lineTo(sx + 6, sy + 6);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(sx + 6, sy - 6);
+        ctx.lineTo(sx - 6, sy + 6);
+        ctx.stroke();
+
+        // Titles and labels
+        ctx.fillStyle = COLORS.text;
+        ctx.font = layout.compactMobile
+          ? "700 12px 'Space Grotesk', sans-serif"
+          : "700 14px 'Space Grotesk', sans-serif";
+        ctx.textAlign = "left";
+        const titleX = left + 10;
+        const titleY = top + 24;
+        ctx.fillText(proc.name, titleX, titleY);
+        const titleWidth = ctx.measureText(proc.name).width;
+        ctx.font = layout.compactMobile
+          ? "500 10px 'Space Grotesk', sans-serif"
+          : "500 11px 'Space Grotesk', sans-serif";
+        const gapWidth = ctx.measureText("00000").width; // 5-character spacing
+        ctx.fillText(proc.labels[frame], titleX + titleWidth + gapWidth, titleY);
+
+        // Axis ticks and numeric labels (match matplotlib-style coordinate reading)
+        const xTicks = computeTicks(xMin, xMax, 5);
+        const yTicks = computeTicks(yMin, yMax, 5);
+        ctx.strokeStyle = COLORS.text;
+        ctx.fillStyle = COLORS.text;
+        ctx.lineWidth = 1.2;
+        ctx.font = layout.compactMobile
+          ? "9px 'Times New Roman', serif"
+          : "10px 'Times New Roman', serif";
+
+        // bottom x-axis line
+        ctx.beginPath();
+        ctx.moveTo(m.x, m.y + m.h);
+        ctx.lineTo(m.x + m.w, m.y + m.h);
+        ctx.stroke();
+        ctx.textAlign = "center";
+        for (const xv of xTicks) {
+          const x = m.toX(xv);
+          ctx.beginPath();
+          ctx.moveTo(x, m.y + m.h);
+          ctx.lineTo(x, m.y + m.h + 5);
+          ctx.stroke();
+          ctx.fillText(xv.toFixed(1), x, m.y + m.h + 16);
+        }
+
+        // left y-axis line
+        ctx.beginPath();
+        ctx.moveTo(m.x, m.y);
+        ctx.lineTo(m.x, m.y + m.h);
+        ctx.stroke();
+        ctx.textAlign = "right";
+        for (const yv of yTicks) {
+          const y = m.toY(yv);
+          ctx.beginPath();
+          ctx.moveTo(m.x - 5, y);
+          ctx.lineTo(m.x, y);
+          ctx.stroke();
+          ctx.fillText(yv.toFixed(1), m.x - 8, y + 3);
+        }
+      }
+
+      function drawFrame(k) {
+        frame = k;
+        ctx.fillStyle = COLORS.bg;
+        ctx.fillRect(0, 0, cssW, cssH);
+
+        for (let i = 0; i < processes.length; i++) {
+          drawPanel(processes[i], i);
+        }
+
+        frameLabel.textContent = `frame ${k}`;
+        frameSlider.value = String(k);
+      }
+
+      function tick(ts) {
+        if (!playing) return;
+        if (lastTickMs === null) lastTickMs = ts;
+        const intervalMs = 1000 / playbackFps;
+        if (ts - lastTickMs >= intervalMs) {
+          const next = Math.min(frame + 1, nFrames - 1);
+          drawFrame(next);
+          lastTickMs = ts;
+          if (next >= nFrames - 1) {
+            playing = false;
+            playbackCompleted = true;
+            refreshButtons();
+            return;
+          }
+        }
+        rafId = requestAnimationFrame(tick);
+      }
+
+      playBtn.onclick = () => {
+        if (!playing) {
+          playing = true;
+          playbackCompleted = false;
+          if (!fontsReady) {
+            startAfterFontsReady = true;
+            return;
+          }
+          lastTickMs = null;
+          refreshButtons();
+          rafId = requestAnimationFrame(tick);
+        }
+      };
+
+      pauseBtn.onclick = () => {
+        playing = false;
+        playbackCompleted = false;
+        startAfterFontsReady = false;
+        cancelAnimationFrame(rafId);
+        lastTickMs = null;
+        refreshButtons();
+      };
+
+      resetBtn.onclick = () => {
+        playing = false;
+        startAfterFontsReady = false;
+        cancelAnimationFrame(rafId);
+        lastTickMs = null;
+        playbackCompleted = false;
+        frame = 0;
+        drawFrame(0);
+        refreshButtons();
+      };
+
+      frameSlider.oninput = (e) => {
+        playing = false;
+        startAfterFontsReady = false;
+        cancelAnimationFrame(rafId);
+        lastTickMs = null;
+        playbackCompleted = false;
+        refreshButtons();
+        drawFrame(Number(e.target.value));
+      };
+
+      function initScene() {
+        resizeCanvas();
+        applySystemTheme();
+        refreshButtons();
+        drawFrame(0);
+      }
+
+      if (typeof themeMediaQuery.addEventListener === "function") {
+        themeMediaQuery.addEventListener("change", applySystemTheme);
+      } else if (typeof themeMediaQuery.addListener === "function") {
+        themeMediaQuery.addListener(applySystemTheme);
+      }
+      window.addEventListener("resize", resizeCanvas);
+
+      if (fontsReady) {
+        initScene();
+      } else {
+        document.fonts.ready.then(() => {
+          fontsReady = true;
+          initScene();
+          if (startAfterFontsReady && playing) {
+            startAfterFontsReady = false;
+            lastTickMs = null;
+            refreshButtons();
+            rafId = requestAnimationFrame(tick);
+          }
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

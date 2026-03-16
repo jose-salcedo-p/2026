@@ -1,0 +1,602 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Langevin Gaussian Interactive</title>
+  <style>
+    @font-face {
+      font-family: "Space Grotesk";
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+      src: url("./assets/fonts/SpaceGrotesk-400.ttf") format("truetype");
+    }
+    @font-face {
+      font-family: "Space Grotesk";
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url("./assets/fonts/SpaceGrotesk-500.ttf") format("truetype");
+    }
+    @font-face {
+      font-family: "Space Grotesk";
+      font-style: normal;
+      font-weight: 700;
+      font-display: swap;
+      src: url("./assets/fonts/SpaceGrotesk-700.ttf") format("truetype");
+    }
+    :root {
+      color-scheme: light;
+      --bg-color: #ffffff;
+      --fg-color: #000000;
+      --accent-neon: #00ff00;
+      --grid-line: rgba(0, 0, 0, 0.16);
+      --shadow-color: #000000;
+      --btn-primary-text: #000000;
+    }
+    html[data-theme="dark"] {
+      color-scheme: dark;
+      --bg-color: #000000;
+      --fg-color: #ffffff;
+      --accent-neon: #00ff00;
+      --grid-line: rgba(255, 255, 255, 0.15);
+      --shadow-color: #ffffff;
+      --btn-primary-text: #000000;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 22px 14px;
+      font-family: "Times New Roman", Times, serif;
+      background: var(--bg-color);
+      color: var(--fg-color);
+    }
+    .wrap {
+      max-width: 780px;
+      margin: 0 auto;
+      background: var(--bg-color);
+      border: 2px solid var(--fg-color);
+      border-radius: 4px;
+      box-shadow: 4px 4px 0 0 var(--shadow-color);
+      padding: 14px 14px 11px;
+    }
+    .title {
+      margin: 0 0 8px;
+      font-family: "Space Grotesk", sans-serif;
+      font-size: 24px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      line-height: 1.05;
+      color: var(--fg-color);
+    }
+    .explanation {
+      margin: 6px 0 11px;
+      font-family: "Space Grotesk", sans-serif;
+      font-size: 16px;
+      font-weight: 500;
+      letter-spacing: 0.01em;
+      line-height: 1.45;
+      color: var(--fg-color);
+      max-width: 704px;
+    }
+    .control-panel {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+      padding: 6px 8px;
+      background: var(--bg-color);
+      border: 2px solid var(--fg-color);
+      border-radius: 4px;
+    }
+    .btn {
+      border: 2px solid var(--fg-color);
+      border-radius: 999px;
+      padding: 0;
+      width: 32px;
+      height: 32px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      background: var(--bg-color);
+      color: var(--fg-color);
+      box-shadow: 3px 3px 0 0 var(--shadow-color);
+    }
+    .btn:hover {
+      transform: translate(2px, 2px);
+      box-shadow: 0 0 0 0 var(--shadow-color);
+    }
+    .btn svg {
+      width: 13px;
+      height: 13px;
+      fill: currentColor;
+    }
+    .btn-primary {
+      background: var(--accent-neon);
+      border-color: var(--fg-color);
+      color: var(--btn-primary-text);
+    }
+    .btn-primary:hover {
+      box-shadow: 0 0 0 0 var(--shadow-color);
+    }
+    .slider-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 1;
+      min-width: 224px;
+    }
+    .slider-label {
+      font-size: 13px;
+      color: var(--fg-color);
+      white-space: nowrap;
+    }
+    input[type="range"] {
+      flex: 1;
+      height: 5px;
+      background: var(--fg-color);
+      border-radius: 999px;
+      -webkit-appearance: none;
+      appearance: none;
+      outline: none;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--accent-neon);
+      border: 2px solid var(--fg-color);
+      cursor: pointer;
+      box-shadow: 0 0 0 2px var(--bg-color);
+    }
+    input[type="range"]::-moz-range-thumb {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--accent-neon);
+      border: 2px solid var(--fg-color);
+      cursor: pointer;
+      box-shadow: 0 0 0 2px var(--bg-color);
+    }
+    canvas {
+      display: block;
+      width: 100%;
+      margin: 0 auto;
+      border: 2px solid var(--fg-color);
+      border-radius: 4px;
+      background: var(--bg-color);
+    }
+    .meta {
+      margin-top: 10px;
+      padding: 8px 12px;
+      font-size: 13px;
+      line-height: 1.5;
+      color: #5b6473;
+      background: #f8f6f2;
+      border-left: 3px solid #1e3a5f;
+      border-radius: 3px;
+    }
+    .mono { font-family: "Space Grotesk", sans-serif; font-weight: 500; font-size: 13px; color: var(--fg-color); min-width: 58px; }
+    .title,
+    .explanation,
+    .slider-label,
+    .mono {
+      transition: none !important;
+    }
+    @media (max-width: 768px) {
+      body { padding: 11px 6px; }
+      .wrap { padding: 10px 8px 8px; }
+      .title { font-size: 18px; }
+      .explanation { font-size: 13px; line-height: 1.35; }
+      .control-panel { gap: 8px; padding: 8px; }
+      .btn { width: 30px; height: 30px; }
+      .slider-wrap { min-width: 128px; }
+      .mono { min-width: 52px; font-size: 11px; }
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <h2 class="title"> Stationary Langevin Dynamics</h2>
+  <p class="explanation">Under Langevin dynamics, the distribution remains stationary: the density cloud stay fixed, while individual particles move stochastically within it.</p>
+  <div class="control-panel">
+    <button class="btn btn-primary" id="play" title="Play">
+      <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+    </button>
+    <button class="btn" id="pause" title="Pause">
+      <svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+    </button>
+    <button class="btn" id="reset" title="Reset">
+      <svg viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>
+    </button>
+    <div class="slider-wrap">
+      <span class="slider-label">Frame</span>
+      <input id="frameSlider" type="range" min="0" max="0" value="0">
+    </div>
+    <span id="tLabel" class="mono">t = 0.00</span>
+  </div>
+  <canvas id="cv" width="736" height="448"></canvas>
+</div>
+
+<script>
+(() => {
+  // ---- constants / style ----
+  const CHI2_Q_DF2_80 = 3.2188758248682006; // -2 ln(0.2)
+  const ENVELOPE_POINTS = 181;
+  const COLORS = {
+    cloud: "#00FF00",
+    path: "#000000",
+    envelope: "#000000",
+    text: "#000000",
+    bg: "#FFFFFF",
+    grid: "rgba(0,0,0,0.16)"
+  };
+
+  function cssVar(name, fallback) {
+    const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    return v || fallback;
+  }
+
+  function syncCanvasColorsFromCss() {
+    COLORS.cloud = cssVar("--accent-neon", COLORS.cloud);
+    COLORS.path = cssVar("--fg-color", COLORS.path);
+    COLORS.envelope = cssVar("--fg-color", COLORS.envelope);
+    COLORS.text = cssVar("--fg-color", COLORS.text);
+    COLORS.bg = cssVar("--bg-color", COLORS.bg);
+    COLORS.grid = cssVar("--grid-line", COLORS.grid);
+  }
+
+  // ---- deterministic RNG ----
+  function mulberry32(seed) {
+    let t = seed >>> 0;
+    return function() {
+      t += 0x6D2B79F5;
+      let r = Math.imul(t ^ (t >>> 15), 1 | t);
+      r ^= r + Math.imul(r ^ (r >>> 7), 61 | r);
+      return ((r ^ (r >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  function randn(rng) {
+    let u = 0, v = 0;
+    while (u === 0) u = rng();
+    while (v === 0) v = rng();
+    return Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+  }
+
+  // ---- simulation (mirrors your python) ----
+  function sampleGaussian(mean, std, nPaths, rng) {
+    const arr = new Array(nPaths);
+    for (let i = 0; i < nPaths; i++) {
+      arr[i] = [mean[0] + std[0] * randn(rng), mean[1] + std[1] * randn(rng)];
+    }
+    return arr;
+  }
+
+  function promoteTracedSample(samples, target) {
+    let best = 0, bestD = Infinity;
+    for (let i = 0; i < samples.length; i++) {
+      const dx = samples[i][0] - target[0];
+      const dy = samples[i][1] - target[1];
+      const d = dx * dx + dy * dy;
+      if (d < bestD) { bestD = d; best = i; }
+    }
+    if (best !== 0) [samples[0], samples[best]] = [samples[best], samples[0]];
+    return samples;
+  }
+
+  function expIntegratorStep(x, mean, std, dt, rng) {
+    const beta0 = 1.0 / (std[0] * std[0]);
+    const beta1 = 1.0 / (std[1] * std[1]);
+    const decay0 = Math.exp(-beta0 * dt);
+    const decay1 = Math.exp(-beta1 * dt);
+    const scale0 = Math.sqrt((1.0 - Math.exp(-2.0 * beta0 * dt)) / beta0);
+    const scale1 = Math.sqrt((1.0 - Math.exp(-2.0 * beta1 * dt)) / beta1);
+
+    const next = new Array(x.length);
+    for (let i = 0; i < x.length; i++) {
+      const z0 = randn(rng), z1 = randn(rng);
+      next[i] = [
+        mean[0] + decay0 * (x[i][0] - mean[0]) + scale0 * z0,
+        mean[1] + decay1 * (x[i][1] - mean[1]) + scale1 * z1
+      ];
+    }
+    return next;
+  }
+
+  function stationaryEnvelope(mean, std) {
+    const radius = 1.08 * Math.sqrt(CHI2_Q_DF2_80);
+    const env = [];
+    for (let k = 0; k < ENVELOPE_POINTS; k++) {
+      const th = (2 * Math.PI * k) / (ENVELOPE_POINTS - 1);
+      env.push([mean[0] + radius * Math.cos(th) * std[0], mean[1] + radius * Math.sin(th) * std[1]]);
+    }
+    return env;
+  }
+
+  function simulate(params) {
+    const rng = mulberry32(params.seed);
+    const states = new Array(params.nSteps);
+    const times = new Array(params.nSteps);
+
+    states[0] = promoteTracedSample(
+      sampleGaussian(params.mean, params.std, params.nPaths, rng),
+      params.traceTarget
+    );
+    times[0] = 0;
+
+    for (let k = 0; k < params.nSteps - 1; k++) {
+      states[k + 1] = expIntegratorStep(states[k], params.mean, params.std, params.dt, rng);
+      times[k + 1] = (k + 1) * params.dt;
+    }
+
+    const envelope = stationaryEnvelope(params.mean, params.std);
+
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    for (const frame of states) {
+      for (const p of frame) {
+        if (p[0] < minX) minX = p[0];
+        if (p[0] > maxX) maxX = p[0];
+        if (p[1] < minY) minY = p[1];
+        if (p[1] > maxY) maxY = p[1];
+      }
+    }
+    for (const p of envelope) {
+      if (p[0] < minX) minX = p[0];
+      if (p[0] > maxX) maxX = p[0];
+      if (p[1] < minY) minY = p[1];
+      if (p[1] > maxY) maxY = p[1];
+    }
+    const padX = Math.max((maxX - minX) * 0.12, 1.0);
+    const padY = Math.max((maxY - minY) * 0.12, 1.0);
+
+    return { states, times, envelope, limits: [minX - padX, maxX + padX, minY - padY, maxY + padY] };
+  }
+
+  // ---- render ----
+  const cv = document.getElementById("cv");
+  const ctx = cv.getContext("2d");
+  const dpr = window.devicePixelRatio || 1;
+  const BASE_CANVAS_W = 736;
+  const BASE_CANVAS_H = 448;
+  let cssW = BASE_CANVAS_W;
+  let cssH = BASE_CANVAS_H;
+
+  let payload = null;
+  let frame = 0;
+  let playing = false;
+  let playbackCompleted = false;
+  let rafId = null;
+  let fontsReady = !(document.fonts && document.fonts.ready);
+  let startAfterFontsReady = false;
+  const themeMediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+  const playBtn = document.getElementById("play");
+  const pauseBtn = document.getElementById("pause");
+  const resetBtn = document.getElementById("reset");
+
+  function applySystemTheme() {
+    document.documentElement.setAttribute("data-theme", themeMediaQuery.matches ? "dark" : "light");
+    syncCanvasColorsFromCss();
+    drawFrame(frame);
+  }
+
+  function resizeCanvas() {
+    const parent = cv.parentElement;
+    const parentStyle = getComputedStyle(parent);
+    const innerW =
+      parent.clientWidth
+      - parseFloat(parentStyle.paddingLeft || "0")
+      - parseFloat(parentStyle.paddingRight || "0");
+    const containerW = Math.floor(innerW || BASE_CANVAS_W);
+    cssW = Math.max(220, Math.floor(containerW ));
+    const targetH = Math.round(cssW * (BASE_CANVAS_H / BASE_CANVAS_W));
+    const isMobile = window.innerWidth <= 768;
+    const minH = isMobile ? 210 : 300;
+    const maxH = isMobile ? 448 : 620;
+    cssH = Math.max(minH, Math.min(maxH, targetH));
+    cv.width = Math.floor(cssW * dpr);
+    cv.height = Math.floor(cssH * dpr);
+    cv.style.width = cssW + "px";
+    cv.style.height = cssH + "px";
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    if (payload) drawFrame(frame);
+  }
+
+  function mapFactory(limits) {
+    let [x0, x1, y0, y1] = limits;
+    // Shrink x-axis limits by 30% on each side
+    const xRange = x1 - x0;
+    x0 = x0 + xRange * 0.2;
+    x1 = x1 - xRange * 0.2;
+
+    const pad = { l: 32, r: 16, t: 16, b: 26 };
+    const W = cssW - pad.l - pad.r, H = cssH - pad.t - pad.b;
+    return {
+      toX: x => pad.l + ((x - x0) / (x1 - x0)) * W,
+      toY: y => pad.t + H - ((y - y0) / (y1 - y0)) * H,
+      pad, W, H
+    };
+  }
+
+  function drawFrame(k) {
+    const { states, times, envelope, limits } = payload;
+    const m = mapFactory(limits);
+
+    ctx.fillStyle = COLORS.bg;
+    ctx.fillRect(0, 0, cssW, cssH);
+
+    ctx.strokeStyle = COLORS.grid;
+    ctx.lineWidth = 1.0;
+    for (let gx = 0; gx <= 10; gx++) {
+      const x = m.pad.l + (gx / 10) * m.W;
+      ctx.beginPath(); ctx.moveTo(x, m.pad.t); ctx.lineTo(x, m.pad.t + m.H); ctx.stroke();
+    }
+    for (let gy = 0; gy <= 10; gy++) {
+      const y = m.pad.t + (gy / 10) * m.H;
+      ctx.beginPath(); ctx.moveTo(m.pad.l, y); ctx.lineTo(m.pad.l + m.W, y); ctx.stroke();
+    }
+
+    ctx.setLineDash([8, 4]);
+    ctx.strokeStyle = COLORS.envelope;
+    ctx.lineWidth = 2.2;
+    ctx.beginPath();
+    envelope.forEach((p, i) => {
+      const x = m.toX(p[0]), y = m.toY(p[1]);
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    const cloud = states[k];
+    ctx.fillStyle = COLORS.cloud;
+    ctx.globalAlpha = 0.9;
+    for (const p of cloud) {
+      ctx.beginPath(); ctx.arc(m.toX(p[0]), m.toY(p[1]), 2, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.globalAlpha = 1.0;
+
+    ctx.strokeStyle = COLORS.path;
+    ctx.lineWidth = 2.4;
+    ctx.beginPath();
+    for (let i = 0; i <= k; i++) {
+      const p = states[i][0];
+      const x = m.toX(p[0]), y = m.toY(p[1]);
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+
+    const start = states[0][0];
+    ctx.fillStyle = COLORS.path;
+    ctx.beginPath(); ctx.arc(m.toX(start[0]), m.toY(start[1]), 3.2, 0, Math.PI * 2); ctx.fill();
+
+    const cur = states[k][0], cx = m.toX(cur[0]), cy = m.toY(cur[1]);
+    ctx.strokeStyle = COLORS.bg; ctx.lineWidth = 5;
+    ctx.beginPath(); ctx.arc(cx, cy, 10, 0, Math.PI * 2); ctx.stroke();
+    ctx.strokeStyle = COLORS.text; ctx.lineWidth = 2.0;
+    ctx.beginPath(); ctx.arc(cx, cy, 6.5, 0, Math.PI * 2); ctx.stroke();
+    ctx.fillStyle = COLORS.path;
+    ctx.beginPath(); ctx.arc(cx, cy, 3.6, 0, Math.PI * 2); ctx.fill();
+
+    ctx.fillStyle = COLORS.text;
+    ctx.font = "500 13px 'Space Grotesk', sans-serif";
+    ctx.fillText(`t = ${times[k].toFixed(2)}`, 16, 24);
+
+    document.getElementById("tLabel").textContent = `t = ${times[k].toFixed(2)}`;
+    document.getElementById("frameSlider").value = String(k);
+  }
+
+  function loop() {
+    if (!playing) return;
+    frame = Math.min(frame + 1, payload.states.length - 1);
+    drawFrame(frame);
+    if (frame >= payload.states.length - 1) {
+      playing = false;
+      playbackCompleted = true;
+      refreshControls();
+      return;
+    }
+    rafId = requestAnimationFrame(loop);
+  }
+
+  const defaultParams = {
+    nPaths: 300,
+    nSteps: 320,
+    dt: 0.015,
+    seed: 20260313,
+    mean: [1.5, -0.5],
+    std: [2.2, 0.9],
+    traceTarget: [3.8, 0.0]
+  };
+
+  payload = simulate(defaultParams);
+  frame = 0;
+  const slider = document.getElementById("frameSlider");
+  slider.max = String(payload.states.length - 1);
+  slider.value = "0";
+
+  function refreshControls() {
+    playBtn.classList.remove("btn-primary");
+    pauseBtn.classList.remove("btn-primary");
+    resetBtn.classList.remove("btn-primary");
+    if (playbackCompleted && !playing) {
+      resetBtn.classList.add("btn-primary");
+    } else if (playing) {
+      pauseBtn.classList.add("btn-primary");
+    } else {
+      playBtn.classList.add("btn-primary");
+    }
+  }
+
+  document.getElementById("play").onclick = () => {
+    if (!playing) {
+      playing = true;
+      playbackCompleted = false;
+      if (!fontsReady) {
+        startAfterFontsReady = true;
+        return;
+      }
+      refreshControls();
+      loop();
+    }
+  };
+  document.getElementById("pause").onclick = () => {
+    playing = false;
+    playbackCompleted = false;
+    startAfterFontsReady = false;
+    cancelAnimationFrame(rafId);
+    refreshControls();
+  };
+
+  document.getElementById("reset").onclick = () => {
+    playing = false;
+    playbackCompleted = false;
+    startAfterFontsReady = false;
+    cancelAnimationFrame(rafId);
+    frame = 0;
+    drawFrame(0);
+    refreshControls();
+  };
+  document.getElementById("frameSlider").oninput = (e) => {
+    playing = false;
+    playbackCompleted = false;
+    startAfterFontsReady = false;
+    frame = +e.target.value;
+    drawFrame(frame);
+    refreshControls();
+  };
+  function initScene() {
+    resizeCanvas();
+    applySystemTheme();
+    refreshControls();
+    drawFrame(0);
+  }
+
+  if (typeof themeMediaQuery.addEventListener === "function") {
+    themeMediaQuery.addEventListener("change", applySystemTheme);
+  } else if (typeof themeMediaQuery.addListener === "function") {
+    themeMediaQuery.addListener(applySystemTheme);
+  }
+  window.addEventListener("resize", resizeCanvas);
+
+  if (fontsReady) {
+    initScene();
+  } else {
+    document.fonts.ready.then(() => {
+      fontsReady = true;
+      initScene();
+      if (startAfterFontsReady && playing) {
+        startAfterFontsReady = false;
+        refreshControls();
+        loop();
+      }
+    });
+  }
+})();
+</script>
+</body>
+</html>
