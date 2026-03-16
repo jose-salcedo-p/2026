@@ -1,7 +1,7 @@
 ---
 layout: distill
 title: Evaluating Machine-Learned Inter-Atomic Potentials for a Practical Simulation Workflow
-description: MLIPs are a promising paradigm in atomistic simulation, potentially offering the accuracy of ab-initio methods at the speed of empirical potentials. In this blog post, we give an overview of recent MLIP architectures, followed by an evaluation on a practical CO2 adsorption simulation. We find that as of today these models, though promising, are far from plug-and-play, requiring significant engineering effort to operate within established simulation frameworks, while also failing to produce physically consistent results.
+description: MLIPs are a promising paradigm in atomistic simulation, potentially offering the accuracy of ab-initio methods at the speed of empirical potentials. In this blog post, we give an overview of recent MLIP architectures, followed by an evaluation on a practical CO<sub>2</sub> adsorption simulation. We find that as of today these models, though promising, are far from plug-and-play, requiring significant engineering effort to operate within established simulation frameworks, while also failing to produce physically consistent results.
 date: 2026-04-27
 future: true
 htmlwidgets: true
@@ -13,7 +13,18 @@ mermaid:
   zoomable: true
 
 authors:
-  - name: Anonymous
+  - name: Richar Strunk
+    url: "https://richy.de"
+    affiliations:
+      name: TU Munich
+  - name: Daniel Cremers<sup>*</sup>
+    url: "https://cvg.cit.tum.de/members/cremers"
+    affiliations:
+      name: TU Munich
+  - name: Karnik Ram<sup>*</sup>
+    url: "https://karnikram.info"
+    affiliations:
+      name: TU Munich
 
 # must be the exact same name as your blogpost
 bibliography: 2026-04-27-mlip-practical.bib
@@ -78,11 +89,11 @@ essentially providing the best of both worlds<d-cite key="goeminne2023dft, SchNe
 However, their practical applicability is still an open question of ongoing research in the field. The general black-box nature of all ML models, with the complex architectures, specialized training procedures and datasets of MLIPs,
 paired with their slow integration into commonly used MD software programs pose a significant barrier for researchers and practitioners to use, understand and adopt this promising new paradigm.
 
-In this blog post, we will give an overview of the most important MLIPs and their architectures, followed by a discussion of their practical applicability in terms of their speed, compatibility with commonly used MD software programs and their accuracy on a practical example.
+In this blog post, we aim to provide a structured overview of modern MLIPs, including the key architectural ideas behind them. We then move from theory to practice by examining how these models can be integrated into widely used MD frameworks and what technical friction points arise. Finally, we evaluate practical applicability through targeted benchmarks on inference speed and two realistic case studies (CO₂ diffusion, and CO₂ adsorption in Mg-MOF-74).
 
 ## Overview of MLIPs
 
-Even though DFT methods heavily improve speed and scaling properties for AIMD compared to SOTA coupled cluster methods, they're still too slow for large scale systems, usually the more interesting ones.
+Even though DFT methods heavily improve speed and scaling properties for Ab-Initio MD (AIMD) compared to SOTA coupled cluster methods, they're still too slow for large scale systems, usually the more interesting ones.
 One key problem is the fact that DFT approximates the entire wave function, in essence solving the entire system completely,
 every single time step, which is very costly and scales poorly with system size.
 But for MD we only care about the forces acting on the atoms, which are derived from the wave function, not the wave function itself.
@@ -137,7 +148,7 @@ SchNet is invariant to rotations, translations, and atomic indexing, which made 
 Translation equivariance and atomic indexing symmetry are the easiest to achieve, as they often come naturally when working with graphs;
 which is why, going forward, we will only focus on rotational equivariance.
 
-SchNet achieves rotational equivariance by using the distance $d_{ij} = ||r_i - r_j||_2$ between two atoms $i$ and $j$ as input to the model, an operation *invariant* to rotations.
+SchNet achieves rotational equivariance by using the invariant distance $d_{ij} = ||r_i - r_j||_2$ between two atoms $i$ and $j$ as input to the model.
 These distances are then transformed into coefficients of Radial Basis Functions (RBFs),
 
 $$
@@ -167,7 +178,7 @@ This contrasts with CNNs for images, where pixels form a regular grid and the di
 is fine enough to make reasonable predictions.
 For MLIPs, a discrete convolution kernel analogous to those in CNNs results in a poorly discretized, discontinuous PES.
 SchNet addresses this problem by introducing CFConv layers.
-Instead of using a discrete kernel matrix, this method learns a \emph{continuous kernel function}.
+Instead of using a discrete kernel matrix, this method learns a *continuous kernel function*.
 First, the distance between two atoms $d_{ij}$ is expanded using a set of RBF as shown above.
 Then, the resulting vector is processed by a small MLP to generate a filter weight $W(d_{ij})$:
 
@@ -307,7 +318,7 @@ is the general formula they use and provide.
 
 Even though in speed it is ahead of the previous e3nn architectures with their notoriously expensive tensor products,
 eSEN trails behind the completely non-equivariant Orb models in speed, at least in theory.
-Not only due to its conservative architecture, which requires a second backpropagation step to compute forces and stress from the energy,
+Not only due to its conservative architecture (they also provide a direct-force version)
 but primarily because every message passing step requires a custom Wigner-D matrix for rotations into and out of the local frame of reference, a costly operation.
 
 ### Orb-v3 (2025)
@@ -1226,12 +1237,11 @@ A potential area of future work could be the evaluation
 -- with the necessary computational resources at hand --
 of more models or orb-v3 variations to find better performing models for this task.
 
-*We also plan to release code for all the experiments in this post upon publication.*
+The source code for all the experiments in this post is available on GitHub<d-footnote>https://github.com/Jpx3/testsuite</d-footnote>.
 
 ## Conclusion
 
 In this post, we explored how MLIPs work and how they are built,
 different architectures and design choices that go into making them.
-We were successful in building a universal ASE-MLIP interface for LAMMPS,
-allowing us to run an originally empirical Mg-MOF-74 CO$_2$-adsorption GCMC simulation with a MLIP instead, only to discover that it doesn't reproduce the more physically-sound empirical results. While we were able to evaluate the cheapest MLIP model on the CO$_2$ GCMC simulation,
-the more accurate models were simply too expensive to run in a reasonable time frame.
+We were successful in building a universal ASE-MLIP interface for LAMMPS, allowing us to run an originally empirical Mg-MOF-74 CO$_2$-adsorption GCMC simulation with an MLIP instead, only to discover that it doesn't reproduce the more physically-sound empirical results. While we were able to evaluate the cheapest MLIP model on the CO$_2$ GCMC simulation,
+the more accurate models remained prohibitively expensive to run within a practical time frame. Since the field of MLIPs is still relatively in its early stages, we hope to see more exciting developments in the future. We specifically hope to see more work on evaluating MLIPs for predicting useful downstream physical and dynamical properties, and also on investing in stronger integration with established MD frameworks. New training schemes beyond single step energy prediction, that can efficiently incorporate these downstream physical properties is also an open question.
