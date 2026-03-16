@@ -12,23 +12,15 @@ mermaid:
   enabled: true
   zoomable: true
 
-# Anonymize when submitting
 authors:
-  - name: Anonymous
-
-# authors:
-#  - name: Albert Einstein
-#    url: "https://en.wikipedia.org/wiki/Albert_Einstein"
-#    affiliations:
-#      name: IAS, Princeton
-#  - name: Boris Podolsky
-#    url: "https://en.wikipedia.org/wiki/Boris_Podolsky"
-#    affiliations:
-#      name: IAS, Princeton
-#  - name: Nathan Rosen
-#    url: "https://en.wikipedia.org/wiki/Nathan_Rosen"
-#    affiliations:
-#      name: IAS, Princeton
+ - name: François Bertholom
+   url: ""
+   affiliations:
+     name: Institute Polytechnique de Paris, Télécom SudParis SAMOVAR
+ - name: Khalid Oublal
+   url: ""
+   affiliations:
+     name: Institute Polytechnique de Paris, Telecom Paris LTCI/S2A, OneTech TotalEnergies, DS&AI
 
 # must be the exact same name as your blogpost
 bibliography: 2026-04-27-generalization-in-diffusion-as-infinite-hvae.bib
@@ -148,8 +140,7 @@ _styles: >
 
 ## 1. Motivations
 
-Diffusion Probabilistic Models (DPMs) have largely eclipsed Variational Auto-Encoders (VAEs) as the gold standard for high-fidelity generative modeling. Yet, treating them as rival paradigms obscures a deeper theoretical continuity. In this post, we explain that DPMs are not a departure from VAEs, but rather their ultimate expression: they are rigorously equivalent to properly parameterized Hierarchical VAEs (HVAEs) in the limit of infinite depth with a fixed, noise-injecting inference process.  We evaluate these models on three benchmark datasets—CIFAR-10, CelebA, and ImageNet—as well as the CERA weather dataset <d-cite key="CERRA"></d-cite>, to illustrate both image and spatio-temporal generalization. By bridging the discrete layers of deep VAEs with the continuous trajectories of Stochastic Differential Equations, we show that this architectural limit is more than a mathematical artifact. It appears as the structural key that allows diffusion models to circumvent posterior collapse, enabling them to generalize far beyond the reach of finite hierarchical models.
-
+Diffusion Probabilistic Models (DPMs) have largely eclipsed Variational Auto-Encoders (VAEs) as the gold standard for high-fidelity generative modeling. Yet, treating them as rival paradigms obscures a deeper theoretical continuity. In this post, we explain that DPMs are not a departure from VAEs, but rather their ultimate expression: they are rigorously equivalent to properly parameterized Hierarchical VAEs (HVAEs) in the limit of infinite depth with a fixed, noise-injecting inference process.  We evaluate these models on three benchmark datasets—CIFAR-10, CelebA, and ImageNet—as well as the CERA weather dataset <d-cite key="ridal2024cerra"></d-cite>, to illustrate both image and spatio-temporal generalization. There is a fascinating, established connection between the theoretical foundations of deep VAEs and score-based generative modeling with Stochastic Differential Equations. By conceptually unifying the different views on this theory, we want to show that this architectural limit is not just a mathematical artifact, but a largely untapped resource with massive potential to better understand modern generative modeling.
 
 To provide an intuitive sense of these differences in reconstruction quality, we compare the output of HVAEs and DDPMs against the ground truth using interactive sliders. These sliders allow readers to visually assess how model depth or diffusion steps affect fidelity in both natural and structured data domains:
 
@@ -273,7 +264,7 @@ To provide an intuitive sense of these differences in reconstruction quality, we
 
 ### 2.1 Variational Auto-Encoders (VAEs)
 
-Since their introduction in 2014 by <d-cite key="kingma2013auto, rezende2014stochastic"></d-cite>, Variational Auto-Encoders (VAE) have revolutionized the field of Variational Inference (VI) and have had a broad impact in many areas of machine learning. A VAE operates in a *latent variable model*, defined by a joint density $p_{\theta}(x, z) = p_{\theta}(x \mid z)p(z)$. Here, $z$ denotes the latent variables with a prior density $p(z)$, and $p_{\theta}(x \mid z)$ is the observation model (or likelihood).
+Since their introduction in 2014 by <d-cite key="kingma2013auto, rezende2014stochastic"></d-cite>, Variational Auto-Encoders (VAE) have revolutionized the field of Variational Inference (VI) and have had a broad impact in many areas of machine learning. A VAE operates in a *latent variable model*, defined by a joint density $p_{\theta}(x, z) = p_{\theta}(x \mid z)p(z)$. Here, $z$ denotes the latent variables with a prior density $p(z)$, and $p_{\theta}(x \mid z)$ is the observation model, or likelihood.
 
 A key challenge in Bayesian inference is to learn the posterior $p_{\theta}(z \mid x)=p_{\theta}(x, z)/p_{\theta}(x)$. This density is often intractable due to the normalizing constant $p_{\theta}(x)$. VI introduces a parametric family of distributions $\{q_{\phi}(z \mid x):\phi\in\Phi\}$, referred to as the inference model or approximate posterior, and tries to find the parameter $\phi$ that yields the best approximation of the true posterior $p_{\theta}(z \mid x)$. The quality of the approximation is quantified by a divergence measure, often the reverse Kullback-Leibler (KL) divergence. Minimizing the reverse KL divergence between the approximate posterior and the true posterior is equivalent to maximizing the Evidence Lower Bound (ELBO), $-\mathcal{L}(\theta, \phi; x)$, which also serves as a tractable lower bound to the marginal likelihood:
 
@@ -333,8 +324,8 @@ we can derive a layer-wise objective. Grouping the terms by time step $t$ reveal
 $$
 \begin{align}\label{eq:elbo-hvae}
     \mathcal{L}_{\mathrm{HVAE}}(\theta, \phi, z_0) &= \mathbb{E}_{q_{\phi}} [\log p_{\theta}(z_0 \mid z_1)] \\
-    & - \sum_{t=2}^T \mathbb{E}_{q_{\phi}} [D_{\mathrm{KL}}(q_{\phi}(z_t \mid z_{t-1}) \mid p_{\theta}(z_{t-1} \mid z_t))] \nonumber \\ 
-    & - D_{\mathrm{KL}}(q_{\phi}(z_T \mid z_0) \mid p(z_T)). \nonumber
+    & - \sum_{t=2}^T \mathbb{E}_{q_{\phi}} [D_{\mathrm{KL}}(q_{\phi}(z_t \mid z_{t-1}) \,\|\, p_{\theta}(z_{t-1} \mid z_t))] \nonumber \\ 
+    & - D_{\mathrm{KL}}(q_{\phi}(z_T \mid z_0) \,\|\, p(z_T)). \nonumber
 \end{align}
 $$
 
@@ -344,9 +335,9 @@ This decomposition reveals three distinct structural components of the loss func
 
 * **1. Reconstruction:**  The first term of Eq. \eqref{eq:elbo-hvae} measures how well the model can reconstruct the original data from the latent variable $z_1$, encouraging accurate generation.
 
-* **2. Consistency Terms:**  $\sum D_{\mathrm{KL}}(q_{\phi}(z_t \mid z_{t-1}) \,\|\, p_{\theta}(z_{t-1} \mid z_t))$ — encourages the generative transitions $p_{\theta}(z_{t-1} \mid z_t)$ to match the inference transitions $q_{\phi}(z_t \mid z_{t-1})$, ensuring smooth flow along the latent trajectory.
+* **2. Consistency Terms:**  $\sum D_{\mathrm{KL}}(q_{\phi}(z_t \mid z_{t-1}) \,\|\, p_{\theta}(z_{t-1} \mid z_t))$ encourages the generative transitions $p_{\theta}(z_{t-1} \mid z_t)$ to match the inference transitions $q_{\phi}(z_t \mid z_{t-1})$, ensuring smooth flow along the latent trajectory.
 
-* **3. Prior Matching:**  $D_{\mathrm{KL}}(q_{\phi}(z_T \mid z_0) \,\|\, p(z_T))$ — aligns the final latent distribution with the prior, similar to the standard VAE, to regularize the latent space.
+* **3. Prior Matching:**  $D_{\mathrm{KL}}(q_{\phi}(z_T \mid z_0) \,\|\, p(z_T))$ aligns the final latent distribution with the prior, similar to the standard VAE, to regularize the deepest latent representation.
 </aside>
 
 <br>
@@ -365,9 +356,10 @@ On the task of generative modeling, Diffusion Models <d-cite key="sohl2015deep">
 
 ## 3. Denoising Diffusion Probabilistic Models (DDPMs)
 
-The core idea behind diffusion models is to define a fixed process that destroys data, and to learn the reversal of this process. We adopt the formalism from <d-cite key="ho2020denoising"></d-cite>.
+The core idea behind diffusion models is to define a fixed process that destroys data, and to learn the reversal of this process. We adopt the formalism of Ho et al. (2020) <d-cite key="ho2020denoising"></d-cite>.
 
 **The Forward Process.** In contrast to VAEs, which learn the approximate posterior parameters, Denoising Diffusion Probabilistic Models (DDPMs) <d-cite key="ho2020denoising"></d-cite> define a *fixed* inference process. This forward process is a Markov chain $q(z_{1:T} \mid z_0)$ that gradually adds Gaussian noise to the data $z_0$ according to a pre-defined variance schedule $\beta_1, \dots, \beta_T$:
+
 $$
 \begin{equation}
     q(z_t \mid z_{t-1}) = \mathcal{N}(z_t; \sqrt{1-\beta_t} z_{t-1}, \beta_t \mathbf{I}).
@@ -403,7 +395,7 @@ While the variances $\Sigma_{\theta}$ are often fixed according to a predefined 
   To derive an efficient parameterization for $\mu_{\theta}$, we observe that the true posterior of the forward process, conditioned on $x_0$, is a tractable Gaussian: 
   
   $$
-  \begin{equation}
+  \begin{equation}\label{eq:mu_theta}
       q(x_{t-1} \mid x_t, x_0) = \mathcal{N}(x_{t-1}; \tilde{\mu}_t(x_t, x_0), \tilde{\beta}_t \mathbf{I}).
   \end{equation}
   $$
@@ -427,7 +419,7 @@ $$
 \end{equation*}
 $$
 
-Here, the expectations are taken with respect to $q(z_{1:T} \mid z_0)$. A key insight in diffusion models is that the forward process posterior $q(z_{t-1} \mid z_t, z_0)$ is tractable when conditioned on $z_0$. Using Bayes' rule, we can rewrite the forward transition as $q(z_t \mid z_{t-1}) = \frac{q(z_t \mid z_{t-1}, z_0) q(z_{t-1} \mid z_0)}{q(z_t \mid z_0)}$. Substituting this into the objective allows us to decompose the loss into three interpretable terms:
+Here, the expectations are taken with respect to $q(z_{1:T}\,|\,z_0)$, averaged over the empirical data distribution, i.e., $q(z_{0:T})=q(z_0)\,q(z_{1:T}\,|\,z_0)$. A key insight in diffusion models is that the forward process posterior $q(z_{t-1} \mid z_t, z_0)$ is tractable when conditioned on $z_0$. Using Bayes' rule, we can rewrite the forward transition as $q(z_t \mid z_{t-1}) = \frac{q(z_t \mid z_{t-1}, z_0) q(z_{t-1} \mid z_0)}{q(z_t \mid z_0)}$. Substituting this into the objective allows us to decompose the loss into three interpretable terms:
 
 $$
 \begin{align}\label{eq:elbo-dpm}
@@ -594,10 +586,10 @@ is equivalent to predicting the nois $\varepsilon_\theta$ (or the score $s_{\the
 
 Indeed, these quantities are simply related by affine transformations. The $\hat{z}_\theta$ parameterization is more convenient for the analysis presented below.
 
-We begin with the discrete diffusion loss term from Eq. \eqref{eq:elbo-hvae}: 
+We begin with the diffusion loss term from Eq. \eqref{eq:elbo-hvae}: 
 
 $$
-\mathcal{L}_T = \sum_{t=1}^T \mathbb{E}_{q}[D_{\mathrm{KL}}(q(z_{s} \mid z_t, z_0) \mid p_{\theta}(z_{s} \mid z_t))],
+\mathcal{L}_T = \sum_{t=1}^T \mathbb{E}_{q}[D_{\mathrm{KL}}(q(z_{s} \mid z_t, z_0) \,\|\, p_{\theta}(z_{s} \mid z_t))],
 $$
 
 where $s = t - \Delta t$. We let $\{\gamma_t\}$ and $\{\sigma_t^2\}$ be such that $q(z_t \mid z_0) = \mathcal{N}(z_t; \gamma_t z_0, \sigma_t^2 I)$, and define the Signal-to-Noise Ratio (SNR) as $\mathrm{SNR}(t) = \gamma_t^2 / \sigma_t^2$. This is a strictly monotonic decreasing function of $t$.
@@ -606,7 +598,7 @@ The key insight relies on how the posterior $q(z_s \mid z_t, z_0)$ and the trans
 
 $$
 \begin{equation}
-    D_{\mathrm{KL}}(q(z_{s} \mid z_t, z_0) \mid p_{\theta}(z_{s} \mid z_t)) = \frac{1}{2} (\mathrm{SNR}(s) - \mathrm{SNR}(t)) \mid z_0 - \hat{z}_{\theta}(z_t, t) \|_2^2.
+    D_{\mathrm{KL}}(q(z_{s} \mid z_t, z_0) \,\|\, p_{\theta}(z_{s} \mid z_t)) = \frac{1}{2} (\mathrm{SNR}(s) - \mathrm{SNR}(t)) \|z_0 - \hat{z}_{\theta}(z_t, t) \|_2^2.
 \end{equation}
 $$
 
@@ -614,14 +606,14 @@ We sum these terms over all timesteps $t$ and take the limit as $T \to \infty$ (
 $$
 \begin{equation}
     \label{eq:vdm_obj}
-    \mathcal{L}_{\infty}(\theta; z_0) = \frac{1}{2} \, \mathbb{E}_{t \sim \mathcal{U}(0,1)} \left[ -\mathrm{SNR}'(t) \mid z_0 - \hat{z}_{\theta}(z_t, t) \|_2^2 \right] + C,
+    \mathcal{L}_{\infty}(\theta; z_0) = \frac{1}{2} \, \mathbb{E}_{t \sim \mathcal{U}(0,1)} \left[ -\mathrm{SNR}'(t) \|z_0 - \hat{z}_{\theta}(z_t, t) \|_2^2 \right] + C,
 \end{equation}
 $$
 
 where $C$ is a constant irrelevant to the optimization. This formulation reveals that the continuous-time ELBO is invariant to the noise schedule, depending only on the SNR values at the endpoints. Indeed, we can perform the change of variables $v = \mathrm{SNR}(t)$. We have $\mathrm{d}v = \mathrm{SNR}'(t) \mathrm{d}t$, and we can swap the integration bounds from $[0, 1]$ to $[\mathrm{SNR}(1), \mathrm{SNR}(0)]$. We deduce:
 
 $$
-\mathcal{L}_{\infty}(\theta; z_0) = \frac{1}{2} \int_{\mathrm{SNR}(1)}^{\mathrm{SNR}(0)} \| z_0 - \hat{z}(z_v) \|^2 \mathrm{d}v+C.
+\mathcal{L}_{\infty}(\theta; z_0) = \frac{1}{2} \int_{\mathrm{SNR}(1)}^{\mathrm{SNR}(0)} \| z_0 - \hat{z}_{\theta}(z_v) \|^2 \mathrm{d}v+C.
 $$
 
 <figure id="fig:fig_vlb_invariance" class="caption">
@@ -637,12 +629,20 @@ $$
 
 This property reinforces the interpretation of diffusion models as continuous-time HVAEs. In discrete HVAEs, the ELBO value is determined by the total information content rather than the granularity of the layers; the KL regularization terms simply redistribute along the hierarchy without altering their integral. Diffusion models exhibit an identical mechanism: changing the noise schedule (e.g., to linear, cosine, or sigmoid) merely reparameterizes the temporal variable $t$ without modifying the endpoints $x_0$ and $x_T$. Consequently, the VLB is a function of the *geometry* of the latent trajectory, not its specific temporal speed. We empirically validate this invariance in [Figure 3](#fig:fig_vlb_invariance). The left panel reports the VLB calculated on *CIFAR-10* across varying noise schedules, while the right panel tracks the cumulative KL divergence. While different schedules alter the density of the KL divergence over time, the total integral (VLB) remains constant, confirming the continuous-time HVAE hypothesis.
 
-**Alternative view with the Girsanov Theorem.**
+#### Alternative view with the Girsanov Theorem
+<dt-cite key="huang2021variational"></dt-cite> instead define the generative model itself as a continuous-time SDE. Assume that the data has density $p_{\theta}(z_0)$, and that the intermediate states $(z_t)_{0\leq t\leq T}$ satisfy the same Itô SDE as in Eq. (17), $\mathrm{d}z_t = f_\theta(z_t, t)\mathrm{d}t + g(t)\mathrm{d}\bar{w}_t$, such that the distribution of $z_t$ converges to a given prior $p$ as $t\to T$. Likelihood-based optimization in this model requires evaluating $\log p_\theta(z_0)$. The Feynman-Kac formula <dt-cite key="huang2021variational" after="Theorem 1"></dt-cite> allows us to represent this density as an expectation over all possible paths of a latent Brownian motion. However, integrating out infinite-dimensional Brownian paths is completely intractable. To solve this, the authors treat the Brownian motion as an infinite-dimensional latent variable, effectively creating an infinitely deep VAE over the noise paths.
 
-Building on <d-cite key="huang2021variational"></d-cite>, we extend the approach of <d-cite key="kingma2021variational"></d-cite> to derive a similar result using the Girsanov theorem. While <d-cite key="kingma2021variational"></d-cite> arrive at the continuous-time objective by taking the limit of the reconstruction error as $T$ goes to infinity, <d-cite key="huang2021variational"></d-cite>  propose a control-theoretic perspective. In their derivation, the KL divergence manifests as a quadratic *control cost* corresponding to the energy required to steer the random Brownian paths toward the data distribution. Although these views seem distinct in that they operate on different domains (<d-cite key="kingma2021variational"></d-cite> minimize the error in the signal domain, while <d-cite key="huang2021variational"></d-cite>  work in the drift domain), they are actually equivalent. The energy required to convert the Brownian path into the data distribution is proportional to the squared score matching error, which is a weighted version of the reconstruction error. [Figure 4](#fig:trajectories_level_noise) shows the reverse diffusion trajectories of weather image generation. The slider allows sweeping through the time index $t$, revealing how samples progressively denoise. Different random seeds can be selected to illustrate variability across generative trajectories, providing an interactive view of the model’s dynamics.
+Just as a standard VAE requires an encoder to map data to latent codes, we must construct an inference SDE to map the data into these paths. This is achieved by introducing a new (learnable) drift vector $a_{\theta}(z_t, t)$. The Girsanov theorem <dt-cite key="huang2021variational" after="Theorem 2"></dt-cite> gives an exact expression to track how probability measures change under additive perturbations. This leads to a continuous-time ELBO, denoted as $\mathcal{E}^\infty$:
+$$\log p_\theta(z_0) \ge \mathcal{E}^\infty = \mathbb{E} \left[ \log p(z_T) - \int_0^T \nabla \cdot f_\theta \, \mathrm{d}t - \frac{1}{2} \int_0^T \|a_{\theta}(z_t, t)\|_2^2 \, \mathrm{d}t \right]$$
+This inequality mathematically holds for any valid choice of $a_{\theta}$ (provided that certain non-restrictive technical conditions hold). Intuitively, the term that features $a_{\theta}$ acts exactly like the KL divergence penalty in an HVAE.
 
-This finally bridges the gap: training a diffusion model is the same as training an infinitely deep HVAE by maximizing a continuous-time ELBO.
-
+At this point, it is natural to ask what choice of $a$ optimizes this bound. It turns out that if we set $a_{\theta}(z_t, t)=g(t) s_\theta(z_t, t)$, where $s_{\theta}$ is a neural network approximating the score function, with the parameterization $f_{\theta}(z, t)=f(z, t)-g(t)^2s_{\theta}(z, t)$ as in (18), then the inner integrand of the continuous-time ELBO is
+$$\nabla\cdot f_{\theta}+\frac{1}{2} \|a\|_2^2=\nabla\cdot(g^2s_{\theta}-f)+\frac{1}{2} \|g s_\theta\|_2^2=\frac{1}{2}g^2\left(2\nabla\cdot s_{\theta}+\|s_\theta\|^2\right)-\nabla\cdot f.$$
+Notice that the last term does not depend on $\theta$, hence only the first two terms contribute to the loss function. Using Fubini's theorem to change the integration order, it is not hard to show that this loss function at one given timestep $t$ is actually
+$$\mathbb{E}\!\left[\frac{1}{2} g(t)^2 \| s_\theta(z_t, t) - \nabla_{z_t} \log q_t(z_t) \|_2^2 \right].$$
+We give the general idea for the derivation, assuming $z\in\mathbb{R}$ for simplicity. Expanding the squared norm, $\| s_\theta - \nabla_z \log q_t \|_2^2=\|s_{\theta}\|_2^2+\|\nabla_z\log q_t\|_2^2-2\langle s_\theta, \nabla_{z} \log q_t\rangle$, where $\langle\cdot, \cdot\rangle$ denotes the canonical inner-product. Note that the second term has no dependency on $\theta$. We focus on the inner-product term in the total expectation. Using the identity $\nabla_z\log q_t=(\nabla_z q_t)/q_t$, the bilinearity of the inner product, and integrating by parts, we get
+$$\int \langle s_{\theta}, \nabla_z\log q_t\rangle\,\mathrm{d} q_t=\int\langle s_{\theta}(z), \nabla_zq_t(z)\rangle\,\mathrm{d}z=\Big[s_{\theta}(z) q(z)\Big]_{-\infty}^{+\infty}-\int(\nabla\cdot s_{\theta})\,\mathrm{d}q_t=-\int(\nabla\cdot s_{\theta})\,\mathrm{d}q_t.$$
+Plugging this into the previous formula shows the equivalence between the two loss functions. Now, this clearly relates to the previous expression for $\mathcal{L}_{\infty}$, since learning the score is to learning clean data prediction. The SDE's diffusion coefficient $g(t)^2$ acts as the continuous-time weighting function, corresponding exactly to $-\mathrm{SNR}'(t)$. Thus, whether evaluating the continuous limit of a discrete HVAE or using the change of measure to track density across SDEs, we optimize the same objective in the end.
 
 <figure id="fig:trajectories_level_noise" class="caption">
   <div class="l-page">
@@ -663,7 +663,7 @@ This finally bridges the gap: training a diffusion model is the same as training
 
 ### 4.4 Generalization Capabilities
 
-In a recent work, <d-cite key="chen2025generalization"></d-cite> provide key insights into the generalization properties of VAEs and DPMs. While we have established that DPMs can be viewed as HVAEs with $T\to+\infty$, <d-cite key="chen2025generalization"></d-cite> argue that increasing the depth of the model is not necessarily ideal for generalization.
+In a recent work, <d-cite key="chen2025generalization"></d-cite> provide key insights into the generalization properties of VAEs and DPMs. While we have seen that DPMs can be viewed as HVAEs with $T\to+\infty$, <d-cite key="chen2025generalization"></d-cite> argue that increasing the depth of the model is not necessarily ideal for generalization.
 
 
 They identify a trade-off involving the diffusion time $T$:
