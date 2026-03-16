@@ -20,7 +20,7 @@ authors:
  - name: Khalid Oublal
    url: ""
    affiliations:
-     name: Institute Polytechnique de Paris, Telecom Paris LTCI/S2A, OneTech TotalEnergies, DS&AI
+     name: Institute Polytechnique de Paris, Telecom Paris LTCI/S2A, École Polytechnique, CMAP
 
 # must be the exact same name as your blogpost
 bibliography: 2026-04-27-generalization-in-diffusion-as-infinite-hvae.bib
