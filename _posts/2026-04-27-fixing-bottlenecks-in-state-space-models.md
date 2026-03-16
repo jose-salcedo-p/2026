@@ -14,7 +14,14 @@ mermaid:
 
 # Anonymize when submitting
 authors:
-  - name: Anonymous
+  - name: Adrita Das
+    url: "https://scholar.google.com/citations?user=R6EtfNEAAAAJ"
+    affiliations:
+      name: Carnegie Mellon University
+  - name: Dantong Zhu
+    url: "https://scholar.google.com/citations?user=0AA4ZPAAAAAJ"
+    affiliations:
+      name: Columbia University
 
 # must be the exact same name as your blogpost
 bibliography: 2026-04-27-fixing-bottlenecks-in-state-space-models.bib
@@ -42,10 +49,13 @@ toc:
   - name: "Challenges to Model Robustness"
   - name: "Depth Scaling and its Limits"
   - name: "Why Deep SSMs Start to Fail: Over-Smoothing"
+    subsections:
+    - name: "Implication"
   - name: "Fixing Recency and Over-Smoothing in Mamba with State Space Polarization"
     subsections:
     - name: "State Space Polarization"
-    - name: "Implementation" 
+    - name: "Polarization in Context: Comparison with Alternative Approaches"
+    - name: "Complex Parameterizations"
 
 # Below is an example of injecting additional post-specific styles.
 # This is used in the 'Layouts' section of this post.
@@ -281,6 +291,10 @@ $$
 In models such as Linear Attention <d-cite key="katharopoulos2020transformersrnnsfastautoregressive"></d-cite>, the coefficients are typically fixed with $\alpha_t = 1$ and $\beta_t = 1$. RetNet <d-cite key="sun2023retentivenetworksuccessortransformer"></d-cite> introduces a learned decay parameter $\gamma$ to modulate the hidden state updates, using $\alpha_t = \gamma$ and $\beta_t = 1$.
 
 Mamba-2 extends this approach by making both coefficients data-dependent through a selectivity matrix $\delta = g_\delta(Z) \in \mathbb{R}^T$, allowing the model to dynamically control the flow of information. Specifically, the coefficients are defined as $\alpha_t = \exp(-\delta_t)$ and $\beta_t = \delta_t$, enabling context-aware adaptation of the update and retention behavior for each token. This gating mechanism dynamically adjusts the balance between information retention and update based on context, enabling the model to prioritize important tokens and effectively capture long-range dependencies.
+
+*Note:* Traditional S4 architectures behave as *linear time-invariant* systems, where the parameters of the state space model remain fixed across the entire sequence. Mamba introduces an important modification called the *selection mechanism*, where the parameters $$(b_t, c_t, \Delta t)$$ become functions of the input. In other words, the model dynamically adjusts how information flows through the state space depending on the current token. 
+
+This mechanism was originally motivated by the *selective copying* task, where the model must retain only relevant tokens while discarding irrelevant ones. By allowing parameters such as $$(A_t)$$ and $$(b_t)$$ to adapt based on the input, Mamba introduces a form of content-dependent memory update.
 
 ### Selection as a means of Gating
 
@@ -571,9 +585,39 @@ The paper further investigates the depth-scaling limitations of State Space Mode
 
 The degree of over-smoothing is shown to depend on both context length and the smallest state transition coefficients. Longer contexts require more steps for information to mix across positions, while transition parameters approaching one cause the model to behave like a uniform averaging operator over the sequence. This aligns with an intuitive interpretation of SSMs as performing a form of running average over token embeddings.
 
-**The authors provide empirical validation using a 1.4B-parameter Mamba model. They quantify representation sharpness via pairwise distances between token embeddings and observe that sharpness consistently decreases across layers. Compared with Transformers of comparable size, SSMs exhibit a much faster decay of feature diversity, although Transformers are also theoretically susceptible to over-smoothing.**
+Theorem 4.2 shows that the **maximum distance between hidden states across the sequence is bounded**:
+
+$$
+\max_{t,s} \|h_t - h_s\|_{\infty}
+\le
+\left(1 - A_{\min}^{T-1}\right)
+\max_{t,s} \|b_t(x_t) - b_s(x_s)\|_{\infty}
+$$
+
+where $$(A_{\min} = \min_{t,n} (A_t)_{n,n})$$ denotes the smallest diagonal entry of the state transition matrices.
+
+**What This Bound Means?** The inequality indicates that the **differences between hidden states shrink over time**. Even if the encoded inputs $$(b_t(x_t))$$ vary significantly across tokens, the recurrent update repeatedly multiplies the hidden state by transition matrices whose entries are bounded by one. As a result, the dynamics become *contractive*, gradually reducing discrepancies between memory states across the sequence.
+
+Consequently, token representations tend to become increasingly similar as the sequence is processed, and the hidden state behaves like a **smoothed representation of the input sequence**.
+
+**Connection to Context Length** The rate at which these discrepancies decay depends on two factors: the context length $$(T)$$ and the minimal transition coefficient $$(A_{\min})$$. From a message-passing perspective, information from earlier tokens must propagate sequentially through the recurrence before influencing later positions. As the sequence length grows, more steps are required for the representations to mix across the entire sequence. 
+
+When $$(A_{\min})$$ approaches $$(1)$$, the recurrence behaves almost like a uniform averaging operator over the sequence. In this regime, the hidden state update resembles 
+
+$$
+h_t \approx A h_{t-1} +b_t(x_t), \quad A \approx 1
+$$ 
+
+which is mathematically equivalent to a *running average* over the encoded token representations. Such averaging suppresses high-frequency variations in the signal and produces a smoothing effect across the sequence.
+
+### Implication
+This observation provides an intuitive explanation for the over-smoothing phenomenon in deep SSMs. As the recurrence repeatedly mixes representations across time steps, token embeddings gradually become more similar, causing the hidden feature space to lose discriminative structure. In extreme cases, the model behaves like a low-pass filter that retains coarse global trends while discarding fine-grained token-level information.
+
+Theoretical analysis suggests that selection mechanism does not fully eliminate the structural limitations of SSMs. In particular, the recency bias established in Theorem 3.1 still applies even when the transition parameters depend on the input. Similarly, Theorem 4.2 indicates that selective SSMs may still exhibit over-smoothing behavior, implying that their signal filtering properties remain similar to those of linear S4 (Proposition 4.1). That said, selection can partially alleviate these issues by dynamically adjusting the transition coefficients. From the theoretical perspective, the mechanism can push the upper bound $$(A_{\max})$$ closer to $$(1)$$ and the lower bound $$(A_{\min})$$ closer to $$(0)$$, effectively widening the range of memory timescales that the model can represent. Nevertheless, the transition matrix $$(A)$$ is typically initialized with negative values, which encourages rapid decay and can further reinforce the recency bias predicted by Theorem 3.1.
 
 **Intuition Behind Theorem 4.2 (Over-Smoothing in SSMs): A simple way to understand the over-smoothing effect in SSMs is to view each layer as a contractive update. If the recurrent coefficient satisfies $A_t \leq 1$, then differences between hidden states shrink over time. For example, when $A_t = 0.9$ and the input sequence is short, even inputs that differ significantly (e.g., by 2 units) produce hidden states whose differences are tightly bounded (e.g., $\approx 0.54$). As the sequence length increases, this contraction becomes stronger, forcing token representations to become increasingly similar. This explains why stacking many SSM layers causes the model to behave like a running low-pass filter, progressively removing high-frequency (sharp) features and leading to over-smoothing.**
+
+**The authors provide empirical validation using a 1.4B-parameter Mamba model. They quantify representation sharpness via pairwise distances between token embeddings and observe that sharpness consistently decreases across layers. Compared with Transformers of comparable size, SSMs exhibit a much faster decay of feature diversity, although Transformers are also theoretically susceptible to over-smoothing.**
 
 <figure class="side-by-side">
 
@@ -625,20 +669,27 @@ accuracy, while a 0-polarized channel helps deeper models avoid over-smoothing.
 Using both polarized channels together, especially in deeper configurations, yields the strongest
 overall performance.
 
-### Implementation
-This section describes how the proposed *State Space Polarization* mechanism is implemented
-inside a Mamba layer. Mamba parameterizes its state-transition coefficient using
+**Eigenvalue Interpretation of State Space Polarization** A useful way to understand the proposed polarization mechanism is through the eigenvalues of the state-transition operator. In a state space model, the hidden state evolves according to
+
+$$
+h_t = A_t h_{t-1} + b_t(x_t).
+$$
+
+The matrix (or vector in diagonal form) $$(A_t)$$ determines how information from previous time steps propagates forward. In linear dynamical systems, the *eigenvalues* of the transition operator control the stability and memory of the system. If an eigenvalue satisfies $$(|\lambda| < 1)$$, the corresponding state component decays exponentially over time. Conversely, if $$(|\lambda| = 1)$$, that component persists indefinitely.
+
+In Mamba, the transition coefficient is parameterized as
 
 $$
 A_t = \exp(\Delta t\, A),
 $$
 
-where $A$ is a learnable vector. Therefore, enforcing a channel of $A_t$ to be exactly $1$ or
-exactly $0$ requires modifying the *pre-exponential* entries of $A$.
+where $$(A)$$ is a learnable vector. Because the exponential preserves
+positivity, each entry of $$(A_t)$$ can be interpreted as the effective
+eigenvalue controlling the decay rate of a particular memory channel.
 
-To achieve this, the implementation modifies the forward pass by inserting fixed constants into the
-learned vector $A$. A zero is prepended, and a large negative value (e.g., $-1000$) is appended
-before the exponential is applied. After exponentiation, these values become:
+The polarization mechanism explicitly fixes two extreme eigenvalue regimes.
+This is implemented by inserting constant values into the pre-exponential
+parameter $$(A)$$:
 
 $$
 A \leftarrow
@@ -648,7 +699,9 @@ A \\[2pt]
 -1000
 \end{bmatrix},
 \qquad
-A_t \approx
+A_t =
+\exp(\Delta t A)
+\approx
 \begin{bmatrix}
 1 \\[2pt]
 \exp(\Delta t A) \\[2pt]
@@ -656,16 +709,155 @@ A_t \approx
 \end{bmatrix}.
 $$
 
-The prepended $0$ corresponds to $\exp(0) = 1$, which creates a channel with **no decay** and
-thus guarantees a perfect long-term memory path. Conversely, the appended $-1000$ corresponds to
-$\exp(-1000) \approx 0$, yielding a **fully resetting** channel that behaves as short-term
-memory. This construction ensures that the model always retains both a global and a local memory
-pathway, regardless of the learned dynamics of the remaining channels.
+The first channel corresponds to the eigenvalue
 
-Two ablations are also considered to isolate the contribution of each polarized channel:
+$$
+\lambda = \exp(0) = 1,
+$$
 
-- **0-polarized Mamba:** only the zero-valued (short-memory) channel is added.
-- **1-polarized Mamba:** only the one-valued (long-memory) channel is added.
+which creates a **non-decaying mode**. The associated eigenvector
+therefore defines a direction in the hidden state space that perfectly
+preserves information across time steps. This acts as a dedicated
+*long-term memory pathway*.
 
-These variants allow examination of how constant-zero and constant-one gating individually affect
-the model's memory behavior.
+The last channel corresponds to
+
+$$
+\lambda = \exp(-1000) \approx 0,
+$$
+
+which forces the state component to vanish almost immediately after each
+update. The associated eigenvector therefore behaves as a **resetting
+mode**, capturing only short-lived information from the current input.
+
+From this perspective, state space polarization explicitly anchors the
+spectrum of the transition operator at two extremes: a unit eigenvalue that
+preserves global context and a near-zero eigenvalue that enforces rapid
+forgetting. The remaining channels retain their learned dynamics, allowing
+the model to interpolate between short- and long-term memory behaviors.
+
+**Ablation Variants** To isolate the effect of each polarized mode, two ablations are considered:
+
+- **0-polarized Mamba:** only the resetting channel ($$\lambda \approx 0$$) is introduced.
+- **1-polarized Mamba:** only the persistent channel ($$\lambda = 1$$) is introduced.
+
+These variants allow us to examine how explicitly controlling the spectral
+extremes of the transition operator influences the model's memory dynamics.
+
+### Polarization in Context: Comparison with Alternative Approaches
+
+**Low-Pass Filtering in Continuous S4.**
+
+An important property of structured state space models emerges from the
+continuous-time formulation of S4. Consider an S4 model with parameters
+$$(A,b,c)$$, where the transition matrix $$(A)$$ is diagonal with strictly
+negative eigenvalues. In this case, the output of the system can be written as
+
+$$
+y(t) = \int c^{\top}\exp(A(t-s))\,b\,x(s)\,ds .
+$$
+
+As shown in **Proposition 4.1** by the authors, this operator behaves as a
+*low-pass filter*. Intuitively, the matrix exponential
+$$\exp(A(t-s))$$ decays exponentially because the eigenvalues of $$(A)$$
+are negative. Consequently, contributions from earlier inputs diminish
+over time, and higher-frequency components of the signal are gradually
+suppressed.
+
+When multiple S4 layers are stacked, this filtering effect compounds
+across layers. While this behavior stabilizes the dynamics, it can
+also attenuate important high-frequency features, leading to
+representation collapse or *over-smoothing* in deeper architectures.
+
+**Connection to HiPPO Theory** The theoretical foundation of modern SSM architectures originates from
+the HiPPO framework introduced by <d-cite key="gu2020hipporecurrentmemoryoptimal"></d-cite>. HiPPO formulates
+sequence modeling as an online signal reconstruction problem. Given a
+signal $$(x)$$, the goal is to approximate its history up to time $$(t)$$
+by minimizing
+
+$$
+\|x_{\le t} - y^{(t)}\|_{L^2(\omega^{(t)})},
+$$
+
+where $$(\omega^{(t)})$$ is a weighting measure supported on
+$$(-\infty,t]$$. The optimal approximation projects the past signal
+onto a set of basis functions, producing a coefficient vector
+$$(h(t))$$ that summarizes the history of the signal.
+
+Gu et al.\ showed that these coefficients evolve according to a linear
+state-space system
+
+$$
+h'(t) = A(t)h(t) + b(t)x(t),
+$$
+
+which provides a principled bridge between continuous-time signal
+approximation and state-space sequence modeling. When the weighting
+measure is chosen as
+
+$$
+\omega^{(t)} = I[0,t]/t,
+$$
+
+the resulting dynamics admit a closed-form solution
+
+$$
+A(t) = -\frac{A_{\text{hippo}}}{t}.
+$$
+
+**Practical Deviations from HiPPO** Although HiPPO provides the theoretical foundation for SSMs, modern
+architectures such as S4 and Mamba implement several practical
+modifications. In particular, the HiPPO matrix is often used only for
+initialization, while the explicit $$(1/t)$$ scaling in the dynamics is
+removed during training.
+
+This modification effectively changes the underlying weighting measure
+to an exponentially decaying form,
+
+$$
+\omega^{(t)}(s) \propto \exp(s-t)\,I[s<t],
+$$
+
+which emphasizes more recent inputs when reconstructing the signal
+history. As a result, practical SSM implementations tend to favor
+recent information more strongly than the original HiPPO formulation.
+
+Furthermore, several implementations simplify the spectral structure
+of the transition matrix by omitting the unitary transformations
+associated with $$(A_{\text{hippo}})$$. While these simplifications
+improve computational efficiency, they can also accentuate smoothing
+behavior in the learned dynamics.
+
+**Relation to State Space Polarization** These observations highlight a broader challenge in SSM design:
+standard parameterizations may implicitly behave as smoothing
+operators, gradually attenuating long-range information. This
+motivates mechanisms that explicitly regulate the memory dynamics
+of state-space layers.
+
+Polarization provides a simple structural intervention. By fixing
+specific spectral modes of the transition matrix, polarization
+guarantees the existence of both persistent and rapidly-decaying
+memory channels. One channel preserves long-range information,
+while another focuses on local updates.
+
+In contrast to conventional SSM parameterizations—where the spectrum
+of the transition matrix may drift toward overly smooth dynamics—
+polarization ensures that both global memory pathways and
+short-term feature extraction remain simultaneously available
+throughout the network.
+
+### Complex Parameterizations
+
+While most modern SSM implementations use real-valued parameters,
+earlier works explored complex-valued parameterizations of the transition
+matrix $$(A_t)$$. Complex eigenvalues can introduce oscillatory dynamics,
+which in principle allow richer temporal representations.
+
+However, theoretical analysis shows that the fundamental limitations
+identified earlier still persist. Both the locality behavior described in
+Theorem 3.1 and the low-pass filtering property of Proposition 4.1 remain
+valid even when complex-valued transition matrices are used. Therefore,
+introducing complex parameters alone does not remove the inherent
+recency bias or smoothing effects present in state space models.
+
+
