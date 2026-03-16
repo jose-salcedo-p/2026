@@ -20,14 +20,6 @@ authors:
      url: "https://www.linkedin.com/in/ronaldinho-vega-centeno-olivera/"
      affiliations:
        name: Institute of Computing, Unicamp
-   - name: Allan M. de Souza
-     url: "https://ic.unicamp.br/~allanms/"
-     affiliations:
-       name: Institute of Computing, H.IAAC, Unicamp
-   - name: Júlio C. dos Reis
-     url: "https://ic.unicamp.br/~jreis/"
-     affiliations:
-       name: Institute of Computing, H.IAAC, Unicamp
    - name: Mateus E. R. da Silveira
      url: "https://www.linkedin.com/in/mateus-edival-6815b7186/"
      affiliations:
@@ -36,6 +28,14 @@ authors:
      url: "https://www.linkedin.com/in/alejandronunezarroyo/"
      affiliations:
        name: Institute of Computing, Unicamp
+   - name: Allan M. de Souza
+     url: "https://ic.unicamp.br/~allanms/"
+     affiliations:
+       name: Institute of Computing, H.IAAC, Unicamp
+   - name: Júlio C. dos Reis
+     url: "https://ic.unicamp.br/~jreis/"
+     affiliations:
+       name: Institute of Computing, H.IAAC, Unicamp
 
 
 # must be the exact same name as your blogpost
@@ -58,7 +58,6 @@ toc:
       - name: Unified FRACTAL Control Loop
       - name: Procedural Memory — Continuous Learning 
   - name: Conclusions
-  - name: Future Work
 
 # Below is an example of injecting additional post-specific styles.
 # This is used in the 'Layouts' section of this post.
@@ -534,11 +533,9 @@ The operational viability of this proposal rests on the convergence of standardi
 
 Simultaneously, the architecture redefines the system's adaptive capacity through the incorporation of Procedural Memory grounded in Case-Based Reasoning (CBR). This mechanism transforms the system into an entity capable of continuous learning (online learning), where successful execution traces become heuristics for future iterations. This allows for constant operational optimization and mitigates planner hallucinations through the reuse of validated strategies, all without incurring the computational costs of model retraining (fine-tuning).
 
-Finally, by standardizing input and output interfaces, FRACTAL-MAS enables the "Agent-as-a-Tool" paradigm, endowing the architecture with intrinsic topological flexibility. This allows the organizational structure to evolve organically from centralized hierarchies to decentralized networks, where any agent can act simultaneously as client and server, maximizing resilience and scalability. Ultimately, FRACTAL-MAS lays the necessary infrastructure for the seamless and standardized orchestration of distributed specialists.
+Furthermore, by standardizing input and output interfaces, FRACTAL-MAS enables the "Agent-as-a-Tool" paradigm, endowing the architecture with intrinsic topological flexibility. This allows the organizational structure to evolve organically from centralized hierarchies to decentralized networks, where any agent can act simultaneously as client and server, maximizing resilience and scalability. Ultimately, FRACTAL-MAS lays the necessary infrastructure for the seamless and standardized orchestration of distributed specialists.
 
-## Future Work
-
-While FRACTAL-MAS provides a robust theoretical foundation for scalable orchestration, we acknowledge that its recursive nature inherently introduces a higher computational overhead compared to traditional flat architectures. Moving forward, our immediate focus is to empirically evaluate this cost-benefit trade-off to determine the exact complexity thresholds where the benefits of our approach outweigh the orchestration costs. Additionally, we plan to establish formal operational boundaries, such as defining the ideal recursion depth parameter to strictly prevent infinite replanning loops. Finally, to fully validate this framework, future implementations will be tested on complex, long-horizon, and multi-domain tasks, moving beyond standard, simplified benchmarks to demonstrate the true potential of fractal orchestration.
+While this recursive nature provides a robust foundation for scalable orchestration, it inherently introduces a higher computational overhead compared to traditional flat architectures. Moving forward, our immediate focus is to empirically evaluate this cost-benefit trade-off to determine the exact complexity thresholds where the benefits of our approach outweigh the orchestration costs. Additionally, we plan to establish formal operational boundaries, such as defining the ideal recursion depth parameter to strictly prevent infinite replanning loops. Finally, to fully validate this framework, future implementations will be tested on complex, long-horizon, and multi-domain tasks, moving beyond standard, simplified benchmarks to demonstrate the true potential of fractal orchestration.
 
 ## Acknowledgments
 
