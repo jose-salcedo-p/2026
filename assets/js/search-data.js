@@ -1326,17 +1326,6 @@ ninja.data = [{
             window.location.href = "/2026/blog/2026/a-human-centric-framework-for-debating-the-ethics-of-ai-consciousness-under-uncertainty/";
           
         },
-      },{id: "post-effect-of-parallel-environments-and-rollout-steps-in-ppo",
-        
-          title: "Effect of Parallel Environments and Rollout Steps in PPO",
-        
-        description: "This blog post explores batch size in PPO-what happens when we increase the number of parallel environments versus the number of rollout steps, while keeping the total samples per update fixed. We discuss how this affects bias and variance in gradient estimation.",
-        section: "Posts",
-        handler: () => {
-          
-            window.location.href = "/2026/blog/2026/ppo-batch-size/";
-          
-        },
       },{id: "post-",
         
           title: "",
