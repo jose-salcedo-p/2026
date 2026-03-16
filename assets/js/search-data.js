@@ -292,6 +292,17 @@ ninja.data = [{
             window.location.href = "/2026/blog/2026/uncertainty-lifecycle-in-deep-learning/";
           
         },
+      },{id: "post-trade-offs-in-llm-compute-for-reasoning-intensive-information-retrieval",
+        
+          title: "Trade-offs in LLM Compute for Reasoning-Intensive Information Retrieval",
+        
+        description: "The BRIGHT benchmark (ICLR 2025 Spotlight) revealed that reasoning-intensive information retrieval requires LLM-augmented pipelines, but this raises a critical resource allocation question: where should computational budget be invested for maximum effectiveness? We conduct a systematic study on BRIGHT using the Gemini 2.5 model family, evaluating trade-offs across model strength, inference-time thinking depth, and reranking depth. Our controlled experiments quantify the marginal gains of allocating compute to query expansion versus reranking, providing practical guidance for optimizing LLM-based retrieval systems on reasoning-intensive tasks.",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/2026/blog/2026/trade-offs-in-llm-compute-for-reasoning-intensive-information-retrieval/";
+          
+        },
       },{id: "post-tracing-the-principles-behind-modern-diffusion-models",
         
           title: "Tracing the Principles Behind Modern Diffusion Models",
@@ -752,17 +763,6 @@ ninja.data = [{
         handler: () => {
           
             window.location.href = "/2026/blog/2026/llm-bitter-lesson/";
-          
-        },
-      },{id: "post-the-layered-ontology-of-models-resolving-the-epistemological-crisis-of-ai",
-        
-          title: "The Layered Ontology of Models, Resolving the Epistemological Crisis of AI",
-        
-        description: "We propose a five-layer model framework and discuss the concepts of Meaning and Truth in the era of large models through two thought experiments.",
-        section: "Posts",
-        handler: () => {
-          
-            window.location.href = "/2026/blog/2026/layered-ontology-model/";
           
         },
       },{id: "post-a-small-observation-on-schulman-39-s-kl-divergence-estimator",
