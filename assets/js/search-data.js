@@ -490,6 +490,17 @@ ninja.data = [{
             window.location.href = "/2026/blog/2026/rethinking-mmicl/";
           
         },
+      },{id: "post-rethinking-the-diffusion-model-from-a-langevin-perspective",
+        
+          title: "Rethinking the Diffusion Model from a Langevin Perspective",
+        
+        description: "Diffusion models are often introduced from multiple perspectives—such as VAEs, score matching, or flow matching—accompanied by dense and technically demanding mathematics that can be difficult for beginners to grasp. One classic question is How does the reverse process invert the forward process to generate data from pure noise? This article systematically organizes the diffusion model from a fresh Langevin perspective, offering a simpler, clearer, and more intuitive answer. We also address the following questions 1. How can ODE-based and SDE-based diffusion models be unified under a single framework? 2. Why are diffusion models theoretically superior to ordinary VAEs? 3. Why is flow matching not fundamentally simpler than denoising or score matching, but equivalent under maximum-likelihood? We demonstrate that the Langevin Perspective offers clear and straightforward answers to these questions, providing pedagogical value for both learners and experienced researchers seeking deeper intuition.",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/2026/blog/2026/rethinking-diffusion-langevin/";
+          
+        },
       },{id: "post-dynamic-parameter-reuse-augments-reasoning-via-latent-chain-of-thought",
         
           title: "Dynamic Parameter Reuse Augments Reasoning via Latent Chain of Thought",
