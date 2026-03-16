@@ -635,6 +635,16 @@ $$
 $$
 </div>
 
+
+<div style="margin: 24px 0;">
+<iframe
+  src="{{ 'assets/html/2026-04-27-tracing-principles-behind-modern-diffusion-models/denoising_score_matching.html' | relative_url }}"
+  style="width: 100%; border: none; border-radius: 3px;"
+  height="580"
+  loading="lazy">
+</iframe>
+</div>
+
 Once the score network $$\mathbf{s}_\theta$$ has been learned, it can be plugged back into the reverse-time dynamics for generation. One option is to sample from the *reverse-time SDE* itself:
 
 $$
