@@ -675,7 +675,7 @@ $$
 h_t = A_t h_{t-1} + b_t(x_t).
 $$
 
-The matrix (or vector in diagonal form) $$(A_t)$$ determines how information from previous time steps propagates forward. In linear dynamical systems, the *eigenvalues* of the transition operator control the stability and memory of the system. If an eigenvalue satisfies $$(|\lambda| < 1)$$, the corresponding state component decays exponentially over time. Conversely, if $$(|\lambda| = 1)$$, that component persists indefinitely.
+The matrix (or vector in diagonal form) $A_t$ determines how information from previous time steps propagates forward. In linear dynamical systems, the *eigenvalues* of the transition operator control the stability and memory of the system. If an eigenvalue satisfies $|\lambda| < 1$, the corresponding state component decays exponentially over time. Conversely, if $|\lambda| = 1$, that component persists indefinitely.
 
 In Mamba, the transition coefficient is parameterized as
 
@@ -683,13 +683,13 @@ $$
 A_t = \exp(\Delta t\, A),
 $$
 
-where $$(A)$$ is a learnable vector. Because the exponential preserves
-positivity, each entry of $$(A_t)$$ can be interpreted as the effective
+where $$A$$ is a learnable vector. Because the exponential preserves
+positivity, each entry of $$A_t$$ can be interpreted as the effective
 eigenvalue controlling the decay rate of a particular memory channel.
 
 The polarization mechanism explicitly fixes two extreme eigenvalue regimes.
 This is implemented by inserting constant values into the pre-exponential
-parameter $$(A)$$:
+parameter $$A$$:
 
 $$
 A \leftarrow
@@ -750,7 +750,7 @@ extremes of the transition operator influences the model's memory dynamics.
 
 An important property of structured state space models emerges from the
 continuous-time formulation of S4. Consider an S4 model with parameters
-$$(A,b,c)$$, where the transition matrix $$(A)$$ is diagonal with strictly
+$$(A,b,c)$$, where the transition matrix $$A$$ is diagonal with strictly
 negative eigenvalues. In this case, the output of the system can be written as
 
 $$
@@ -759,7 +759,7 @@ $$
 
 As shown in **Proposition 4.1** by the authors, this operator behaves as a
 *low-pass filter*. Intuitively, the matrix exponential
-$$\exp(A(t-s))$$ decays exponentially because the eigenvalues of $$(A)$$
+$$\exp(A(t-s))$$ decays exponentially because the eigenvalues of $$A$$
 are negative. Consequently, contributions from earlier inputs diminish
 over time, and higher-frequency components of the signal are gradually
 suppressed.
@@ -772,17 +772,17 @@ representation collapse or *over-smoothing* in deeper architectures.
 **Connection to HiPPO Theory** The theoretical foundation of modern SSM architectures originates from
 the HiPPO framework introduced by <d-cite key="gu2020hipporecurrentmemoryoptimal"></d-cite>. HiPPO formulates
 sequence modeling as an online signal reconstruction problem. Given a
-signal $$(x)$$, the goal is to approximate its history up to time $$(t)$$
+signal $$x$$, the goal is to approximate its history up to time $$t$$
 by minimizing
 
 $$
 \|x_{\le t} - y^{(t)}\|_{L^2(\omega^{(t)})},
 $$
 
-where $$(\omega^{(t)})$$ is a weighting measure supported on
+where $$\omega^{(t)}$$ is a weighting measure supported on
 $$(-\infty,t]$$. The optimal approximation projects the past signal
 onto a set of basis functions, producing a coefficient vector
-$$(h(t))$$ that summarizes the history of the signal.
+$$h(t)$$ that summarizes the history of the signal.
 
 Gu et al.\ showed that these coefficients evolve according to a linear
 state-space system
@@ -802,20 +802,20 @@ $$
 the resulting dynamics admit a closed-form solution
 
 $$
-A(t) = -\frac{A_{\text{hippo}}}{t}.
+A(t) = -\frac{A_{\text{hippo}}}{t}
 $$
 
 **Practical Deviations from HiPPO** Although HiPPO provides the theoretical foundation for SSMs, modern
 architectures such as S4 and Mamba implement several practical
 modifications. In particular, the HiPPO matrix is often used only for
-initialization, while the explicit $$(1/t)$$ scaling in the dynamics is
+initialization, while the explicit $$1/t$$ scaling in the dynamics is
 removed during training.
 
-This modification effectively changes the underlying weighting measure
+This modification effectively changes the underlying weighting measure  
 to an exponentially decaying form,
 
 $$
-\omega^{(t)}(s) \propto \exp(s-t)\,I[s<t],
+\omega^{(t)}(s) \propto \exp(s-t)\,I[s<t]
 $$
 
 which emphasizes more recent inputs when reconstructing the signal
@@ -824,7 +824,7 @@ recent information more strongly than the original HiPPO formulation.
 
 Furthermore, several implementations simplify the spectral structure
 of the transition matrix by omitting the unitary transformations
-associated with $$(A_{\text{hippo}})$$. While these simplifications
+associated with $$A_{\text{hippo}}$$. While these simplifications
 improve computational efficiency, they can also accentuate smoothing
 behavior in the learned dynamics.
 
@@ -850,7 +850,7 @@ throughout the network.
 
 While most modern SSM implementations use real-valued parameters,
 earlier works explored complex-valued parameterizations of the transition
-matrix $$(A_t)$$. Complex eigenvalues can introduce oscillatory dynamics,
+matrix $$A_t$$. Complex eigenvalues can introduce oscillatory dynamics,
 which in principle allow richer temporal representations.
 
 However, theoretical analysis shows that the fundamental limitations
