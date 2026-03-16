@@ -765,6 +765,17 @@ ninja.data = [{
             window.location.href = "/2026/blog/2026/llm-bitter-lesson/";
           
         },
+      },{id: "post-the-layered-ontology-of-models-resolving-the-epistemological-crisis-of-ai",
+        
+          title: "The Layered Ontology of Models, Resolving the Epistemological Crisis of AI",
+        
+        description: "I propose a five-layer model framework and discuss the concepts of Meaning and Truth in the era of large models through two thought experiments.",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/2026/blog/2026/layered-ontology-model/";
+          
+        },
       },{id: "post-a-small-observation-on-schulman-39-s-kl-divergence-estimator",
         
           title: "A small observation on Schulman&#39;s KL divergence estimator",
