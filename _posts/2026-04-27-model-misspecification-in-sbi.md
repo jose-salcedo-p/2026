@@ -90,17 +90,24 @@ all days. In contrast, real-world data often exhibit systematic patterns—here,
 fraction $\alpha$ of weekend infections goes unreported until Monday, creating
 characteristic weekly oscillations (Figure 1).
 
-<div class="row mt-3">
-    <div class="col-sm mt-3 mt-md-0">
-        {% include figure.liquid path="assets/img/2026-04-27-model-misspecification-in-sbi/sir_figure_row.png" class="img-fluid rounded z-depth-1" %}
-    </div>
+<div class="l-page">
+  <iframe
+    src="https://janfb.github.io/sbi-blogpost-figures/"
+    frameborder="0"
+    scrolling="no"
+    height="450px"
+    width="100%"
+    style="border: none;"
+    sandbox="allow-scripts allow-same-origin allow-downloads allow-popups allow-forms"
+    allowfullscreen
+  ></iframe>
 </div>
 <div class="caption">
-  <strong>Figure 1:</strong> SIR model with weekend reporting delay.
-  <strong>A</strong>: Schematic of the SIR compartment model and the weekend reporting delay misspecification: a fraction $\alpha$ of weekend infections is delayed and reported on Monday.
-  <strong>B</strong>: Example epidemic trajectory (top: susceptible and recovered; bottom: assumed vs. observed infections with $\alpha = 25\%$).
-  <strong>C</strong>: Posterior over $(\beta, \gamma)$ under clean ($\alpha = 0$) and misspecified ($\alpha = 25\%$) observations, with true parameters marked.
-  <strong>D</strong>: Posterior predictive checks (top: clean; bottom: misspecified), showing how the misspecified posterior fails to capture the observed dynamics. Results generated using the <a href="https://sbi.readthedocs.io/">sbi</a><d-cite key="boelts_sbi_2025"></d-cite> package and SIR specifications from Cannon et al..
+  <strong>Figure 1:</strong> SIR model with weekend reporting delay. Use the slider to vary the misspecification strength $\alpha$.
+  <strong>a</strong>: Schematic of the SIR compartment model and the weekend reporting delay misspecification: a fraction $\alpha$ of weekend infections is delayed and reported on Monday.
+  <strong>b</strong>: Example epidemic trajectory (top: susceptible and recovered; bottom: assumed vs. observed infections).
+  <strong>c</strong>: Posterior over $(\beta, \gamma)$ under clean ($\alpha = 0$) and misspecified observations, with true parameters marked.
+  <strong>d</strong>: Posterior predictive checks (top: clean; bottom: current $\alpha$), showing how the misspecified posterior fails to capture the observed dynamics. Results generated using the <a href="https://sbi.readthedocs.io/">sbi</a><d-cite key="boelts_sbi_2025"></d-cite> package and SIR specifications from Cannon et al..
 </div>
 
 To infer infection parameters from observed data, a common SBI approach would be using
