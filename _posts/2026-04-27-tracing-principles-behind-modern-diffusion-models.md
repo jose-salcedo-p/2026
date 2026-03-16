@@ -252,7 +252,7 @@ Below we outline three widely used viewpoints that all tell the same story:
 
 
 
-### DDPM: Predicting the Reverse Step via Noise or Mean
+### Variational-Based Methods (e.g., DDPM): Predicting the Reverse Step via Noise or Mean
 
 Denoising Diffusion Probabilistic Models (DDPM) <d-cite key="sohl2015deep,ho2020denoising"></d-cite> are one of the earliest modern diffusion approaches. The core idea is simple: we first choose a *fixed forward noising process* that gradually destroys data, and then train a model to *run this process in reverse*. DDPM casts this into a variational objective, so learning to denoise step by step also becomes a likelihood-style training problem.
 
@@ -684,7 +684,7 @@ In modern practice, people often prefer working with the PF-ODE rather than the 
 The Score-SDE framework can therefore be viewed as a continuous-time extension of DDPM. It keeps the same noising idea, but expresses both training and generation in the language of differential equations. We will revisit this viewpoint again when introducing Flow Matching below, where the notation becomes even cleaner.
 
 
-### Flow Matching: Predict the Velocity
+### Flow-Based Method (e.g., Flow Matching): Predict the Velocity
 
 In score-based diffusion, we first learn a *score* $$\mathbf{s}_\theta(\mathbf{x},t)$$ (a "which way is more likely" direction), and then convert it into a sampler by integrating the PF-ODE.  Flow Matching <d-cite key="lipman2022flow"></d-cite> and Rectified Flow <d-cite key="liu2023flow"></d-cite> shift the focus: instead of learning the score, it trains the network to output the *velocity field* directly, the ODE rule that moves a sample at time $$t$$.
 
