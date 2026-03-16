@@ -1106,17 +1106,6 @@ ninja.data = [{
             window.location.href = "/2026/blog/2026/dynamic-routing/";
           
         },
-      },{id: "post-dllm-rethinking-generation-beyond-autoregressive-models",
-        
-          title: "dLLM - Rethinking Generation Beyond Autoregressive Models",
-        
-        description: "Diffusion large language models (dLLMs) provide an alternative to autoregressive Transformers, supporting parallel token generation and flexible infilling. They excel in structured, long-horizon, or data-constrained settings, though challenges remain with output length, denoising, and blockwise generation. Hybrid approaches combining diffusion for reasoning and autoregressive for generation show promise.",
-        section: "Posts",
-        handler: () => {
-          
-            window.location.href = "/2026/blog/2026/dllm/";
-          
-        },
       },{id: "post-sample-blog-post",
         
           title: "Sample Blog Post",
