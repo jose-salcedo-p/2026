@@ -328,9 +328,11 @@ The official codebase of the paper doesn’t contain the SFT logic that was used
 </div>
 
 ## 4. Appendix
+This work was started in the context of Lukas Fluri's 2024 CHAI internship. Aaryan Chandna later led further empirical work, with support from Lukas Fluri. Micah Carroll advised throughout. We thank the Center for Human-Compatible AI for the computational resources required to carry out these experiments.
 
 ### Code
 Code for replicating our experimental runs is located [here](https://https://github.com/basebala/MisleadTRL/tree/master)<d-cite key="misleadtrl"></d-cite> 
+
 ### Evaluating cut paragraph sufficiency
 ```
 SYSTEM:
