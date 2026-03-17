@@ -20,11 +20,11 @@ authors:
   - name: Julia Balla
     url: "https://julballa.github.io/"
     affiliations:
-      name: MIT
+      name: Massachusetts Institute of Technology
   - name: Hannah Lawrence
     url: "https://hannahlawrence.github.io/"
     affiliations:
-      name: MIT
+      name: Massachusetts Institute of Technology
 
 # must be the exact same name as your blogpost
 bibliography: 2026-04-27-autoregressive-tokenization.bib
@@ -132,11 +132,11 @@ Under this factorization, the model is trained to predict the next token $x_i$ g
 
 <div style="background:#f5f5f5; padding:1.5rem; margin:2rem 0; text-align:center; border-radius:6px;">
   <div style="font-style:italic; font-size:1.1rem; line-height:1.5; color:#333 !important;">
-    “You think you just fell out of a coconut tree? You exist in the context of all in which you live and what came before you.”
+    “You think you just fell out of a coconut tree? You exist in the context of all in which you live and what came before you.” <d-cite key="wikipedia_coconut_tree_meme"></d-cite>
   </div>
 </div>
 <div class="caption" style="text-align:center;">
-    POV: You’re a token predicted by an autoregressive model.
+    POV: You are a token predicted by an autoregressive model.
 </div>
 
 ## What exactly are tokens?
