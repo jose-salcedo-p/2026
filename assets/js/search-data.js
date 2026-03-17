@@ -710,17 +710,6 @@ ninja.data = [{
             window.location.href = "/2026/blog/2026/measuregen/";
           
         },
-      },{id: "post-learning-to-maximize-rewards-via-reaching-goals",
-        
-          title: "Learning to Maximize Rewards via Reaching Goals",
-        
-        description: "Goal-conditioned reinforcement learning learns to reach goals instead of optimizing hand-crafted rewards. Despite its popularity, the community often categorizes goal-conditioned reinforcement learning as a special case of reinforcement learning. In this post, we aim to build a direct conversion from any reward-maximization reinforcement learning problem to a goal-conditioned reinforcement learning problem, and to draw connections with the stochastic shortest path framework. Our conversion provides a new perspective on the reinforcement learning problem: maximizing rewards is equivalent to reaching some goals.",
-        section: "Posts",
-        handler: () => {
-          
-            window.location.href = "/2026/blog/2026/mdp-to-gcmdp/";
-          
-        },
       },{id: "post-research-directions-in-multimodal-chain-of-thought-mcot-with-sketching",
         
           title: "Research Directions in Multimodal Chain-of-Thought (MCoT) with Sketching",
