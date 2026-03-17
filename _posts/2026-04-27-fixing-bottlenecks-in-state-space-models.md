@@ -752,7 +752,7 @@ extremes of the transition operator influences the model's memory dynamics.
       key="figure3"
   %}
   <figcaption>
-    Cumulative distribution of $(A_{\max} - A_{\min})$ across channels. More than 60\% of channels lie below $0.5$, indicating limited diversity in memory decay rates <d-cite key="wang2025understandingmitigatingbottlenecksstate"></d-cite>.
+    Figure 3: Cumulative distribution of $(A_{\max} - A_{\min})$ across channels. More than 60% of channels lie below 0.5, indicating limited diversity in memory decay rates <d-cite key="wang2025understandingmitigatingbottlenecksstate"></d-cite>.
   </figcaption>
 </figure>
 
