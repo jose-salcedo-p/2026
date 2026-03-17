@@ -155,6 +155,14 @@ _styles: >
     margin: 20px 0;
     font-weight: 400;
   }
+  .figure-centered-small {
+    text-align: center;
+  }
+  .figure-centered-small img {
+    width: 60%;
+    display: block;
+    margin: 0 auto;
+  }
 ---
 ## The Promise of SSMs: Long-Range Memory & Efficiency
 **Structured State Space Sequence Models (S4, DSS, S4D)** represent a modern class of deep learning sequence models that share conceptual similarities with RNNs, CNNs, and classical state space models. In control systems, state-space models (SSMs) represent a system where the relationship between inputs and outputs is defined through state variables (or simply states), with the system's behavior described by first-order differential equations governing these states <d-cite key="xiao2023introductiontransformersnlpperspective"></d-cite>.
@@ -745,7 +753,7 @@ the model to interpolate between short- and long-term memory behaviors.
 These variants allow us to examine how explicitly controlling the spectral
 extremes of the transition operator influences the model's memory dynamics.
 
-<figure id="figure3">
+<figure id="figure3" class="figure-centered-small">
   {% include figure.liquid
       path="assets/img/2026-04-27-fixing-bottlenecks-in-state-space-models/figure3.png"
       alt="Cumulative distribution"
