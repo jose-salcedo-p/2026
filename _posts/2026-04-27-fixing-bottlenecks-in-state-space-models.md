@@ -745,13 +745,16 @@ the model to interpolate between short- and long-term memory behaviors.
 These variants allow us to examine how explicitly controlling the spectral
 extremes of the transition operator influences the model's memory dynamics.
 
-{% include figure.liquid 
-    path="assets/img/2026-04-27-fixing-bottlenecks-in-state-space-models/figure3.png"
-    alt="Cumulative distribution"
-    caption="Figure 3: Cumulative distribution of $(A_{\max} - A_{\min})$ across channels.  
-      More than 60\% of channels lie below $0.5$, indicating limited diversity in memory decay rates <d-cite key="wang2025understandingmitigatingbottlenecksstate"></d-cite>."
-    key="figure3"
-%}
+<figure id="figure3">
+  {% include figure.liquid
+      path="assets/img/2026-04-27-fixing-bottlenecks-in-state-space-models/figure3.png"
+      alt="Cumulative distribution"
+      key="figure3"
+  %}
+  <figcaption>
+    Cumulative distribution of $(A_{\max} - A_{\min})$ across channels. More than 60\% of channels lie below $0.5$, indicating limited diversity in memory decay rates <d-cite key="wang2025understandingmitigatingbottlenecksstate"></d-cite>.
+  </figcaption>
+</figure>
 
 ### Polarization in Context: Comparison with Alternative Approaches
 
