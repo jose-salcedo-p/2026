@@ -820,6 +820,17 @@ ninja.data = [{
             window.location.href = "/2026/blog/2026/introduction-to-stochastic-interpolants/";
           
         },
+      },{id: "post-how-to-open-the-black-box-amp-58-modern-models-for-mechanistic-interpretability",
+        
+          title: "How To Open the Black Box&amp;#58 Modern Models for Mechanistic Interpretability",
+        
+        description: "Understanding how transformers represent and transform internal features is a core challenge in mechanistic interpretability. Traditional tools like attention maps and probing reveal only partial structure, often blurred by polysemanticity and superposition. More principled alternatives work by recovering interpretable structure directly from activations&amp;#58 Sparse Autoencoders extract sparse, disentangled features from the residual stream; Semi-Nonnegative Matrix Factorization decomposes MLP activations into neuron-grounded building blocks; Cross-Layer Transcoders trace how these features propagate and transform across depth. Together, they form a coherent, feature-centric framework for understanding what transformers learn and how they compute.",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/2026/blog/2026/interpret-model/";
+          
+        },
       },{id: "post-charting-the-depths-interpretability-tools-to-enhance-llm-safety",
         
           title: "Charting the Depths: Interpretability Tools to Enhance LLM Safety",
