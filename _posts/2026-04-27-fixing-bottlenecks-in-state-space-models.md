@@ -675,7 +675,7 @@ $$
 h_t = A_t h_{t-1} + b_t(x_t).
 $$
 
-The matrix (or vector in diagonal form) $A_t$ determines how information from previous time steps propagates forward. In linear dynamical systems, the *eigenvalues* of the transition operator control the stability and memory of the system. If an eigenvalue satisfies $|\lambda| < 1$, the corresponding state component decays exponentially over time. Conversely, if $|\lambda| = 1$, that component persists indefinitely.
+The matrix (or vector in diagonal form) $A_t$ determines how information from previous time steps propagates forward. In linear dynamical systems, the *eigenvalues* of the transition operator control the stability and memory of the system. If an eigenvalue satisfies $\lvert \lambda \rvert < 1$, the corresponding state component decays exponentially over time. Conversely, if $\lvert \lambda \rvert = 1$, that component persists indefinitely.
 
 In Mamba, the transition coefficient is parameterized as
 
@@ -683,9 +683,7 @@ $$
 A_t = \exp(\Delta t\, A),
 $$
 
-where $$A$$ is a learnable vector. Because the exponential preserves
-positivity, each entry of $$A_t$$ can be interpreted as the effective
-eigenvalue controlling the decay rate of a particular memory channel.
+where $A$ is a learnable vector. Because the exponential preserves positivity, each entry of $A_t$ can be interpreted as the effective eigenvalue controlling the decay rate of a particular memory channel.
 
 The polarization mechanism explicitly fixes two extreme eigenvalue regimes.
 This is implemented by inserting constant values into the pre-exponential
