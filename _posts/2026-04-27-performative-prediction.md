@@ -20,7 +20,7 @@ authors:
   - name: Javier Sanguino Bautiste
     url: https://fjsanguino.github.io
     affiliations:
-      name: Basque Center of Applied Mathematics (BCAM)
+      name: Basque Center for Applied Mathematics (BCAM)
   - name: Thomas Kehrenberg
     url: https://tmke8.github.io/
     affiliations:
