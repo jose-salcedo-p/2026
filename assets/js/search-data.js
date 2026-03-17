@@ -985,6 +985,17 @@ ninja.data = [{
             window.location.href = "/2026/blog/2026/flow-map-learning/";
           
         },
+      },{id: "post-understanding-and-fixing-bottlenecks-in-state-space-models-what-recency-and-over-smoothing-tell-us",
+        
+          title: "Understanding and Fixing Bottlenecks in State Space Models: What Recency and Over-Smoothing Tell...",
+        
+        description: "This work analyzes how recency bias and hidden-state over-smoothing emerge in modern State Space Models, revealing the bottlenecks that limit their ability to capture long-range dependencies.",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/2026/blog/2026/fixing-bottlenecks-in-state-space-models/";
+          
+        },
       },{id: "post-the-coverage-boundary-why-high-fidelity-primitives-don-39-t-compose",
         
           title: "The Coverage Boundary: Why High-Fidelity Primitives Don&#39;t Compose",
