@@ -294,7 +294,7 @@ Mamba-2 extends this approach by making both coefficients data-dependent through
 
 *Note:* Traditional S4 architectures behave as *linear time-invariant* systems, where the parameters of the state space model remain fixed across the entire sequence. Mamba introduces an important modification called the *selection mechanism*, where the parameters $$(b_t, c_t, \Delta t)$$ become functions of the input. In other words, the model dynamically adjusts how information flows through the state space depending on the current token. 
 
-This mechanism was originally motivated by the *selective copying* task, where the model must retain only relevant tokens while discarding irrelevant ones. By allowing parameters such as $$(A_t)$$ and $$(b_t)$$ to adapt based on the input, Mamba introduces a form of content-dependent memory update.
+This mechanism was originally motivated by the *selective copying* task, where the model must retain only relevant tokens while discarding irrelevant ones. By allowing parameters such as $$A_t$$ and $$b_t$$ to adapt based on the input, Mamba introduces a form of content-dependent memory update.
 
 ### Selection as a means of Gating
 
@@ -594,15 +594,15 @@ $$
 \max_{t,s} \|b_t(x_t) - b_s(x_s)\|_{\infty}
 $$
 
-where $$(A_{\min} = \min_{t,n} (A_t)_{n,n})$$ denotes the smallest diagonal entry of the state transition matrices.
+where $$A_{\min} = \min_{t,n} (A_t)_{n,n}$$ denotes the smallest diagonal entry of the state transition matrices.
 
-**What This Bound Means?** The inequality indicates that the **differences between hidden states shrink over time**. Even if the encoded inputs $$(b_t(x_t))$$ vary significantly across tokens, the recurrent update repeatedly multiplies the hidden state by transition matrices whose entries are bounded by one. As a result, the dynamics become *contractive*, gradually reducing discrepancies between memory states across the sequence.
+**What This Bound Means?** The inequality indicates that the **differences between hidden states shrink over time**. Even if the encoded inputs $$b_t(x_t)$$ vary significantly across tokens, the recurrent update repeatedly multiplies the hidden state by transition matrices whose entries are bounded by one. As a result, the dynamics become *contractive*, gradually reducing discrepancies between memory states across the sequence.
 
 Consequently, token representations tend to become increasingly similar as the sequence is processed, and the hidden state behaves like a **smoothed representation of the input sequence**.
 
-**Connection to Context Length** The rate at which these discrepancies decay depends on two factors: the context length $$(T)$$ and the minimal transition coefficient $$(A_{\min})$$. From a message-passing perspective, information from earlier tokens must propagate sequentially through the recurrence before influencing later positions. As the sequence length grows, more steps are required for the representations to mix across the entire sequence. 
+**Connection to Context Length** The rate at which these discrepancies decay depends on two factors: the context length $$T$$ and the minimal transition coefficient $$A_{\min}$$. From a message-passing perspective, information from earlier tokens must propagate sequentially through the recurrence before influencing later positions. As the sequence length grows, more steps are required for the representations to mix across the entire sequence. 
 
-When $$(A_{\min})$$ approaches $$(1)$$, the recurrence behaves almost like a uniform averaging operator over the sequence. In this regime, the hidden state update resembles 
+When $$A_{\min}$$ approaches $$1$$, the recurrence behaves almost like a uniform averaging operator over the sequence. In this regime, the hidden state update resembles 
 
 $$
 h_t \approx A h_{t-1} +b_t(x_t), \quad A \approx 1
@@ -613,7 +613,7 @@ which is mathematically equivalent to a *running average* over the encoded token
 ### Implication
 This observation provides an intuitive explanation for the over-smoothing phenomenon in deep SSMs. As the recurrence repeatedly mixes representations across time steps, token embeddings gradually become more similar, causing the hidden feature space to lose discriminative structure. In extreme cases, the model behaves like a low-pass filter that retains coarse global trends while discarding fine-grained token-level information.
 
-Theoretical analysis suggests that selection mechanism does not fully eliminate the structural limitations of SSMs. In particular, the recency bias established in Theorem 3.1 still applies even when the transition parameters depend on the input. Similarly, Theorem 4.2 indicates that selective SSMs may still exhibit over-smoothing behavior, implying that their signal filtering properties remain similar to those of linear S4 (Proposition 4.1). That said, selection can partially alleviate these issues by dynamically adjusting the transition coefficients. From the theoretical perspective, the mechanism can push the upper bound $$(A_{\max})$$ closer to $$(1)$$ and the lower bound $$(A_{\min})$$ closer to $$(0)$$, effectively widening the range of memory timescales that the model can represent. Nevertheless, the transition matrix $$(A)$$ is typically initialized with negative values, which encourages rapid decay and can further reinforce the recency bias predicted by Theorem 3.1.
+Theoretical analysis suggests that selection mechanism does not fully eliminate the structural limitations of SSMs. In particular, the recency bias established in Theorem 3.1 still applies even when the transition parameters depend on the input. Similarly, Theorem 4.2 indicates that selective SSMs may still exhibit over-smoothing behavior, implying that their signal filtering properties remain similar to those of linear S4 (Proposition 4.1). That said, selection can partially alleviate these issues by dynamically adjusting the transition coefficients. From the theoretical perspective, the mechanism can push the upper bound $$A_{\max}$$ closer to $$1$$ and the lower bound $$A_{\min}$$ closer to $$0$$, effectively widening the range of memory timescales that the model can represent. Nevertheless, the transition matrix $$A$$ is typically initialized with negative values, which encourages rapid decay and can further reinforce the recency bias predicted by Theorem 3.1.
 
 **Intuition Behind Theorem 4.2 (Over-Smoothing in SSMs): A simple way to understand the over-smoothing effect in SSMs is to view each layer as a contractive update. If the recurrent coefficient satisfies $A_t \leq 1$, then differences between hidden states shrink over time. For example, when $A_t = 0.9$ and the input sequence is short, even inputs that differ significantly (e.g., by 2 units) produce hidden states whose differences are tightly bounded (e.g., $\approx 0.54$). As the sequence length increases, this contraction becomes stronger, forcing token representations to become increasingly similar. This explains why stacking many SSM layers causes the model to behave like a running low-pass filter, progressively removing high-frequency (sharp) features and leading to over-smoothing.**
 
