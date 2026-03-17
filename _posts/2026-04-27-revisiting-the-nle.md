@@ -14,7 +14,31 @@ mermaid:
 
 # Anonymize when submitting
 authors:
-  - name: Anonymous
+  - name: Michael Matthews
+    url: "https://www.mtmatthews.com/"
+    affiliations:
+      name: Meta, University of Oxford
+  - name: Pierluca D'Oro
+    url: "https://proceduralia.github.io/"
+    affiliations:
+      name: Meta
+  - name: Anssi Kanervisto
+    url: "https://scholar.google.com/citations?user=iPimqbwAAAAJ&hl=en"
+    affiliations:
+      name: Meta
+  - name: Scott Fujimoto
+    url: "https://scholar.google.com/citations?user=1Nk3WZoAAAAJ&hl=en"
+    affiliations:
+      name: Meta
+  - name: Jakob Foerster
+    url: "https://www.jakobfoerster.com/"
+    affiliations:
+      name: Meta, University of Oxford
+  - name: Mikael Henaff
+    url: "https://www.mikaelhenaff.com/"
+    affiliations:
+      name: Meta
+
 
 # authors:
 #   - name: Albert Einstein
