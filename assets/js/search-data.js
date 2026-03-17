@@ -274,7 +274,7 @@ ninja.data = [{
         
           title: "UnigramLM - An Attempt at Writing the Missing Manual",
         
-        description: "This post is my attempt to write down the UnigramLM tokenization algorithm cleanly and explicitly because, well, I still haven&#39;t found such a derivation and I think understanding the theory behind the method could help us make it better. I&#39;ll formalize the generative model around which the algorithm is based, derive the EM updates, explain why pruning is needed (and how it&#39;s done), and point out the spots where the practical implementation defined by the SentencePiece library diverges from the pretty mathematical models.",
+        description: "This post is my attempt to write down the UnigramLM tokenization algorithm cleanly and explicitly because no such derivation appears to exist and I think understanding the theory behind the method could help us improve it. I&#39;ll formalize the generative model around which the algorithm is based, derive the EM updates, explain why pruning is needed (and how it&#39;s done), and point out the spots where the practical implementation defined by the SentencePiece library diverges from the pretty mathematical models. I hope this post provides a new lens through which to look at the UnigramLM tokenization algorithm while pointing out some interesting potential extensions/revisions to the current implementation.",
         section: "Posts",
         handler: () => {
           
