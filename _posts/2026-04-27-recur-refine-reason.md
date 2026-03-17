@@ -8,7 +8,12 @@ htmlwidgets: true
 hidden: true
 
 authors:
-  - name: Anonymous
+  - name: Kaitlin Maile
+    affiliations:
+      name: Google, Paradigms of Intelligence Team
+  - name: João Sacramento
+    affiliations:
+      name: Google, Paradigms of Intelligence Team
 
 bibliography: 2026-04-27-recur-refine-reason.bib
 
@@ -125,7 +130,7 @@ To complement refinement in the depth axis, how can refinement be useful in the 
 
 Geiping et al. <d-cite key="geiping2025efficient"></d-cite> propose diffusion forcing sampling for latent depth-recurrent models to enable recent token refinement at each step: the current token goes through the recurrent unit only once before beginning generation of on the next one, so recent tokens continue to be recurrently refined in a sliding windowing manner. This further ameliorates the token discretization issue previously discussed for standard CoT.
 
-Hierarchical Reasoning Models <d-cite key="wang2025hierarchical"></d-cite> and their successor Tiny Reasoning Models <d-cite key="jolicoeur2025less"></d-cite> feed the entire latent sequence back through its hierarchical modules, looping multiple times on the latent “scratchpad” for each output refinement. The lower level module receives the embedded input sequence and both the high-level and low-level latent states to update the low-level latent state, and the higher level, lower frequency module receives only the latent states to update the high-level latent state that will eventually be decoded to the full output sequence. 
+Hierarchical Reasoning Models <d-cite key="wang2025hierarchical"></d-cite> and their successor Tiny Reasoning Models <d-cite key="jolicoeur2025less"></d-cite> feed the entire latent sequence back through its hierarchical modules, looping multiple times on the latent “scratchpad” for each output refinement. The lower level module receives the embedded input sequence and both the high-level and low-level latent states to update the low-level latent state, and the higher level, lower frequency module receives only the latent states to update the high-level latent state that will eventually be decoded to the full output sequence. Gradients are only evaluated on some individual steps across the depth of recurrence, which is more akin to methods of diffusion training than standard backpropagation-through-time methods often seen in RNNs <d-cite key="ge2025hierarchical"></d-cite>.
 
 In between sequential refinement and explicit CoT, a simple approach lies in the use of a "pause" token <d-cite key="goyal2024think"></d-cite>. Although such a token still requires a hard commit, incorporating learnable "pause" tokens allows the model to delay the output generation both token by token during generation as well as after processing the input and beginning to generate the output, effectively utilizing the additional computation to refine its internal state before committing to a final answer nor using an explicit chain of thought.
 
@@ -152,6 +157,10 @@ The concept of input-dependent layer-dropping pushes dynamic routing further by 
 This optimization introduces significant complications particularly related to maintaining the Key-Value (KV) cache, a mechanism utilized by autoregressive attention-based models that stores the computed keys and values from attention layers corresponding to previously generated tokens to accelerate sequence generation at inference time. When a token exits early, the KV caches for all subsequent (skipped) layers are missing, complicating the generation of future tokens that might require a deeper path. Solutions include duplicating the cached items from current token's exit layer to subsequent layers <d-cite key="schuster2022confident"></d-cite> or using batched forward passes upon cache miss <d-cite key="bae2023fast"></d-cite>. Depth recurrence methods with partial or full weight sharing can counteract some of these inefficiencies, allowing for depth-wise batching such that tokens at different recurrence depth may be re-batched together <d-cite key="bae2025relaxed"></d-cite>.
 
 While dynamic routing optimizes where extra computation happens, hierarchicality optimizes how it happens, and sequential refinement optimizes when it happens, a lucrative path forward lies in combining these mechanisms with the structural priors of recurrence discussed earlier.
+
+## In-Context Learning and Implicit Optimization
+
+Parameter reuse via looping extends the capability of transformer architectures to execute in-context learning (ICL) algorithms. In standard, unlooped models, emulating an iterative learning process typically requires the network depth to scale proportionally with the number of optimization steps. Conversely, looped transformers can emulate these iterative optimization algorithms using a constant-depth architecture. For instance, a looped transformer with a fixed number of layers can execute stochastic gradient descent (SGD) and full backpropagation for a neural network entirely within its forward pass <d-cite key="giannou2023looped"></d-cite>. Rather than spreading sequential optimization steps across distinct, single-use layers, the looped architecture continuously updates a latent embedding, simulating weight updates and internal reprogramming over multiple iterations. It is an exciting question whether the structural prior of looping alone provides a sufficiently strong inductive bias for models trained strictly on a standard next-token prediction objective to naturally develop such implicit self-optimization mechanisms (a phenomenon sometimes referred to as mesa-optimization<d-cite key="von2025mesanet"></d-cite>) during the forward pass.
 
 ## Towards Compositional Recurrence
 
