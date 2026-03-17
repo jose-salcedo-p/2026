@@ -7,9 +7,19 @@ future: true
 htmlwidgets: true
 hidden: true
 
-# Anonymize when submitting
 authors:
-  - name: Anonymous
+  - name: Alex Ning
+    url: "https://alexn.ing"
+    affiliations:
+      name: Department of Computer Science, University of Virginia
+  - name: Vainateya Rangaraju
+    url: "https://vainateyar.com"
+    affiliations:
+      name: Department of Computer Science, University of Virginia
+  - name: Yen-Ling Kuo
+    url: "https://yenlingkuo.com"
+    affiliations:
+      name: Department of Computer Science, University of Virginia
 
 # must be the exact same name as your blogpost
 bibliography: 2026-04-27-vis-llm-latent-geometry.bib
@@ -43,6 +53,7 @@ toc:
   - name: Appendix
     subsections:
       - name: Additional Sequence Position Visualizations
+      - name: Stability of UMAP Visualizations
 
 ---
 
@@ -50,7 +61,7 @@ toc:
 
 Despite enormous advances made in the field of machine learning (ML) research, understanding a model's internal decision-making processes remains a difficult challenge. Model interpretability is central to areas such as alignment and explainable AI, and the field is burgeoning with an influx of work. However, many foundational questions are still unresolved. Against this backdrop, mechanistic interpretability has emerged as a field that aims to achieve a granular, causal understanding of neural networks, particularly large language models (LLMs), by reverse engineering their internal components. One promising avenue for understanding LLMs is analyzing their representations. Feature geometry, the structure and organization of representations within high-dimensional latent space, offers a way to study how abstract features are encoded and transformed across model layers. By examining geometric relationships between latent states, such as directions, clusters, and manifolds, researchers can gain insight into how LLMs generalize, reason, and abstract.
 
-In this work, we analyze the feature geometry of LLMs by capturing latent states across multiple components and projecting them into interpretable low-dimensional spaces using PCA and UMAP. This approach allows visualizations of how representations evolve through the Transformer model. Throughout this work, we aim to provide a strong background and exposition for better accessibility. To ensure clarity, a glossary of key technical terms used throughout this paper is provided in the [Glossary](#glossary) section. We make our code available at [https://anonymous.4open.science/r/Feature_Geometry_Visualization-505F](https://anonymous.4open.science/r/Feature_Geometry_Visualization-505F).
+In this work, we analyze the feature geometry of LLMs by capturing latent states across multiple components and projecting them into interpretable low-dimensional spaces using PCA and UMAP. This approach allows visualizations of how representations evolve through the Transformer model. Throughout this work, we aim to provide a strong background and exposition for better accessibility. To ensure clarity, a glossary of key technical terms used throughout this paper is provided in the [Glossary](#glossary) section. We make our code available at [https://github.com/Vainateya/Feature_Geometry_Visualization](https://github.com/Vainateya/Feature_Geometry_Visualization).
 
 ## Background
 
@@ -196,7 +207,7 @@ We notice a striking separation between pre-add latent states from attention com
 
 The figures above visualize pre-add contributions from both attention components and MLPs in intermediate blocks using samples from PG-19. The first figure utilizes PCA dimensionality reduction on the latent states. Although the PCA dimensionality reductions in all subplots were _fit_ on all latent states, the actual _transformation_ using the fitted PCA was done on the latent states only after they had all been averaged over the sample dimension to reduce random variability between samples for a clearer visualization. Subplot (a) shows the PCA visualizations of both GPT-2 and LLaMa. (b) shows the PCA visualizations of both GPT-2 and LLaMa when all latent states were converted to unit vectors before PCA dimensionality reduction. In both (a) and (b), there is a clear separation of regions occupied by latent states from attention components (blue) versus MLPs (red).
 
-The second figure above utilized 2D UMAP dimensionality reduction on the latent states. Unlike in the PCA case, there was no sample averaging of the latent states. Instead, due to the increased computational demands of UMAP (using all latent states is not viable), a random subset of 100k latent states was used to fit UMAP, while a _different_ random subset of 500k latent states was transformed and visualized. Similar to as seen in the PCA figure, we can see distinct regions occupied by latent states from attention components (blue) compared to those from MLPs (red). The Linear Representation Hypothesis specifies that features correspond to _directions_ in latent space. As a result, we use cosine distance as the metric for UMAP instead of Euclidean distance.
+The second figure above utilized 2D UMAP dimensionality reduction on the latent states. Unlike in the PCA case, there was no sample averaging of the latent states. Instead, due to the increased computational demands of UMAP (using all latent states is not viable), a random subset of 100k latent states was used to fit UMAP, while a _different_ random subset of 500k latent states was transformed and visualized. Similar to as seen in the PCA figure, we can see distinct regions occupied by latent states from attention components (blue) compared to those from MLPs (red). The Linear Representation Hypothesis specifies that features correspond to _directions_ in latent space. As a result, we use cosine distance as the metric for UMAP instead of Euclidean distance. We analyze the stability of our UMAP visualizations in the [Appendix](#stability-of-umap-visualizations).
 
 ### Effects of Sequence Position
 
@@ -315,3 +326,53 @@ _[Dimensionality Reduction](#dimensionality-reduction) section_
 <div class="caption">
     Visualization of post-add latent states from LLaMa intermediate blocks, averaged across samples and layers. 15 plots visualize all unique pairs of 6 PCA dimensions.
 </div>
+
+
+### Stability of UMAP Visualizations
+
+_This section discusses the stability of the UMAP visualizations presented in section [Attention vs. MLP Signature](#attention-vs-mlp-signature). It is a winding, exploratory rabbit-hole. We included it to discuss the concerns brought up by a reviewer during peer-review regarding the stability of UMAP._
+
+UMAP is stochastic and, at least in our case, required some largely heuristics-driven and trial-and-error based hyperparameter tuning.
+
+We chose to use two separately sampled random sets of data points for fit and then transformation to minimize the risk of overfitting affecting our results. The particular numbers of data points chosen - 100k for fit and 500k for transform - were simply a result of practical compute and time considerations.
+
+Since UMAP is non-deterministic, different runs will produce different outcomes. As such, in order to ensure that our results were not simply spurious, we can run the process multiple times to see whether the result will still contain the same patterns.
+
+We find that the UMAP visualizations of GPT-2 hidden states are very stable, consistently producing the same, elegant patterns. This is also largely true of the visualizations of LLaMa hidden states. The clear separation of attention and MLP hidden states are always present. However, we also find that the visualized LLaMa hidden states are sometimes susceptible to random and sparse outlier points that visually compact the vast majority of hidden states into a smaller area on the visualization.
+
+{% include figure.liquid path="assets/img/2026-04-27-vis-llm-latent-geometry/FIG_LLaMa_UMAP_Outliers.png" class="img-fluid" %}
+<div class="caption">
+    6 random UMAP visualizations of LLaMa hidden states. Outliers are circled in green. The top 2 contain outliers that moderately compact the vast majority of data points. The bottom-left visualization has its main cluster of data points severely crushed by distant outliers. The remaining 3 visualizations are not affected by outliers.
+</div>
+
+Since we used cosine similarity as the UMAP metric, we know that large activations are *not* the culprit. Instead, these outliers must simply point in a direction that is very different from the majority of points. Either that, or they are some sort of artifact of a suboptimally-configured UMAP.
+
+One of the simpler reasons that directional outliers may occur is in the case where there are hidden states that have a near-zero magnitude, since these can essentially point in a random, meaningless direction. However, we find that this is not the case. Out of all LLaMa hidden states we considered for visualization (after initial post-processing dimensionality reduction via PCA from 4096 to 512 dims), the minimum Euclidean length is 0.87 while the median is 5.73; this minimum length is far too great and eliminates near-zero length as a possible culprit of the directional outliers.
+
+We do not find that transforming the *same* data points that were used to fit the UMAP (in comparison with using separately sampled sets) has a noticeable effect on the occurrence of outliers.
+
+We proceed to attempt to provide some interpretation on the source of these outliers. Out of the 64 text samples that comprised the hidden states we used, we manually examined the first 15. We found outliers present in 2 out of these 15 samples (samples 12 and 14). Out of all of the 90,068 hidden states that comprised sample 12, we found that only 1 was an outlier: the hidden state output by the MLP of block 20 at sequence position 1596, which corresponds to the final token `'.'` in the following sequence of tokens that discusses what seems to be a delectable experience:
+
+```
+...
+
+'▁Mix', '▁well', '▁with', '▁a', '▁small', '▁glass',
+'▁of', '<0x0A>', 'br', 'andy', '.', '▁Let', '▁free',
+'ze', '▁and', '▁serve', '▁in', '▁small', '▁glass',
+'es', '.', '<0x0A>', '<0x0A>', '<0x0A>', '1', '2',
+'.--', 'Russ', 'ian', '▁P', 'anc', 'akes', '.'
+
+...
+```
+
+In sample 14, we find 137 outliers scattered relatively evenly throughout the passage. All are from the output of the attention of block 19. 134 correspond to the token `'▁|'`, while 3 correspond to the token `'--+'`. We note that there exist instances of these same tokens that are *not* outliers.
+
+We also measure the cosine similarity between the singular outlier in sample 12 and one of the `'▁|'` outliers from sample 14. We find a very low cosine similarity of ~0.08. In contrast, cosine similarity between `'▁|'` outliers in sample 14 is around 0.9. Thus, there is low similarity between the outliers of these two samples, despite the fact that, when reduced with UMAP, the points are essentially overlapping.
+
+We do not attempt to manually identify the remaining outliers in other samples, although we note they do exist. From the two samples we analyze that do contain outliers, we see that they correspond to tokens related to punctuation or formatting and that, given a single sample, they occur only in one layer throughout the entire model.
+
+All of the outliers analyzed above were from a single, *particular* UMAP fit. We do not know if another instance of the stochastic UMAP will produce different outliers.
+
+We do find that fitting on more data points increases the probability and intensity of outliers. For example, fitting on 100k data points produces many visualizations with no outliers, but fitting on 500k data points nearly always produces extreme outliers that compact the majority of data points into a small cluster. Notably, in both cases we transform and visualize 500k data points after fitting. We do not have a great explanation for this. Perhaps there are just a few data points in the 5.8 million total that, when sampled into the set used to fit UMAP, will result in the phenomenon of outliers being present. Thus, it is more likely that none of these data points are sampled when only 100k data points are used rather than 500k. However, if there are hundreds of these "outlier causing" data points, then it is very unlikely that even sampling 100k data points out of 5.8 million would miss all of them.
+
+As an alternative to discovering the source of our outliers, we tried to tune the UMAP fitting process to eliminate the phenomenon entirely. We spent a full day playing with various hyperparameters, however, we were not able to eliminate the issue entirely. Despite this, we reiterate that, even with the occasional presence of significant outliers, the primary pattern of interest - the distinction between attention and MLP hidden states - are still *always* evident in the main cluster of visualized data points. As a result, our primary conclusion is still stable across UMAP runs.
