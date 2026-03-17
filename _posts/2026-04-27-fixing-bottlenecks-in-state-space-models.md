@@ -139,6 +139,22 @@ _styles: >
     margin: 20px 0;
     font-weight: 400;
   }
+  .box-important-blue {
+    background: #eaf4ff;
+    padding: 14px 18px;
+    border-right: 5px solid #5b9bd5;
+    border-radius: 6px;
+    margin: 20px 0;
+    font-weight: 400;
+  }
+  .box-important-pink {
+    background: #fdecef;
+    padding: 14px 18px;
+    border-left: 5px solid #e78aa0;
+    border-radius: 6px;
+    margin: 20px 0;
+    font-weight: 400;
+  }
 ---
 ## The Promise of SSMs: Long-Range Memory & Efficiency
 **Structured State Space Sequence Models (S4, DSS, S4D)** represent a modern class of deep learning sequence models that share conceptual similarities with RNNs, CNNs, and classical state space models. In control systems, state-space models (SSMs) represent a system where the relationship between inputs and outputs is defined through state variables (or simply states), with the system's behavior described by first-order differential equations governing these states <d-cite key="xiao2023introductiontransformersnlpperspective"></d-cite>.
@@ -615,9 +631,13 @@ This observation provides an intuitive explanation for the over-smoothing phenom
 
 Theoretical analysis suggests that selection mechanism does not fully eliminate the structural limitations of SSMs. In particular, the recency bias established in Theorem 3.1 still applies even when the transition parameters depend on the input. Similarly, Theorem 4.2 indicates that selective SSMs may still exhibit over-smoothing behavior, implying that their signal filtering properties remain similar to those of linear S4 (Proposition 4.1). That said, selection can partially alleviate these issues by dynamically adjusting the transition coefficients. From the theoretical perspective, the mechanism can push the upper bound $$A_{\max}$$ closer to $$1$$ and the lower bound $$A_{\min}$$ closer to $$0$$, effectively widening the range of memory timescales that the model can represent. Nevertheless, the transition matrix $$A$$ is typically initialized with negative values, which encourages rapid decay and can further reinforce the recency bias predicted by Theorem 3.1.
 
-**Intuition Behind Theorem 4.2 (Over-Smoothing in SSMs): A simple way to understand the over-smoothing effect in SSMs is to view each layer as a contractive update. If the recurrent coefficient satisfies $A_t \leq 1$, then differences between hidden states shrink over time. For example, when $A_t = 0.9$ and the input sequence is short, even inputs that differ significantly (e.g., by 2 units) produce hidden states whose differences are tightly bounded (e.g., $\approx 0.54$). As the sequence length increases, this contraction becomes stronger, forcing token representations to become increasingly similar. This explains why stacking many SSM layers causes the model to behave like a running low-pass filter, progressively removing high-frequency (sharp) features and leading to over-smoothing.**
+<div class="box-important-blue">
+Intuition Behind Theorem 4.2 (Over-Smoothing in SSMs): A simple way to understand the over-smoothing effect in SSMs is to view each layer as a contractive update. If the recurrent coefficient satisfies $A_t \leq 1$, then differences between hidden states shrink over time. For example, when $A_t = 0.9$ and the input sequence is short, even inputs that differ significantly (e.g., by 2 units) produce hidden states whose differences are tightly bounded (e.g., $\approx 0.54$). As the sequence length increases, this contraction becomes stronger, forcing token representations to become increasingly similar. This explains why stacking many SSM layers causes the model to behave like a running low-pass filter, progressively removing high-frequency (sharp) features and leading to over-smoothing.
+</div>
 
-**The authors provide empirical validation using a 1.4B-parameter Mamba model. They quantify representation sharpness via pairwise distances between token embeddings and observe that sharpness consistently decreases across layers. Compared with Transformers of comparable size, SSMs exhibit a much faster decay of feature diversity, although Transformers are also theoretically susceptible to over-smoothing.**
+<div class="box-important-pink">
+The authors provide empirical validation using a 1.4B-parameter Mamba model. They quantify representation sharpness via pairwise distances between token embeddings and observe that sharpness consistently decreases across layers. Compared with Transformers of comparable size, SSMs exhibit a much faster decay of feature diversity, although Transformers are also theoretically susceptible to over-smoothing.
+</div>
 
 <figure class="side-by-side">
 
