@@ -813,7 +813,7 @@ This modification effectively changes the underlying weighting measure
 to an exponentially decaying form,
 
 $$
-\omega^{(t)}(s) \propto \exp(s-t)\,I[s<t]
+\omega^{(t)}(s) \propto \exp(s-t)\,\mathbf{1}_{s \lt t}
 $$
 
 which emphasizes more recent inputs when reconstructing the signal
