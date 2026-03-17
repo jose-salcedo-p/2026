@@ -639,39 +639,22 @@ Intuition Behind Theorem 4.2 (Over-Smoothing in SSMs): A simple way to understan
 The authors provide empirical validation using a 1.4B-parameter Mamba model. They quantify representation sharpness via pairwise distances between token embeddings and observe that sharpness consistently decreases across layers. Compared with Transformers of comparable size, SSMs exhibit a much faster decay of feature diversity, although Transformers are also theoretically susceptible to over-smoothing.
 </div>
 
-<figure class="side-by-side">
-
-  <div class="side-image">
-    {% include figure.liquid 
-      path="assets/img/2026-04-27-fixing-bottlenecks-in-state-space-models/figure3.png" 
-      alt="Cumulative distribution" 
-      class="img-fluid rounded"
-    %}
-    <figcaption>
-      Figure 3: Cumulative distribution of $(A_{\max} - A_{\min})$ across channels.  
-      More than 60\% of channels lie below $0.5$, indicating limited diversity in memory decay rates <d-cite key="wang2025understandingmitigatingbottlenecksstate"></d-cite>.
-    </figcaption>
-  </div>
-
-  <div class="side-text">
-    <p>When examining how each channel in Mamba’s state transition behaves, the authors study the two
+When examining how each channel in Mamba’s state transition behaves, the authors study the two
 extremal values $A_{\max}$ and $A_{\min}$ that characterize the strongest and weakest memory
 retention for each channel. Ideally, a healthy state space model should display a wide spread of
 behaviors: some channels with $A_{\max} \approx 1$ for preserving long-range information, others
 with $A_{\min} \approx 0$ for reacting sharply to new inputs, and many intermediate channels
-forming a rich spectrum in between.</p> 
-    <p>However, the cumulative histogram in Figure 3
-reveals the opposite. More than <strong>60% of channels satisfy</strong> $A_{\max} - A_{\min} < 0.5$,
+forming a rich spectrum in between.
+
+However, the cumulative histogram in Figure 3
+reveals the opposite. More than **60% of channels satisfy** $A_{\max} - A_{\min} < 0.5$,
 meaning their effective memory range is highly compressed. This narrow distribution indicates that
 most channels behave similarly, rather than specializing into long-memory and short-memory roles.
 As a consequence, if $A_t$ drifts toward small values, the model exhibits rapid forgetting and
 strong recency bias; if $A_t$ stays large, the hidden state barely updates, leading to
-over-smoothing. The model therefore struggles to naturally produce the desired mix of <strong>fast</strong>
-and <strong>slow</strong> memory channels, explaining why these failure modes arise so consistently in practice.
-    </p>
-  </div>
+over-smoothing. The model therefore struggles to naturally produce the desired mix of **fast**
+and **slow** memory channels, explaining why these failure modes arise so consistently in practice.
 
-</figure>
 
 ## Fixing Recency and Over-Smoothing in Mamba with State Space Polarization
 ### State Space Polarization
@@ -761,6 +744,14 @@ the model to interpolate between short- and long-term memory behaviors.
 
 These variants allow us to examine how explicitly controlling the spectral
 extremes of the transition operator influences the model's memory dynamics.
+
+{% include figure.liquid 
+    path="assets/img/2026-04-27-fixing-bottlenecks-in-state-space-models/figure3.png"
+    alt="Cumulative distribution"
+    caption="Figure 3: Cumulative distribution of $(A_{\max} - A_{\min})$ across channels.  
+      More than 60\% of channels lie below $0.5$, indicating limited diversity in memory decay rates <d-cite key="wang2025understandingmitigatingbottlenecksstate"></d-cite>."
+    key="figure3"
+%}
 
 ### Polarization in Context: Comparison with Alternative Approaches
 
