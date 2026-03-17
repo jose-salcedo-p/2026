@@ -820,17 +820,6 @@ ninja.data = [{
             window.location.href = "/2026/blog/2026/introduction-to-stochastic-interpolants/";
           
         },
-      },{id: "post-how-to-open-the-black-box-amp-58-modern-models-for-mechanistic-interpretability",
-        
-          title: "How To Open the Black Box&amp;#58 Modern Models for Mechanistic Interpretability",
-        
-        description: "Understanding how transformers represent and transform internal features is a core challenge in mechanistic interpretability. Traditional tools like attention maps and probing reveal only partial structure, often blurred by polysemanticity and superposition. New model-based methods offer more principled insight&amp;#58 Sparse Autoencoders extract sparse, interpretable features from dense activations; Semi-Nonnegative Matrix Factorization uncovers how neuron groups themselves encode concepts; Cross-Layer Transcoders track how these representations evolve across depth; and Weight-Sparse Transformers encourage inherently modular computation through architectural sparsity. Together, these approaches provide complementary pathways for opening the black box and understanding the circuits that underpin transformer behavior.",
-        section: "Posts",
-        handler: () => {
-          
-            window.location.href = "/2026/blog/2026/interpret-model/";
-          
-        },
       },{id: "post-charting-the-depths-interpretability-tools-to-enhance-llm-safety",
         
           title: "Charting the Depths: Interpretability Tools to Enhance LLM Safety",
