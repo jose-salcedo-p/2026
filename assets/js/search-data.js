@@ -721,17 +721,6 @@ ninja.data = [{
             window.location.href = "/2026/blog/2026/mdp-to-gcmdp/";
           
         },
-      },{id: "post-research-directions-in-multimodal-chain-of-thought-mcot-with-sketching",
-        
-          title: "Research Directions in Multimodal Chain-of-Thought (MCoT) with Sketching",
-        
-        description: "This article explores adding sketching to Multimodal Chain-of-Thought (MCoT)reasoning to enhance AI capabilities. It reviews past methods, identifies key gaps such as the lack of sketch-rationale datasets, and proposes advancing the field through targeted data collection, unified multimodal models, and reinforcement learning. Ethical considerations include mitigating cultural bias and visual misrepresentation in generated sketches.",
-        section: "Posts",
-        handler: () => {
-          
-            window.location.href = "/2026/blog/2026/mcot-sketching/";
-          
-        },
       },{id: "post-loneliness-as-a-case-study-for-social-reward-misalignment",
         
           title: "Loneliness as a Case Study for Social Reward Misalignment",
