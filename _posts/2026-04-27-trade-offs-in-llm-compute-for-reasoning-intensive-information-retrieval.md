@@ -1,0 +1,295 @@
+---
+layout: distill
+title: Trade-offs in LLM Compute for Reasoning-Intensive Information Retrieval
+
+description: "The BRIGHT benchmark (ICLR 2025 Spotlight) revealed that reasoning-intensive information retrieval requires LLM-augmented pipelines, but this raises a critical resource allocation question: where should computational budget be invested for maximum effectiveness? We conduct a systematic study on BRIGHT using the Gemini 2.5 model family, evaluating trade-offs across model strength, inference-time thinking depth, and reranking depth. Our controlled experiments quantify the marginal gains of allocating compute to query expansion versus reranking, providing practical guidance for optimizing LLM-based retrieval systems on reasoning-intensive tasks."
+date: 2026-04-27
+future: true
+htmlwidgets: true
+
+# do not fill this in until your post is accepted and you're publishing your camera-ready post!
+authors:
+  - name: Sreeja Apparaju
+    affiliations:
+      name: Independent Researcher
+      email: sapparaju23@gmail.com
+  - name: Nilesh Gupta
+    url: "https://nilesh2797.github.io/"
+    affiliations:
+      name: UT Austin
+      email: nilesh@cs.utexas.edu
+
+
+# must be the exact same name as your blogpost
+bibliography: 2026-04-27-trade-offs-in-llm-compute-for-reasoning-intensive-information-retrieval.bib
+
+# Add a table of contents to your post.
+#   - make sure that TOC names match the actual section names
+#     for hyperlinks within the post to work correctly.
+toc:
+  - name: Introduction
+  - name: Background
+    subsections:
+      - name: Reasoning-Intensive Retrieval and BRIGHT
+      - name: The IR Pipeline for RIIR
+      - name: The "Thinking" Dimension
+  - name: Experimental Setup
+    subsections:
+      - name: Model Suite
+      - name: Evaluation Metrics
+  - name: Experiments
+    subsections:
+      - name: Scaling Compute in Query Expansion (QE)
+      - name: Scaling Compute in Reranking (RR)
+  - name: Conclusion
+  - name: Appendix
+    subsections:
+      - name: A. Prompt Templates
+  
+---
+
+## Introduction
+
+<figure>
+  <img src="{{ '/assets/html/2026-04-27-trade-offs-in-llm-compute-for-reasoning-intensive-information-retrieval/riir-llm-tradeoff-overview.png' | relative_url }}" alt="LLM compute Trade-offs in RIIR" style="width: 100%; max-width: 600px; display: block; margin: 0 auto;">
+</figure>
+
+The paradigm of Information Retrieval (IR) is undergoing a fundamental shift. While traditional IR focused on semantic similarity and keyword matching, modern applications increasingly demand Reasoning-Intensive Information Retrieval (RIIR). In these scenarios, as shown by the recent ICLR 2025 Spotlight paper [BRIGHT](https://arxiv.org/abs/2407.12883)<d-cite key="su2025bright"></d-cite> - a system cannot simply find a document that looks like the query; it must understand complex logic, synthesize constraints, and deduce relationships to identify the correct evidence.
+
+The BRIGHT benchmark established that standard retrieval methods (both sparse and dense) struggle significantly with these tasks. However, it also highlighted a promising path forward: the integration of Large Language Models (LLMs) into the retrieval pipeline. Specifically, the paper demonstrated that Query Expansion (QE) and LLM-based Reranking (RR) are critical for boosting performance.
+
+Yet, this introduces a complex resource allocation problem. **If we view LLM compute as a finite resource (quantifiable by inference cost or latency), where is it best spent?** Should we use a stronger, more expensive model to formulate a better search query (QE), or should we reserve that compute to carefully check the retrieved documents (during RR)? Furthermore, with the advent of "thinking" models (models capable of dynamic chain-of-thought generation during inference), we now have a third lever: the depth of reasoning per token.
+
+In this blogpost, we perform a controlled ablation study to study the tradeoffs of LLM compute in RIIR. Using the Gemini 2.5 family of models, we systematically evaluate the cost-performance trade-offs across three dimensions:
+
+- **Model Strength**: From lightweight models (Flash-Lite) to reasoning-heavy models (Pro).
+- **Thinking Depth**: Comparing standard inference against dynamic "thinking" modes.
+- **Reranking Depth**: Analyzing the impact of increasing the reranking pool size (k).
+
+Our goal is to answer a practical question for system designers: 
+> In a reasoning-intensive IR pipeline, where does an additional unit of compute yield the highest marginal gain in retrieval accuracy?
+
+## Background
+### Reasoning-Intensive Retrieval and BRIGHT
+Standard retrieval benchmarks (e.g., BEIR<d-cite key="thakur2021beir"></d-cite>) often rely on lexical overlap or semantic proximity. In contrast, the BRIGHT benchmark consists of queries where the answer requires multi-hop reasoning or domain-specific logic that is not explicitly present in the query text. For example, a query might ask about a specific chemical property that implies a class of materials, requiring the retriever to identify documents discussing those materials without the explicit class name being present.
+
+More formally, let $\mathcal{C}$ be a large corpus of documents and $q$ be a user query. In standard IR, relevance is often approximated by lexical overlap or semantic similarity. In RIIR, relevance is determined by a latent logic or reasoning requirement.
+
+We define a binary relevance function $Rel(q, d) \in \{0, 1\}$ provided by the dataset annotations. The objective is to retrieve the subset of relevant documents $\mathcal{D}^* = \{d \in \mathcal{C} \mid Rel(q, d) = 1\}$ and rank them at the top of the result list.
+
+### The IR Pipeline for RIIR
+
+To address the complexity of RIIR, BRIGHT paper suggests a multi-stage pipeline. The process generally follows a "retrieve-then-rerank" architecture augmented by LLMs.
+
+#### Step 1: Query Expansion (QE)
+The raw query $q$ is often underspecified or requires domain knowledge to map to relevant terms in $\mathcal{C}$. An LLM is used to generate an expanded query $q_{exp}$:
+
+
+$$q_{exp} = \text{LLM}_{\theta}(q)$$
+
+
+This expansion adds context, uncovers implicit constraints, and generates keywords that are statistically likely to appear in $\mathcal{D}^*$.
+
+#### Step 2: Retrieval (BM25)
+We use the BM25 (Best Matching 25) algorithm for the retrieval stage. When augmented with expanded queries BM25, BRIGHT paper shows that BM25 gets very strong results even outperforming best off-the-shelf dual encoder models. BM25 is a probabilistic retrieval framework based on TF-IDF (Term Frequency-Inverse Document Frequency). It scores documents based on the frequency of query terms in the document relative to their frequency across the entire corpus, with normalization for document length.
+Given $q_{exp}$, BM25 retrieves an initial candidate list $\mathcal{L}_{init} = \{d_1, d_2, ..., d_N\}$ sorted by lexical relevance.
+
+#### Step 3: LLM-based Reranking (RR)
+The top-$k$ documents from $\mathcal{L}_{init}$ are passed to an LLM for re-ordering. Similar to standard practices for BRIGHT benchmark, we employ a list-wise reranking approach. The LLM receives the query and the concatenated text of the top-$k$ candidates as a single prompt. It is instructed to reason over the set and output the identifiers of the top 10 most relevant documents in descending order:
+
+$$\pi_{top10} = \text{LLM}_{\phi}(q, \{d_1, ..., d_k\})$$
+
+
+This approach allows the model to compare candidates directly against one another within its context window.
+
+### The "Thinking" Dimension
+
+We leverage the Gemini 2.5 family's ability to perform inference-time compute scaling. "Thinking" models generate internal Chain-of-Thought (CoT) traces before producing the final output. In the context of QE, this allows the model to plan the search strategy. In RR, it allows the model to explicitly reason through the connection between the query constraints and the candidate document content before assigning a rank.
+
+## Experimental Setup
+To isolate the impact of compute allocation, we fix our retrieval algorithm to BM25 (using the Pyserini implementation) and vary the LLM components used for Query Expansion and Reranking.
+
+### Model Suite
+We utilize the Google Gemini 2.5 family to represent a spectrum of cost and capability. We categorize them as follows:
+
+- `Gemini-2.5-Flash-Lite`: A highly efficient, low-latency model (No-Thinking mode only).
+- `Gemini-2.5-Flash (No-Think)`: A standard mid-sized model (Thinking features disabled).
+- `Gemini-2.5-Flash (Think)`: The same mid-sized model with dynamic thinking enabled, allowing for extended reasoning tokens.
+- `Gemini-2.5-Pro`: A large, high-capacity model (Thinking mode enabled).
+
+### Evaluation Metrics
+- Quality: We report NDCG@10 for ranking quality and Recall@10 to assess the retrieval ceiling.
+- Performance: We measure Cost per Sample ($) and Time per Sample (s) to visualize the trade-offs.
+
+## Experiments
+
+### Scaling Compute in Query Expansion (QE)
+
+Query expansion is the first point where we can allocate LLM compute in our retrieval pipeline. The fundamental question here is: **does investing in more powerful models for query generation translate to better retrieval performance?** To answer this, we evaluate how model strength affects the quality of the initial candidate set retrieved by BM25.
+
+**Experimental Protocol:**
+- For every query $q$ in the BRIGHT subsets, we generate $q_{exp}$ using the four model variants (Flash-Lite, Flash-No-Think, Flash-Think, Pro).
+- We then perform BM25 retrieval using $q_{exp}$ and measure both quality (NDCG@10, Recall@10) and cost metrics.
+- Objective: To determine if "smarter" queries (generated by more expensive models) lead to higher Recall@10, providing a better candidate set for downstream reranking.
+
+#### Results Summary
+
+The table below presents our findings across all query expansion strategies. We include a "No QE" baseline that uses raw queries directly with BM25, allowing us to isolate the impact of LLM-based query expansion.
+
+| Query Expansion Model | Avg NDCG@10 | Avg Recall@10 | Avg Cost per Query ($)
+|----------------------|-------------|----------------|------------------------|
+| No QE (BM25 only)    | 14.52         | 33.76            | 0.000
+| Flash-Lite           | 28.87         | 57.19            | 0.0018
+| Flash (No-Think)     | 29.63         | 58.56            | 0.0093
+| Flash (Think)        | 30.23         | 57.73            | 0.0141
+| Pro                  | 30.01         | 58.01            | 0.0489
+
+#### Cost-Performance Trade-offs Across Domains
+
+The interactive visualization below shows the cost vs. NDCG@10 trade-off for different query expansion models aggregated across various BRIGHT subsets. Each point represents the avg ndcg and model combination, color-coded by the model. Hover over points to see detailed metrics.
+
+<iframe src="{{ '/assets/html/2026-04-27-trade-offs-in-llm-compute-for-reasoning-intensive-information-retrieval/cost_vs_ndcg_model1.html' | relative_url }}" width="800" height="600px" frameborder="0"></iframe>
+
+#### Efficiency Analysis
+
+To better understand the multi-dimensional trade-offs, we visualize three key metrics in the radar chart below: **Quality Gain (NDCG)**, **Speed Efficiency (measured in latency)**, and **Cost Efficiency ($/query)**. Each metric is normalized to enable comparison across different scales.
+
+<figure>
+  <img src="{{ '/assets/html/2026-04-27-trade-offs-in-llm-compute-for-reasoning-intensive-information-retrieval/qe_tradeoff_radar_chart.png' | relative_url }}" alt="Query Expansion Trade-offs" style="width: 80%; max-width: 600px; display: block; margin: 0 auto;">
+    <figcaption style="text-align: center;">Normalized performance across three dimensions: quality, speed, and cost efficiency. Larger areas indicate better overall efficiency.</figcaption>
+</figure>
+
+#### Key Observations
+
+Our experiments reveal several important insights about compute allocation in query expansion:
+
+1. **Diminishing Returns Beyond Mid-Tier Models**: Query expansion provides consistent but modest gains in recall. Moving from Flash-Lite to Flash-No-Think yields meaningful improvements (+1.37 Recall@10), but further investment in Pro delivers minimal additional gains.
+
+2. **Cost Scales Faster Than Quality**: The cost increase from Flash-Lite to Pro is substantial (**27x more expensive**, from 0.0018 to 0.0489 per query), while the recall improvement is marginal (~1-2% absolute). This suggests that query expansion hits a quality ceiling relatively quickly.
+
+3. **Thinking Mode Shows Mixed Value**: Enabling thinking mode in Flash adds 52% more cost (0.0141 vs 0.0093) but actually decreases Recall@10 slightly (57.73 vs 58.56). This suggests that extended reasoning may not be beneficial for the query generation task, possibly because query expansion is more about keyword coverage than deep logical reasoning.
+
+### Scaling Compute in Reranking (RR)
+
+After query expansion and initial retrieval, reranking represents the second major opportunity to allocate LLM compute in our pipeline. Unlike query expansion, which operates on a single query, reranking must process multiple candidate documents, making it inherently more expensive. The key question becomes: **how should we allocate compute in the reranking stage to maximize quality gains while managing costs?**
+
+We investigate three specific mechanisms for increasing compute during reranking: (1) expanding the reranking depth (top-k), (2) enabling inference-time "thinking," and (3) using stronger base models. For all experiments, we use the retrieval outputs from our query expansion phase, allowing us to analyze the interaction between QE and RR strategies.
+
+#### Increasing Reranking Depth (Top-k)
+
+One of the most straightforward ways to invest compute in reranking is to rerank more documents. Intuitively, examining a larger candidate pool should improve the chances of promoting relevant documents to the top positions. However, this comes at a linear cost increase, as each additional document adds to the context window size.
+
+**Experimental Setup:**
+- **Retrieval Basis**: We use the candidate lists generated by all four QE settings from Phase 1 (Flash-Lite, Flash-No-Think, Flash-Think, Pro).
+- **Reranker**: Fixed to Gemini-2.5-Flash (Think) to isolate the impact of depth.
+- **Variable**: We rerank the top-k documents, where $k \in \{10, 20, 50, 100\}$.
+
+**Understanding the Visualization:**
+
+The interactive scatter plot below shows the cost vs. NDCG@10 trade-off across all combinations of QE models (indicated by color) and reranking depths (indicated by the topN parameter in the legend). Each point represents a specific pipeline configuration. Use the dropdown to filter by specific QE models or view all configurations simultaneously.
+
+<iframe src="{{ '/assets/html/2026-04-27-trade-offs-in-llm-compute-for-reasoning-intensive-information-retrieval/cost_vs_ndcg_grouped.html' | relative_url }}" width="1000" height="600px" frameborder="0"></iframe>
+
+**Key Insights from Depth Scaling:**
+
+1. **Significant Quality Gains with Depth**: Increasing reranking depth from k=10 to k=100 yields substantial improvements in NDCG@10 across all QE strategies. For example, with Flash-Think QE, NDCG@10 improves from ~33 (k=10) to ~40 (k=100), representing a 21% relative gain.
+
+2. **Linear Cost Scaling**: As expected, cost scales approximately linearly with k. Doubling the reranking depth from k=50 to k=100 roughly doubles the reranking cost, as the model must process twice as many documents in its context.
+
+4. **Reranking Amplifies QE Quality**: Stronger QE models provide better candidate sets, which reranking can then exploit.
+
+#### Impact of "Thinking" in Reranking
+
+The "thinking" mode allows models to generate internal chain-of-thought reasoning before producing outputs. Unlike query expansion, where thinking showed limited value, reranking is a more complex task requiring careful comparison of multiple documents against nuanced query requirements. Does thinking help here?
+
+**Experimental Setup:**
+- **Retrieval Basis**: We average results across all four QE settings from Phase 1 to obtain robust estimates.
+- **Reranking Depth**: Fixed at k=100 to give thinking mode the most challenging scenario.
+- **Comparison**: We measure the performance delta between Gemini-2.5-Flash (Think) and Gemini-2.5-Flash (No-Think).
+
+**Results:**
+
+| Reranker Model | Avg NDCG@10 | Avg Cost per Query ($) | Avg Latency per Query (s) |
+|-----------------|----------------|------------------------|----------------------------|
+| Flash (No-Think) | 39.36            | 0.0450                    | 0.407                        |
+| Flash (Think)    | 39.93       | 0.0544                    | 0.567                        |
+
+**Analysis:**
+
+Despite our hypothesis that thinking mode would benefit the complex task of reranking, the results show **minimal practical value**:
+- **Marginal Quality Improvement**: Thinking mode yields only a +1.4% gain in NDCG@10 (39.36 → 39.93). These improvements are statistically modest and may not justify the additional computational cost in production settings.
+- **Poor Cost-Efficiency**: The minimal quality gains come at a significant resource penalty: 21% cost increase (`$0.0450` → `$0.0544`) and 39% latency increase (0.407s → 0.567s). This represents a worse cost-benefit ratio than anticipated.
+- **Why Thinking Doesn't Help Much in Reranking**: While reranking does involve comparing multiple documents against query constraints, the standard Flash model already possesses sufficient capacity to perform this task effectively. The additional reasoning tokens generated by thinking mode appear to provide diminishing returns, suggesting that the core challenge in reranking is less about extended deliberation and more about the model's base understanding of relevance. Flasg (Think) improves NDCG@10 only marginally over Flash (No-Think) (39.92 vs 39.36) while incurring substanial overhead (20% higher cost and 40% higher latency).
+
+#### Impact of Model Strength in Reranking
+
+Our final experiment examines whether investing in a stronger base model for reranking (Pro vs. Flash variants) delivers better returns than the other compute allocation strategies. 
+
+**Experimental Setup:**
+- **QE Strategy**: Fixed to Gemini-2.5-Flash (No-Think) for all configurations, ensuring consistent candidate quality.
+- **Reranking Depth**: Fixed at k=100 to maximize the challenge for the reranker.
+- **Model Variants**: We compare four reranking models: Flash-Lite, Flash-No-Think, Flash-Think, and Pro.
+
+**Results:**
+
+| Configuration | NDCG@10 | Recall@10 | Cost ($/query) | Latency (s/query) |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| QE (flash) + RR (flash-lite) | 36.54 | 38.76 | 0.021| 20.25 |
+| QE (flash) + RR (flash no-think) | 39.36 | 41.11 | 0.045| 45.31 |
+| QE (flash) + RR (flash-think) | 39.92 | 42.03 | 0.054| 63.28 |
+| QE (flash) + RR (pro) | 41.19 | 43.57 | 0.17 | 79.25 |
+
+**Observations:**
+
+1. **Flash-Lite is Insufficient for Reranking**: The lightweight Flash-Lite model achieves only 36.54 NDCG@10, representing a ~7% drop compared to Flash-No-Think (39.36). This suggests reranking is a more demanding task that requires stronger reasoning capabilities than query expansion.
+
+2. **Pro Delivers the Highest Quality**: The Pro model achieves 41.19 NDCG@10, outperforming Flash-Think by ~3.2% (39.92 → 41.19). This is a more substantial gap than we observed in query expansion, indicating that reranking benefits more from model capacity.
+
+3. **Reranking Cost Dominates Total Cost**: In the Pro configuration, reranking accounts for the vast majority of total pipeline cost at `$0.17/query`, roughly 8x more expensive than the Flash-Lite configuration (`$0.021/query`).
+
+4. **The Cost-Quality Frontier**: Moving from Flash-Think to Pro costs ~3.1x more (`$0.054` → `$0.17`) for a ~3.2% quality gain (39.92 → 41.19). Whether this is worthwhile depends on the application's value function for accuracy improvements.
+
+## Conclusion
+
+As Reasoning-Intensive Information Retrieval (RIIR) becomes central to modern search applications, system designers face a critical decision: how to allocate finite inference compute to maximize accuracy. Our systematic study on the BRIGHT benchmark using the Gemini 2.5 family provides a clear, quantitative map of this landscape.The data suggests that the intuitive "more compute equals better performance" rule requires nuance. We identified distinct zones of diminishing returns and high-leverage investment:
+1. **Query Expansion is a Low-hanging, High-Efficiency Step**: Investing in Query Expansion yields immediate returns by bridging the vocabulary gap between user queries and documents. However, this utility saturates quickly. Moving from Flash-Lite to Flash (No-Think) provides a necessary recall boost, but throwing "Pro-level" compute or "Thinking" models at query formulation offers negligible gains. For most systems, a mid-tier standard model is the optimal stopping point for QE.
+2. **Reranking is the Primary Quality Driver**: The bulk of the "reasoning" in RIIR happens during the validation of candidates, not their retrieval. Our experiments show that reranking depth ($k$) and model strength are the most reliable levers for performance. Increasing the candidate pool from 10 to 100 linearly scales costs but consistently delivers significantly higher NDCG, allowing the system to surface "needle-in-a-haystack" answers that simpler retrievers miss.
+3. **The "Thinking" Trap**: Perhaps most surprisingly, inference-time "thinking" (dynamic CoT) proved to be an inefficient allocation of resources for this specific workload. In both QE and Reranking, the marginal quality gains from Thinking modes did not justify their substantial latency and cost penalties.
+
+## Future Work
+
+Our study focuses on a single benchmark (BRIGHT) and a single model family (Gemini 2.5) using a sinle retrieval algorithm. Future work should validate these compute allocation principles across alternate model families, and retrievak architectures (e.g., dense retrievers, hybrid systems) to determine whether asymmetric returns we observe generalize beyond reasoning-intensive scientific queries. 
+
+## Appendix 
+
+### Prompt Templates
+
+Our pipeline uses two LLM prompting stages: Query Expansion (QE) and Reranking (RR). Below we provide the exact prompt templates used in all experiements. These prompts are adapted from the original BRIGHT repository ([https://github.com/xlang-ai/BRIGHT](https://github.com/xlang-ai/BRIGHT)).
+
+#### Query Expansion Prompt
+For query expansion, each raw query from the BRIGHT dataset (referred to as `cur_post`) is passed to the LLM with the following template:
+
+```
+{curr_post}
+
+Instructions:
+1. Identify the essential problem.
+2. Think step by step to reason and describe what information could be relevant and helpful to address the question in detail
+3. Draft an answer with as many thoughts as you have. 
+```
+
+#### Reranking Prompt
+For list-wise reranking, the LLM receives the query alongside a formatted string of candidate documents (`doc_string`), where each document is prefixed with a numeric identifier. The prompt template is:
+
+```
+The following passages are related to query: {curr_query}
+
+{doc_string}
+First identify the essential problem in the query.
+Think step by step to reason about why each document is relevant or irrelevant.
+Rank these passages based on their relevance to the qeury.
+Please output the ranking result of passages as a list, where the first element is the id of the most relevant passage, the second element is the id of the second most element, etc.
+Please strictly follow the format to output a list of {topk} ids corresponding to the most relevant {topk} passages:
+```json
+[...]```
+```
