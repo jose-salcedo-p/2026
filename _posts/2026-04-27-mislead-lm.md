@@ -19,8 +19,14 @@ mermaid:
 
 authors:
   - name: Aaryan Chandna
+    affiliations: 
+      name: University of California, Berkeley
   - name: Lukas Fluri
+    affiliations:
+      name: ETH Zurich
   - name: Micah Carroll
+    affiliations:
+      name: University of California, Berkeley
 
 # must be the exact same name as your blogpost
 bibliography: 2026-04-27-mislead-lm.bib
