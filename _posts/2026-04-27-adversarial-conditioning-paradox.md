@@ -16,13 +16,13 @@ thumbnail: assets/img/2026-04-27-adversarial-conditioning-paradox/roc_curves_Tex
 authors:
   - name: "Khazretgali Sapenov"
     affiliations:
-      - name: "University of Phoenix"
+      name: "University of Phoenix"
     email: khazretgali.sapenov@email.phoenix.edu
     url: https://orcid.org/0009-0000-6397-5807
 
   - name: "Aidos Sapenov"
     affiliations:
-      - name: "University of Toronto"
+      name: "University of Toronto"
     email: aidos.sapenov@mail.utoronto.ca
     url: https://orcid.org/0009-0001-1414-7623
     corresponding: true
