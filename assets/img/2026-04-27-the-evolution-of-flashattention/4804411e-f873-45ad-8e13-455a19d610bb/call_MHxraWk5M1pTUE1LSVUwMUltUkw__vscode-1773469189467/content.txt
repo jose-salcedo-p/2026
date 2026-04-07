@@ -1,0 +1,184 @@
+
+
+
+> The FlashAttention series by Tri Dao <d-cite
+key="dao2022flashattention"></d-cite> <d-cite
+key="dao2023flashattention2"></d-cite><d-cite
+key="NEURIPS2024_7ede97c3"></d-cite>  looks at the attention bottleneck from a  
+systems angle. Instead of approximating attention and hurting model quality,    
+the idea is to rethink how attention moves data through the GPU. Modern GPUs    
+have a very uneven memory hierarchy, so the cost of moving data often
+dominates the cost of doing the math. FlashAttention reduces this movement and  
+gets closer to the limits of the hardware. In this blog, we walk through how    
+this idea has evolved. FlashAttention v1 introduced **tiled exact attention**.  
+FlashAttention v2 improved how work is split across the GPU. FlashAttention v3  
+added **warp specialization**, **asynchrony**, and low precision on the Hopper  
+GPU to push utilization even higher. FlashAttention v4 then co-designs the      
+algorithm and kernel pipeline for the Blackwell GPU, where asymmetric hardware  
+scaling shifts the bottleneck away from matrix multiplication entirely.
+
+
+  ## Background
+
+> ### GPU Memory Hierarchy
+
+> {% include figure.liquid
+path="assets/img/2026-04-27-the-evolution-of-flashattention/Figure_2.png"       
+class="img-fluid rounded z-depth-1" caption="Memory Hierarchy with Bandwidth &  
+Memory Size" %}
+
+  Every modern processor faces the same fundamental challenge: fast storage is  
+expensive and small, while large storage is slow and cheap.
+> Modern GPUs organize memory into a hierarchical form which has five distinct  
+levels, each with different characteristics, different access patterns, and     
+different implications for your code. Starting from the fastest and smallest    
+and working towards the slowest and largest, these levels are: registers,       
+shared memory, L1 cache, L2 cache, and global memory (as shown in the above     
+Figure). At the top of the memory hierarchy sit registers, the fastest storage  
+available on a GPU. Each thread running on the GPU has access to a private set  
+of registers - typically up to 255 registers per thread on modern NVIDIA        
+architectures. These registers feed directly into the computational units.      
+When a thread performs an arithmetic operation, the operands come from
+registers and the result goes back to registers. There is no separate
+"register access" operation visible to the programmer; registers are simply     
+where the active data lives. The register file on a single Streaming
+Multiprocessor contains 65,536 registers with each register holding 32 bits. 
+This gives 256 kilobytes of register storage per SM, and these registers are    
+dynamically shared among all threads running on that SM
+
+> Unlike registers, which are private to each individual thread, shared memory  
+(SRAM) is shared among all threads in a **thread block**. NVIDIA GPUs organize  
+parallel work in a hierarchy: individual **threads** are grouped into
+**warps** of 32 threads that execute in lockstep, warps are grouped into        
+**thread blocks** (also called cooperative thread arrays) that are scheduled    
+onto a single Streaming Multiprocessor (SM) and share its SRAM, and the full    
+collection of thread blocks forms the **grid** launched by a kernel. Shared     
+memory is the primary mechanism for threads within a block to cooperate and     
+communicate and is **explicitly managed by the programmer rather than
+automatically managed by the compiler**. Shared memory provides a staging area  
+for data that multiple threads need to access. Rather than having each thread   
+read the same value from slow global memory, one thread can read it once into   
+shared memory, synchronize with the other threads, and then all threads can     
+read from fast shared memory. Secondly, it enables algorithms that require      
+threads to exchange data. This is used explicitly by FlashAttention.
+
+
+> At the bottom of the hierarchy sits global memory - the large DRAM pool that  
+provides the bulk of a GPU's storage capacity. An H100 for example, has 80GBs   
+of HBM memory, operating at around 3,000 gigabytes per second of bandwidth.     
+This is where your input data starts, where your output data goes, and where    
+any persistent state lives. In frameworks like PyTorch, when a tensor is moved  
+to the GPU (e.g., via `.cuda()` or `.to(device)`), it is placed in global       
+memory (HBM); from there, GPU kernels load it into faster memory levels as      
+needed. It is also by far the slowest level of hierarchy, with individual       
+access latencies reaching 400 to 800 clock cycles depending on architecture     
+and access pattern.
+
+> *Table: Representative GPU memory hierarchy for the NVIDIA A100 (Ampere       
+architecture) <d-cite key="nvidia2020a100"></d-cite>. Hopper (H100) increases   
+SRAM to 256 KB/SM and HBM bandwidth to ~3.35 TB/s <d-cite
+key="nvidia2022h100"></d-cite>.*
+
+  | Memory Level | Capacity | Bandwidth | Latency | Programmer Control |        
+
+
+> When we look at the GPU memory hierarchy in detail, we see a sharp
+difference in both latency and bandwidth across levels. Registers and shared    
+memory sit close to the compute units and respond within a few cycles. HBM      
+sits hundreds of cycles away with higher bandwidth but much higher latency.     
+This separation means that the location of data often dictates runtime. As an   
+example, the A100 GPU has 40GB of high bandwidth memory (HBM2e) with bandwidth  
+1.6TB/s and 192KB of on-chip SRAM per each of 108 streaming multiprocessors     
+with bandwidth estimated around 19TB/s <d-cite key="nvidia2020a100"></d-cite>.  
+This shows that the on-chip SRAM is an order of magnitude faster than HBM but   
+many orders of magnitude smaller in size. As L2 Cache is not directly
+controllable by the programmer we focus on the HBM and SRAM
+
+  ### Attention is memory bound despite $O(N^{2})$ compute
+  One of the hardware-efficient mechanisms now widely adopted across different  
+providers is Fast and Memory-Efficient Exact Attention with IO-Awareness, or    
+FlashAttention. The "IO-Awareness" part of the title describes its core
+technical principle: optimizing data movement between GPU memory hierarchies.   
+
+> FlashAttention addresses the dual challenges of speed and memory consumption  
+in transformers, especially on long sequences, by rethinking attention
+algorithms through the lens of GPU memory hierarchy awareness. The key insight  
+is minimizing data movement between high-bandwidth memory (HBM) and on-chip     
+SRAM.
+
+  {% include figure.liquid
+path="assets/img/2026-04-27-the-evolution-of-flashattention/Figure_3.png"       
+class="img-fluid rounded z-depth-1" caption="Standard execution loads data      
+from HBM for every step. Kernel fusion and tiling keep data in fast memory      
+longer, reducing memory traffic and improving throughput. Figure adapted from   
+Fig. 1 of Dao et al. <d-cite key='dao2022flashattention'></d-cite>." %}
+  The original FlashAttention used a loop order where the outer loop iterated   
+over $K, V$ blocks and the inner loop over $Q$ blocks. This minimized repeated  
+loads of $K$ and $V$ from HBM, but required writing partial results to the      
+output accumulator $O$ back to HBM after each step. This "Split-K" style        
+(accumulating results across $K$) creates dependencies that are difficult to    
+parallelize without atomic updates, particularly when multiple warps share the  
+same output.
+
+> FlashAttention-2 inverts this loop hierarchy. Specifically:
+  - FlashAttention v1: Outer Loop ($K, V$), Inner Loop ($Q$).
+  - FlashAttention-2: Outer Loop ($Q$), Inner Loop ($K, V$).
+  ## FlashAttention V3
+
+> FlashAttention-3 (FA3), presented at NeurIPS 2024, represents a shift in how  
+attention kernels interact with GPU hardware. While FA1 and FA2 focused on      
+memory hierarchy optimization (tiling) and parallelism, FA3 was designed        
+specifically to exploit the asynchronous execution model of NVIDIA's Hopper     
+GPU (H100) architecture.
+
+  ### Shortcomings in FA1 and FA2 on Hopper GPU
+  Since MMA and MUFU are co-bottlenecks, FA4 must overlap them as completely 
+as possible. FA4 follows a **ping-pong schedule** similar to FA3's
+inter-warpgroup pipelining, but redesigned for Blackwell's larger tiles and     
+tensor memory. Two tiles of the output are computed per thread block: while     
+one tile's tensor core operations execute, the other tile computes softmax on   
+the MUFU.
+
+> > **What is Tensor Memory (TMEM)?** Previous GPU architectures forced tensor  
+core results into registers — fast but scarce (256 per thread). Blackwell adds  
+a new 256 KB on-chip memory called **Tensor Memory** that sits between
+registers and shared memory in the hierarchy. It is warp-synchronous and        
+tightly coupled with the tensor cores: MMAs write outputs directly to TMEM      
+without consuming registers. Think of it as a dedicated scratchpad for matrix   
+accumulation results. It is explicitly managed by the programmer (allocate,     
+deallocate, move data), not a transparent cache.
+
+  A key architectural difference from FA3: Blackwell tensor cores write
+accumulators to **tensor memory (TMEM)** — a new 256 KB on-chip memory per SM   
+— rather than to registers. This has two consequences. First, Blackwell MMA     
+tiles are $128 \times 128$ (double Hopper's $64 \times 128$), so each
+warpgroup of 128 threads processes an entire row, eliminating inter-warp        
+shuffles for the row-max reduction that softmax requires. Second, since $P$ is  
+communicated via TMEM rather than the register file, rescaling of the output    
+accumulator can be offloaded to a separate **correction warpgroup**, removing   
+it from the critical path between MMA and softmax.
+  The evolution from FlashAttention v1 through v4 reveals several core
+principles that extend beyond simply optimizing existing attention mechanisms.  
+These principles form a foundation for thinking about future attention
+algorithms as the hardware landscape continues to evolve.
+
+> First, **memory hierarchy awareness must become a first-class concern** in    
+algorithm design. The FlashAttention series demonstrates that asymptotic        
+complexity alone is insufficient — the IO complexity term $O(N^2 d^2 M^{-1})$   
+matters as much as the FLOP count. With Blackwell's introduction of tensor      
+memory (TMEM) as a new level between registers and shared memory, the
+hierarchy that algorithms must reason about continues to deepen. Future
+attention mechanisms should be designed with explicit consideration of data     
+movement costs across every level, rather than treating memory as a flat        
+abstraction.
+
+  Second, **kernel fusion and recomputation trade-offs offer underexplored      
+design space**. FlashAttention's backward pass trades additional compute for    
+reduced memory traffic, exploiting the fact that modern accelerators are        
+increasingly memory-bound rather than compute-bound. This suggests a broader    
+principle: as the compute-to-bandwidth ratio continues to grow in future        
+hardware, selectively recomputing intermediate values rather than storing them  
+becomes increasingly favorable. The question becomes which intermediate
+tensors to materialize and which to recompute, a decision that depends on both  
+the operation's arithmetic intensity and its position in the dependency graph.  
+
