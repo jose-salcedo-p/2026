@@ -336,6 +336,17 @@ ninja.data = [{
             window.location.href = "/2026/blog/2026/mlip-practical/";
           
         },
+      },{id: "post-is-the-evidence-in-39-language-models-learn-to-mislead-humans-via-rlhf-39-valid",
+        
+          title: "Is the evidence in &#39;Language Models Learn to Mislead Humans via RLHF&#39; valid?...",
+        
+        description: "Language Models Learn to Mislead Humans via RLHF (published at ICLR 2025) argues that RLHF can unintentionally train models to mislead humans – a phenomenon termed Unintentional-SOPHISTRY. However, our review of the paper&#39;s code and experiments suggests that a significant portion of their empirical findings may be due largely to major bugs that make the RLHF setup both unrealistic and highly prone to reward hacking. In addition to high-level claims, we  correct these issues for one of their experiments, and fail to find evidence that supports the original paper&#39;s claims.",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/2026/blog/2026/mislead-lm/";
+          
+        },
       },{id: "post-misalignment-patterns-and-rl-failure-modes-in-frontier-llms",
         
           title: "Misalignment Patterns and RL Failure Modes in Frontier LLMs",
