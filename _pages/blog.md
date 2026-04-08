@@ -64,7 +64,7 @@ pagination:
 
 {% endif %}
 
-  <ul class="post-list">
+  <ul class="post-list"{% if site.shuffle_posts.enabled %} style="opacity: 0; transition: opacity 0.3s ease;"{% endif %}>
 
     {% if page.pagination.enabled %}
       {% assign postlist = paginator.posts %}
@@ -159,6 +159,46 @@ pagination:
 
 {% if page.pagination.enabled %}
 {% include pagination.liquid %}
+{% endif %}
+
+{% if site.shuffle_posts.enabled %}
+<noscript><style>.post-list { opacity: 1 !important; }</style></noscript>
+<script>
+(function() {
+  var intervalHours = {{ site.shuffle_posts.interval_hours | default: 6 }};
+  // Seed based on current time floored to the configured interval
+  var msPerInterval = intervalHours * 60 * 60 * 1000;
+  var seed = Math.floor(Date.now() / msPerInterval);
+
+  // Simple seeded PRNG (mulberry32)
+  function mulberry32(a) {
+    return function() {
+      a |= 0; a = a + 0x6D2B79F5 | 0;
+      var t = Math.imul(a ^ a >>> 15, 1 | a);
+      t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+  }
+
+  var rng = mulberry32(seed);
+
+  function shuffle(arr) {
+    for (var i = arr.length - 1; i > 0; i--) {
+      var j = Math.floor(rng() * (i + 1));
+      var tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
+    }
+    return arr;
+  }
+
+  var list = document.querySelector('.post-list');
+  if (!list) return;
+  var items = Array.prototype.slice.call(list.querySelectorAll(':scope > li'));
+  if (items.length < 2) { list.style.opacity = '1'; return; }
+  shuffle(items);
+  items.forEach(function(item) { list.appendChild(item); });
+  list.style.opacity = '1';
+})();
+</script>
 {% endif %}
 
 </div>

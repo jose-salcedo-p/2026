@@ -7,7 +7,7 @@ description: Your blog post's abstract.
 date: 2026-04-27
 future: true
 htmlwidgets: true
-hidden: false
+hidden: true
 
 # Mermaid diagrams
 mermaid:

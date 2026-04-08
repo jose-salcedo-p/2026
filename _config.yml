@@ -95,6 +95,10 @@ lsi: false # produce an index for related posts
 pagination:
   enabled: true
 
+shuffle_posts:
+  enabled: true # set to false to disable post shuffling on the blog page
+  interval_hours: 6 # how often (in hours) the post order reshuffles (e.g., 6 = every 6 hours)
+
 related_blog_posts:
   enabled: false
   max_related: 5
