@@ -5,7 +5,7 @@ description: The NetHack Learning Environment (NLE) was proposed as a challengin
 date: 2026-04-27
 future: true
 htmlwidgets: true
-hidden: true
+hidden: false
 
 # Mermaid diagrams
 mermaid:

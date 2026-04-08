@@ -5,7 +5,7 @@ description: Tabular foundation models such as TabPFN are limited in practice by
 date: 2026-04-27
 future: true
 htmlwidgets: true
-hidden: true
+hidden: false
 
 # Mermaid diagrams
 mermaid:

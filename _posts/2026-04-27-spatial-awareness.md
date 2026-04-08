@@ -5,7 +5,7 @@ description: Modern vision-language models (VLMs) have achieved impressive succe
 date: 2026-04-27
 future: true
 htmlwidgets: true
-hidden: true
+hidden: false
 
 # Mermaid diagrams
 mermaid:

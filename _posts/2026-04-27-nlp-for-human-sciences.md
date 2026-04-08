@@ -5,7 +5,7 @@ description: "Can NLP predict heroin-addiction outcomes, uncover suicide risk, o
 date: 2026-04-27
 future: true
 htmlwidgets: true
-hidden: true
+hidden: false
 
 # Mermaid diagrams
 mermaid:

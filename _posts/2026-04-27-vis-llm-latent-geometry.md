@@ -5,7 +5,7 @@ description: In this blog post, we extract, process, and visualize latent state 
 date: 2026-04-27
 future: true
 htmlwidgets: true
-hidden: true
+hidden: false
 
 authors:
   - name: Alex Ning

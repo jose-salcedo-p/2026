@@ -5,7 +5,7 @@ description: The Large Language Models (LLMs) evolve into the backbone of comple
 date: 2026-04-27
 future: true
 htmlwidgets: true
-hidden: true
+hidden: false
 
 # Mermaid diagrams
 mermaid:

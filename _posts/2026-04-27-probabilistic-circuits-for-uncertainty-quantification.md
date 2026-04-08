@@ -14,7 +14,7 @@ description: Deep learning models struggle with epistemic uncertainty
 date: 2026-04-27
 future: true
 htmlwidgets: true
-hidden: true
+hidden: false
 
 # Mermaid diagrams
 mermaid:

@@ -4,7 +4,7 @@ title: The Evolution of FlashAttention
 description: We present a mathematical & technical overview of FlashAttention and its evolution across versions 1 to 4. We explain why IO-aware design became central to scalable transformers and how these kernels shape modern long-context LLMs as memory patterns and hardware limits shift. We then describe the changes across versions with Triton examples and place these kernels in the context of recent work on efficient attention. We close by outlining principles that can guide the next generation of attention algorithms.
 date: 2026-04-27
 future: true
-hidden: true
+hidden: false
 htmlwidgets: true
 authors:
   - name: Harshwardhan Fartale

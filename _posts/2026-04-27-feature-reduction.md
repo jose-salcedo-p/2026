@@ -7,7 +7,7 @@ description: High-dimensional data can be compressed into lower-dimensional embe
 date: 2026-04-27
 future: true
 htmlwidgets: true
-hidden: true
+hidden: false
 
 mermaid:
   enabled: true

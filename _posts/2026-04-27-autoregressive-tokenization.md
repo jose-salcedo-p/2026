@@ -5,7 +5,7 @@ description: "Autoregressive (AR) models are central to modern generative AI sys
 date: 2026-04-27
 future: true
 htmlwidgets: true
-hidden: true
+hidden: false
 
 # Mermaid diagrams
 mermaid:

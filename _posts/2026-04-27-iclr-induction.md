@@ -5,7 +5,7 @@ description: "Park et al., 2025 find that when large language models process ran
 date: 2026-04-27
 future: true
 htmlwidgets: true
-hidden: true
+hidden: false
 
 # Mermaid diagrams
 mermaid:

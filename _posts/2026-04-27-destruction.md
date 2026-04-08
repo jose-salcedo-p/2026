@@ -5,7 +5,7 @@ description: I present diffusion models as part of a family of machine learning 
 date: 2026-04-27
 future: true
 htmlwidgets: true
-hidden: true
+hidden: false
 
 # Mermaid diagrams
 mermaid:

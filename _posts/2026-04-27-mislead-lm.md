@@ -6,7 +6,7 @@ description: Language Models Learn to Mislead Humans via RLHF (published at ICLR
 date: 2026-04-27
 future: true
 htmlwidgets: true
-hidden: true
+hidden: false
 
 # Mermaid diagrams
 mermaid:

@@ -5,7 +5,7 @@ description: "Are LLMs a proof that the 'bitter lesson' holds for NLP? Perhaps t
 date: 2026-04-27
 future: true
 htmlwidgets: true
-hidden: true
+hidden: false
 
 authors:
   - name: Anna Rogers

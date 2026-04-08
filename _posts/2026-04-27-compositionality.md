@@ -5,7 +5,7 @@ description: Compositionality is thought to be crucial in human cognition and AI
 date: 2026-04-27
 future: true
 htmlwidgets: true
-hidden: true
+hidden: false
 
 # Mermaid diagrams
 mermaid:

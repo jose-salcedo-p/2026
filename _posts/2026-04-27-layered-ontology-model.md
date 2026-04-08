@@ -5,7 +5,7 @@ description: I propose a five-layer model framework and discuss the concepts of 
 date: 2026-04-27
 future: true
 htmlwidgets: true
-hidden: true
+hidden: false
 
 # Mermaid diagrams
 mermaid:

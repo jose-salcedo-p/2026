@@ -5,7 +5,7 @@ description: This blogpost develops a geometric and probabilistic lens on diffus
 date: 2026-04-27
 future: true
 htmlwidgets: true
-hidden: true
+hidden: false
 
 # Mermaid diagrams
 mermaid:

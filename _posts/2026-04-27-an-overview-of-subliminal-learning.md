@@ -5,7 +5,7 @@ description: In this blog post we survey the current state of subliminal learnin
 date: 2026-04-27
 future: true
 htmlwidgets: true
-hidden: true
+hidden: false
 
 # Mermaid diagrams
 mermaid:

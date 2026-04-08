@@ -15,7 +15,7 @@ description: "Model misspecification is a critical challenge in simulation-based
 date: 2026-04-27
 future: true
 htmlwidgets: true
-hidden: true
+hidden: false
 
 # Mermaid diagrams
 mermaid:

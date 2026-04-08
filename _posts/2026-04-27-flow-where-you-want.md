@@ -5,7 +5,7 @@ description: "This tutorial demonstrates how to add inference-time controls to p
 date: 2026-04-27
 future: true
 htmlwidgets: true
-hidden: true
+hidden: false
 
 # Mermaid diagrams
 mermaid:

@@ -5,7 +5,7 @@ description: This work analyzes how recency bias and hidden-state over-smoothing
 date: 2026-04-27
 future: true
 htmlwidgets: true
-hidden: true
+hidden: false
 
 # Mermaid diagrams
 mermaid:

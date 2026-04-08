@@ -5,7 +5,7 @@ description: "Diffusion models can feel like a jungle of acronyms, but the core 
 date: 2026-04-27
 future: true
 htmlwidgets: true
-hidden: true
+hidden: false
 
 # Mermaid diagrams
 mermaid:

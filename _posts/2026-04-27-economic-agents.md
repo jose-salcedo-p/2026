@@ -5,7 +5,7 @@ description: "Large Language Model (LLM) agents now read the world through manag
 date: 2026-04-27
 future: true
 htmlwidgets: true
-hidden: true
+hidden: false
 
 # Mermaid diagrams
 mermaid:

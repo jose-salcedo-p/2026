@@ -5,7 +5,7 @@ description: Performative Prediction studies settings where deploying a model in
 date: 2026-04-27
 future: true
 htmlwidgets: true
-hidden: true
+hidden: false
 
 # Mermaid diagrams
 mermaid:

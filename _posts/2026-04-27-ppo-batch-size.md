@@ -5,7 +5,7 @@ description: This blog post explores batch size in PPO-what happens when we incr
 date: 2026-04-27
 future: true
 htmlwidgets: true
-hidden: true
+hidden: false
 
 # Mermaid diagrams
 mermaid:
