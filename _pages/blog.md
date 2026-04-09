@@ -37,7 +37,7 @@ pagination:
 <i class="fa-solid fa-thumbtack fa-xs"></i>
 </div>
 <h3 class="card-title text-lowercase">{{ post.title }}</h3>
-<p class="card-text">{{ post.description }}</p>
+<p class="card-text post-description">{{ post.description }}</p>
 
                     {% if post.external_source == blank %}
                       {% assign read_time = post.content | number_of_words | divided_by: 180 | plus: 1 %}
@@ -69,6 +69,12 @@ pagination:
     <i class="fa-solid fa-shuffle fa-sm"></i> Blog post ordering is randomized every {{ site.shuffle_posts.interval_hours | default: 6 }} hours
   </p>
   {% endif %}
+
+  <p style="text-align: center; margin-bottom: 1rem;">
+    <button id="toggle-abstracts" class="btn btn-sm btn-outline-primary" style="width: 10rem;" onclick="toggleAbstracts()">
+      <i class="fa-solid fa-eye-slash fa-sm"></i> Hide Abstracts
+    </button>
+  </p>
 
   <ul class="post-list"{% if site.shuffle_posts.enabled %} style="opacity: 0; transition: opacity 0.3s ease;"{% endif %}>
 
@@ -108,7 +114,7 @@ pagination:
           <a class="post-title" href="{{ post.redirect | relative_url }}">{{ post.title }}</a>
         {% endif %}
       </h3>
-      <p>{{ post.description }}</p>
+      <p class="post-description">{{ post.description }}</p>
       {% if post.authors %}
       <p class="post-meta">
         {% for author in post.authors %}{{ author.name }}{% unless forloop.last %}, {% endunless %}{% endfor %}
@@ -206,5 +212,17 @@ pagination:
 })();
 </script>
 {% endif %}
+
+<script>
+function toggleAbstracts() {
+  var descriptions = document.querySelectorAll('.post-description');
+  var btn = document.getElementById('toggle-abstracts');
+  var hidden = descriptions[0] && descriptions[0].style.display === 'none';
+  descriptions.forEach(function(el) { el.style.display = hidden ? '' : 'none'; });
+  btn.innerHTML = hidden
+    ? '<i class="fa-solid fa-eye-slash fa-sm"></i> Hide Abstracts'
+    : '<i class="fa-solid fa-eye fa-sm"></i> Show Abstracts';
+}
+</script>
 
 </div>
