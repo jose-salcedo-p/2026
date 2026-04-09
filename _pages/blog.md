@@ -64,6 +64,12 @@ pagination:
 
 {% endif %}
 
+  {% if site.shuffle_posts.enabled %}
+  <p class="post-meta" style="text-align: center; margin-bottom: 1rem;">
+    <i class="fa-solid fa-shuffle fa-sm"></i> Blog post ordering is randomized every {{ site.shuffle_posts.interval_hours | default: 6 }} hours
+  </p>
+  {% endif %}
+
   <ul class="post-list"{% if site.shuffle_posts.enabled %} style="opacity: 0; transition: opacity 0.3s ease;"{% endif %}>
 
     {% if page.pagination.enabled %}
