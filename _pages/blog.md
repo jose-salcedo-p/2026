@@ -72,7 +72,11 @@ pagination:
 
   <p style="text-align: center; margin-bottom: 1rem;">
     <button id="toggle-abstracts" class="btn btn-sm btn-outline-primary" style="width: 10rem;" onclick="toggleAbstracts()">
-      <i class="fa-solid fa-eye-slash fa-sm"></i> Hide Abstracts
+      <i class="fa-solid fa-compress fa-sm"></i> Compact View
+    </button>
+    &nbsp;
+    <button id="toggle-sort" class="btn btn-sm btn-outline-primary" style="width: 10rem;" onclick="toggleSort()">
+      <i class="fa-solid fa-arrow-down-a-z fa-sm"></i> Sort A–Z
     </button>
   </p>
 
@@ -120,7 +124,7 @@ pagination:
         {% for author in post.authors %}{{ author.name }}{% unless forloop.last %}, {% endunless %}{% endfor %}
       </p>
       {% endif %}
-      <p class="post-meta">
+      <p class="post-meta read-time">
         {{ read_time }} min read &nbsp; &middot; &nbsp;
         {{ post.date | date: '%B %d, %Y' }}
         {% if post.external_source %}
@@ -158,7 +162,7 @@ pagination:
 
 </div>
 
-  <div class="col-sm-3">
+  <div class="col-sm-3 post-thumbnail">
     <img class="card-img" src="{{ post.thumbnail | relative_url }}" style="object-fit: cover; height: 90%" alt="image">
   </div>
 </div>
@@ -215,14 +219,41 @@ pagination:
 
 <script>
 function toggleAbstracts() {
-  var descriptions = document.querySelectorAll('.post-description');
+  var list = document.querySelector('.post-list');
   var btn = document.getElementById('toggle-abstracts');
-  var hidden = descriptions[0] && descriptions[0].style.display === 'none';
-  descriptions.forEach(function(el) { el.style.display = hidden ? '' : 'none'; });
-  btn.innerHTML = hidden
-    ? '<i class="fa-solid fa-eye-slash fa-sm"></i> Hide Abstracts'
-    : '<i class="fa-solid fa-eye fa-sm"></i> Show Abstracts';
+  var compact = list.classList.toggle('compact');
+  btn.innerHTML = compact
+    ? '<i class="fa-solid fa-expand fa-sm"></i> Expand View'
+    : '<i class="fa-solid fa-compress fa-sm"></i> Compact View';
 }
+
+(function() {
+  var defaultOrder = null;
+  var sorted = false;
+
+  window.toggleSort = function() {
+    var list = document.querySelector('.post-list');
+    if (!list) return;
+    var btn = document.getElementById('toggle-sort');
+    var items = Array.prototype.slice.call(list.querySelectorAll(':scope > li'));
+    if (defaultOrder === null) defaultOrder = items.slice();
+
+    if (!sorted) {
+      items.sort(function(a, b) {
+        var ta = (a.querySelector('.post-title') || {}).textContent || '';
+        var tb = (b.querySelector('.post-title') || {}).textContent || '';
+        return ta.trim().toLowerCase().localeCompare(tb.trim().toLowerCase());
+      });
+      items.forEach(function(item) { list.appendChild(item); });
+      btn.innerHTML = '<i class="fa-solid fa-shuffle fa-sm"></i> Default Order';
+      sorted = true;
+    } else {
+      defaultOrder.forEach(function(item) { list.appendChild(item); });
+      btn.innerHTML = '<i class="fa-solid fa-arrow-down-a-z fa-sm"></i> Sort A–Z';
+      sorted = false;
+    }
+  };
+})();
 </script>
 
 </div>

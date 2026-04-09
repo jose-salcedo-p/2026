@@ -588,6 +588,31 @@ footer.sticky-bottom {
   margin-bottom: 40px;
   padding: 0;
 
+  &.compact {
+    li {
+      padding-top: 0.6rem;
+      padding-bottom: 0.6rem;
+
+      h3 {
+        font-size: 1.15rem;
+        margin-top: 0;
+        margin-bottom: 0.15rem;
+      }
+
+      .post-description,
+      .post-tags,
+      .post-meta.read-time,
+      .post-thumbnail {
+        display: none;
+      }
+
+      .col-sm-9 {
+        flex: 0 0 100%;
+        max-width: 100%;
+      }
+    }
+  }
+
   li {
     border-bottom: 1px solid var(--global-divider-color);
     list-style: none;
