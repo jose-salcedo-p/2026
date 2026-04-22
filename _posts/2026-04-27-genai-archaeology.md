@@ -4,7 +4,7 @@ title: Generative AI Archaeology
 description: We document the rise of the Generative AI Archaeologist, whose tools include linear algebra and probability theory, jailbreaking, and debuggers, compared to the metal detectors, pickaxes, and radar surveys of traditional archaeology. GenAI Archaeologists have reported findings both through luck by observing unexpected behaviour in publicly accessible models, and by exploiting the mathematical properties of models. In this blog, we survey four types of discoveries unearthed by GenAI Archaeologists and discuss the status of those findings.
 future: true
 htmlwidgets: true
-hidden: true
+hidden: false
 date: 2026-04-27
 
 # Mermaid diagrams
